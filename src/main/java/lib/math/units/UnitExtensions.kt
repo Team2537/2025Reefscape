@@ -4,6 +4,7 @@ import edu.wpi.first.units.*
 import edu.wpi.first.units.Unit
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.*
+import kotlin.reflect.KProperty
 
 /**
  * Converts this measure to a measure with a different unit of the same type, e.g. minutes to
@@ -317,3 +318,32 @@ infix fun <A : Unit, B : Unit> Double.measuredIn(unit: MultUnit<A, B>): Mult<A, 
     @Suppress("UNCHECKED_CAST")
     return unit.of(this) as Mult<A, B>
 }
+
+operator fun <U : Unit, Base : Measure<U>, M : MutableMeasure<U, Base, M>> M.unaryPlus(): Base {
+    return copy()
+}
+
+operator fun <U : Unit, Base : Measure<U>, M : MutableMeasure<U, Base, M>> M.plusAssign(addend: Base) {
+    mut_plus(addend)
+}
+
+operator fun <U : Unit, Base : Measure<U>, M : MutableMeasure<U, Base, M>> M.minusAssign(subtrahend: Base) {
+    mut_minus(subtrahend)
+}
+
+operator fun <U : Unit, Base : Measure<U>, M : MutableMeasure<U, Base, M>> M.timesAssign(multiplicand: Double) {
+    mut_times(multiplicand)
+}
+
+operator fun <U : Unit, Base : Measure<U>, M : MutableMeasure<U, Base, M>> M.timesAssign(multiplicand: Dimensionless) {
+    mut_times(multiplicand)
+}
+
+operator fun <U : Unit, Base : Measure<U>, M : MutableMeasure<U, Base, M>> M.divAssign(divisor: Double) {
+    mut_divide(divisor)
+}
+
+operator fun <U : Unit, Base : Measure<U>, M : MutableMeasure<U, Base, M>> M.divAssign(divisor: Dimensionless) {
+    mut_divide(divisor)
+}
+
