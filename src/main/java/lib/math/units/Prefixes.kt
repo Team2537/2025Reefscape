@@ -1,6 +1,6 @@
-package lib.math.units
+@file:Suppress("UNUSED")
 
-import java.math.BigDecimal
+package lib.math.units
 
 // https://github.com/battery-staple/KMeasure/blob/master/src/commonMain/kotlin/units/SIPrefixes.kt
 
@@ -26,7 +26,9 @@ inline val femto: Double get() = 1E-15
 inline val atto: Double get() = 1E-18
 inline val zepto: Double get() = 1E-21
 inline val yocto: Double get() = 1E-24
+@Suppress("SpellCheckingInspection")
 inline val ronto: Double get() = 1E-27
+@Suppress("SpellCheckingInspection")
 inline val quecto: Double get() = 1E-30
 
 inline val Int.quetta: Double get() = this * lib.math.units.quetta
@@ -51,7 +53,9 @@ inline val Int.femto: Double get() = this * lib.math.units.femto
 inline val Int.atto: Double get() = this * lib.math.units.atto
 inline val Int.zepto: Double get() = this * lib.math.units.zepto
 inline val Int.yocto: Double get() = this * lib.math.units.yocto
+@Suppress("SpellCheckingInspection")
 inline val Int.ronto: Double get() = this * lib.math.units.ronto
+@Suppress("SpellCheckingInspection")
 inline val Int.quecto: Double get() = this * lib.math.units.quecto
 
 inline val Long.quetta: Double get() = this * lib.math.units.quetta
@@ -76,7 +80,9 @@ inline val Long.femto: Double get() = this * lib.math.units.femto
 inline val Long.atto: Double get() = this * lib.math.units.atto
 inline val Long.zepto: Double get() = this * lib.math.units.zepto
 inline val Long.yocto: Double get() = this * lib.math.units.yocto
+@Suppress("SpellCheckingInspection")
 inline val Long.ronto: Double get() = this * lib.math.units.ronto
+@Suppress("SpellCheckingInspection")
 inline val Long.quecto: Double get() = this * lib.math.units.quecto
 
 
@@ -102,7 +108,9 @@ inline val Double.femto: Double get() = this * lib.math.units.femto
 inline val Double.atto: Double get() = this * lib.math.units.atto
 inline val Double.zepto: Double get() = this * lib.math.units.zepto
 inline val Double.yocto: Double get() = this * lib.math.units.yocto
+@Suppress("SpellCheckingInspection")
 inline val Double.ronto: Double get() = this * lib.math.units.ronto
+@Suppress("SpellCheckingInspection")
 inline val Double.quecto: Double get() = this * lib.math.units.quecto
 
 // Support for abstract numbers
@@ -128,5 +136,7 @@ inline val Number.femto: Number get() = this.toDouble() * lib.math.units.femto
 inline val Number.atto: Number get() = this.toDouble() * lib.math.units.atto
 inline val Number.zepto: Number get() = this.toDouble() * lib.math.units.zepto
 inline val Number.yocto: Number get() = this.toDouble() * lib.math.units.yocto
+@Suppress("SpellCheckingInspection")
 inline val Number.ronto: Number get() = this.toDouble() * lib.math.units.ronto
+@Suppress("SpellCheckingInspection")
 inline val Number.quecto: Number get() = this.toDouble() * lib.math.units.quecto

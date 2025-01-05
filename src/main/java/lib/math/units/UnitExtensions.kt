@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED")
+
 package lib.math.units
 
 import edu.wpi.first.units.*
@@ -368,50 +370,29 @@ infix fun <U : Unit> Measure<U>.into(unit: U): Double {
     return this.`in`(unit)
 }
 
-/**
- * Measures a double value in a given unit. Will try to give the proper extended
- * type, but may return a generic [Measure] if it is unable to make the determination.
- * See below for some examples of when the compiler is able to make the determination.
- *
- * ```kotlin
- * fun foo(bar: Distance) { // method that has a Distance parameter
- *   println(bar)
- * }
- *
- * val x: Distance = 2.0 measuredIn Meters // x is a Distance
- * foo(x) // all good
- * foo(2.5 measuredIn Feet) // all good
- * val y = 3.4 measuredIn Inches // y is a Measure<DistanceUnit>
- * foo(y) // this will not compile!
- * ```
- */
-@Throws(ClassCastException::class)
-@Deprecated("Fails to type-check at compile time; deprecated until this is fixed.", replaceWith = ReplaceWith("/* Custom Method Impl */"))
-infix fun <U : Unit, R : Measure<U>> Double.measuredIn(unit: U): R {
-    // Unfortunately, there is nothing strictly linking the type of
-    // `Measure<DistanceUnit>` to the type of `Distance`, so specifying
-    // the specific implementation of `Measure<U>` to return is now
-    // necessary. Well, not really, but I would rather not return a wildcard
+// Unfortunately, there is nothing strictly linking the type of
+// `Measure<DistanceUnit>` to the type of `Distance`, so specifying
+// the specific implementation of `Measure<U>` to return is now
+// necessary. Well, not really, but I would rather not return a wildcard
+//
+// Fortunately, I found an *almost* workaround; with the template arg `R`
+// this method will be able to be inlined as an argument as well as give
+// the proper return when using explicit variable types, e.g.:
+//
+// val x: Distance = 2.0 measuredIn Meters
+// methodThatNeedsDistance(x) // all good
+// methodThatNeedsDistance(2.5 measuredIn Feet) // all good
+// val y = 3.4 measuredIn Inches // y is a Measure<DistanceUnit>
+// methodThatNeedsDistance(y) // this will not compile!
+//
+// There actually is one major problem: this method will not type-check at
+// compile time between different types of `Measure`s, so code such as
+// val z: Distance = 2.0 measuredIn Radians
+// will compile, but will throw a [ClassCastException] the second it
+// gets run.
+// As such, there is no longer a generic version of measuredIn. Custom
+// units will have to give their own implementation to pair with [Unit.of]
 
-    // FIXME - read this
-    // Fortunately, I found an *almost* workaround; with the template arg `R`
-    // this method will be able to be inlined as an argument as well as give
-    // the proper return when using explicit variable types, e.g.:
-    //
-    // val x: Distance = 2.0 measuredIn Meters
-    // methodThatNeedsDistance(x) // all good
-    // methodThatNeedsDistance(2.5 measuredIn Feet) // all good
-    // val y = 3.4 measuredIn Inches // y is a Measure<DistanceUnit>
-    // methodThatNeedsDistance(y) // this will not compile!
-    //
-    // There actually is one major problem: this method will not type-check at
-    // compile time between different types of `Measure`s, so code such as
-    // val z: Distance = 2.0 measuredIn Radians
-    // will compile, but will throw a [ClassCastException] the second it
-    // gets run.
-    @Suppress("UNCHECKED_CAST")
-    return unit.of(this) as R
-}
 
 // Because `Distance` is a derivation of `Measure<DistanceUnit>`, a type
 // of `Measure<DistanceUnit>` can not be given directly to a parameter of
