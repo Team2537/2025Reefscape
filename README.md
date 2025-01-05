@@ -11,4 +11,4 @@ As of 1/4/2025 (Kickoff) at 8am, no 2025 vendordeps have been released, below is
 - [x] Phoenix 6
 - [ ] AdvantageKit
 - [ ] ChoreoLib
-- [ ] (Maybe) PathPlannerLib
+- [x] (Maybe) PathPlannerLib
