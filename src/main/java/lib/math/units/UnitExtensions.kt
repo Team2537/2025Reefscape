@@ -690,3 +690,24 @@ operator fun <U : Unit, Base : Measure<U>, M : MutableMeasure<U, Base, M>> M.div
     mut_divide(divisor)
 }
 
+// Maintain communicative property of multiplication
+operator fun <U : Unit, M : Measure<U>> Double.times(m: M): M {
+    @Suppress("UNCHECKED_CAST")
+    return m.times(this) as M
+}
+
+operator fun <U : Unit, M : Measure<U>> Int.times(m: M): M {
+    @Suppress("UNCHECKED_CAST")
+    return m.times(this.toDouble()) as M
+}
+
+operator fun <U : Unit, M : Measure<U>> Long.times(m: M): M {
+    @Suppress("UNCHECKED_CAST")
+    return m.times(this.toDouble()) as M
+}
+
+operator fun <U : Unit, M : Measure<U>> Number.times(m: M): M {
+    @Suppress("UNCHECKED_CAST")
+    return m.times(this.toDouble()) as M
+}
+
