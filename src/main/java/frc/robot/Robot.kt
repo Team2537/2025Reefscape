@@ -3,11 +3,19 @@ package frc.robot
 import edu.wpi.first.hal.FRCNetComm.tInstances
 import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
+import edu.wpi.first.hal.HALUtil
+import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.util.WPILibVersion
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import org.littletonrobotics.junction.LogFileUtil
+import org.littletonrobotics.junction.LoggedRobot
+import org.littletonrobotics.junction.Logger
+import org.littletonrobotics.junction.networktables.NT4Publisher
+import org.littletonrobotics.junction.wpilog.WPILOGReader
+import org.littletonrobotics.junction.wpilog.WPILOGWriter
 
-object Robot : TimedRobot() {
+object Robot : LoggedRobot() {
     init {
         // Report the use of the Kotlin Language for "FRC Usage Report" statistics.
         // Please retain this line so that Kotlin's growing use by teams is seen by FRC/WPI.
@@ -17,6 +25,29 @@ object Robot : TimedRobot() {
             0,
             WPILibVersion.Version
         )
+        
+        Logger.recordMetadata("Type", RobotType.type.toString())
+        Logger.recordMetadata("Serial Number", HALUtil.getSerialNumber())
+        
+        when(RobotType.type){
+            RobotType.Type.COMPETITION_BOT, RobotType.Type.SWERVE_TEST_BOT-> {
+                Logger.addDataReceiver(NT4Publisher())
+                Logger.addDataReceiver(WPILOGWriter())
+                
+                PowerDistribution(1, PowerDistribution.ModuleType.kRev)
+            }
+            RobotType.Type.SIMULATION_BOT -> {
+                Logger.addDataReceiver(NT4Publisher())
+                Logger.addDataReceiver(WPILOGWriter())
+            }
+            RobotType.Type.REPLAY -> {
+                setUseTiming(false)
+                
+                val logFile = LogFileUtil.findReplayLog()
+                Logger.setReplaySource(WPILOGReader(logFile))
+                Logger.addDataReceiver(WPILOGWriter(LogFileUtil.addPathSuffix(logFile, "_replayed")))
+            }
+        }
     }
 
     override fun robotPeriodic() {
