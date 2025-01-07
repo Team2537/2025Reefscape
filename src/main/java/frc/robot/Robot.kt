@@ -48,6 +48,8 @@ object Robot : LoggedRobot() {
                 Logger.addDataReceiver(WPILOGWriter(LogFileUtil.addPathSuffix(logFile, "_replayed")))
             }
         }
+        
+        Logger.start()
     }
 
     override fun robotPeriodic() {
