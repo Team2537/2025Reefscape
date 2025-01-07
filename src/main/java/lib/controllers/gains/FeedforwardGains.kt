@@ -1,7 +1,7 @@
 package lib.controllers.gains
 
 data class FeedforwardGains(
-    val kS: Double,
-    val kV: Double,
-    val kA: Double,
+    val kS: Double = 0.0,
+    val kV: Double = 0.0,
+    val kA: Double = 0.0,
 )
