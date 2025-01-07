@@ -4,12 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
-import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
-import edu.wpi.first.units.Units.Inches
-import frc.robot.RobotType
-import lib.controllers.gains.FeedforwardGains
-import lib.controllers.gains.PIDGains
 import lib.math.units.measuredIn
 import lib.math.units.metersPerSecond
 import lib.math.vector
@@ -21,32 +16,9 @@ import lib.math.vector
  * @param modulePosition The position of the module relative to the center of the robot.
  */
 class SwerveModule(
-    val driveID: Int,
-    val turnID: Int,
-    val encoderID: Int,
-    val invertDrive: Boolean,
-    val invertTurn: Boolean,
-    val encoderOffset: Rotation2d,
+    val io: ModuleIO,
     val modulePosition: Translation2d
 ) {
-    private val io: ModuleIO = when(RobotType.type){
-        RobotType.Type.SIMULATION_BOT -> ModuleIOSim(
-            FeedforwardGains(),
-            PIDGains(),
-            DCMotor.getKrakenX60Foc(1),
-            6.75,
-            FeedforwardGains(),
-            PIDGains(),
-            DCMotor.getNEO(1),
-            150/7.0,
-            2.0 measuredIn Inches
-        )
-        
-        RobotType.Type.SWERVE_TEST_BOT -> TODO()
-        RobotType.Type.COMPETITION_BOT -> TODO()
-        RobotType.Type.REPLAY -> TODO()
-    }
-    
     /** The object that holds the inputs for the module. */
     val inputs: ModuleIO.ModuleInputs = ModuleIO.ModuleInputs()
     
