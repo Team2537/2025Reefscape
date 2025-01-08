@@ -176,6 +176,11 @@ object FieldConstants {
                 30.0.inches,
             )
         
+        init {
+            Logger.recordOutput("field/processor/processorHoleCenter", processorHoleCenter)
+            Logger.recordOutput("field/processor/processorZone", *processorZone.corners().toTypedArray())
+        }
+        
     }
     
     object Barge {
