@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.util.WPILibVersion
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import lib.math.geometry.FieldConstants
 import org.littletonrobotics.junction.LogFileUtil
 import org.littletonrobotics.junction.LoggedRobot
 import org.littletonrobotics.junction.Logger
@@ -50,6 +51,8 @@ object Robot : LoggedRobot() {
         }
         
         Logger.start()
+        
+        FieldConstants
     }
 
     override fun robotPeriodic() {
