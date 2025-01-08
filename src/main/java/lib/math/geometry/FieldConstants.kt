@@ -79,8 +79,6 @@ object FieldConstants {
         var x = reefCenterBlue.x.meters - level.radius
         var y = reefCenterBlue.y.meters
         
-        var z = level.height
-        
         when (rack) {
             Side.LEFT -> y -= Inches.of(12.937968 / 2)
             Side.RIGHT -> y += Inches.of(12.937968 / 2)
@@ -96,7 +94,7 @@ object FieldConstants {
         )
         
         return Pose3d(
-            Translation3d(translation2d.x, translation2d.y, z into Meters),
+            Translation3d(translation2d.x, translation2d.y, level.height into Meters),
             Rotation3d(0.0, Units.degreesToRadians(level.angle), sideDelta.radians)
         )
     }
