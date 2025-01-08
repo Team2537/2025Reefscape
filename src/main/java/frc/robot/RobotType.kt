@@ -6,24 +6,17 @@ import org.littletonrobotics.junction.Logger
 
 object RobotType {
     enum class Type {
-        SWERVE_TEST_BOT,
-        COMPETITION_BOT,
-        SIMULATION_BOT,
-        REPLAY
+        ROBOT_2025_COMP,
+        ROBOT_2025_SWERVE_BASE
     }
     
-    val type = if(RobotBase.isReal()){
-        when(HALUtil.getSerialNumber()){
-            "COMPETITION_BOT" -> Type.COMPETITION_BOT
-            "SWERVE_TEST_BOT" -> Type.SWERVE_TEST_BOT
-            else -> Type.COMPETITION_BOT
-        }
-    } else {
-        Type.SIMULATION_BOT
+    enum class Mode(val defaultRobotType: Type) {
+        REAL(Type.ROBOT_2025_COMP),
+        SIMULATION(Type.ROBOT_2025_COMP),
+        REPLAY(Type.ROBOT_2025_COMP)
     }
     
-    val isCompetitionBot = type == Type.COMPETITION_BOT
-    val isSwerveTestBot = type == Type.SWERVE_TEST_BOT
-    val isSimulationBot = type == Type.SIMULATION_BOT
-    val isReplay = type == Type.REPLAY
+    val isReplay: Boolean = false
+    val mode: Mode = if(RobotBase.isReal()) Mode.REAL else if(isReplay) Mode.REPLAY else Mode.SIMULATION
+    val type: Type = mode.defaultRobotType
 }
