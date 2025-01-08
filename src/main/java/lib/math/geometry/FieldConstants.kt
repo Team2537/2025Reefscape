@@ -3,8 +3,10 @@ package lib.math.geometry
 import edu.wpi.first.math.geometry.Ellipse2d
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Pose3d
+import edu.wpi.first.math.geometry.Rectangle2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Rotation3d
+import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.geometry.Translation3d
 import edu.wpi.first.math.util.Units
@@ -159,8 +161,12 @@ object FieldConstants {
             Rotation3d()
         )
         
-        init {
-            Logger.recordOutput("Processor Hole Center", Pose3d.struct, processorHoleCenter)
-        }
+        val processorZone: Rectangle2d =
+            Rectangle2d(
+                processorHoleCenter.toPose2d().plus(Transform2d(Inches.zero(), 15.0.inches, Rotation2d())),
+                50.inches,
+                30.0.inches,
+            )
+        
     }
 }
