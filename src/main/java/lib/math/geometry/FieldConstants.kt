@@ -157,6 +157,11 @@ object FieldConstants {
         fun getNode(level: Level, reefFace: ReefFace, side: Side): Node {
             return nodes.first { it.level == level && it.reefFace == reefFace && it.side == side }
         }
+        
+        init {
+            Logger.recordOutput("field/reef/reefCenterBlue", reefCenterBlue)
+            Logger.recordOutput("field/reef/reefZone", *reefZone.cardinals().toTypedArray())
+        }
     }
     
     object Processor {
