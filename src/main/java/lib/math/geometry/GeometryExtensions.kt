@@ -4,7 +4,9 @@ import edu.wpi.first.math.geometry.Ellipse2d
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rectangle2d
+import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Rotation3d
+import kotlin.math.atan2
 
 fun Pose2d.to3d(): Pose3d {
     return Pose3d(x, y, 0.0, Rotation3d(rotation))
@@ -43,6 +45,6 @@ fun Ellipse2d.cardinals(): List<Pose2d> {
     return directions.map { theta ->
         val dx = a * Math.cos(theta)
         val dy = b * Math.sin(theta)
-        Pose2d(x + dx, y + dy, rotation)
+        Pose2d(x + dx, y + dy, Rotation2d.fromRadians(atan2(-dy, -dx)))
     }
 }
