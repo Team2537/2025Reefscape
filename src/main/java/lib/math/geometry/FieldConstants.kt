@@ -1,5 +1,6 @@
 package lib.math.geometry
 
+import edu.wpi.first.math.geometry.Ellipse2d
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation2d
@@ -15,6 +16,7 @@ import lib.math.units.inches
 import lib.math.units.into
 import lib.math.units.measuredIn
 import lib.math.units.meters
+import org.littletonrobotics.junction.Logger
 
 object FieldConstants {
     
@@ -26,6 +28,12 @@ object FieldConstants {
     /** Center of the field */
     val fieldCenter = Pose2d(fieldLength / 2.0, fieldWidth / 2.0, Rotation2d())
     
+    // Access the reef and processor constants to initialize them
+    init {
+        Reef
+        Processor
+    }
+    
     object Reef {
         
         /** Center of the blue reef */
@@ -34,6 +42,12 @@ object FieldConstants {
                 Meters.of(4.489325),
                 Meters.of(4.025877)
             )
+        
+        /** Circle centered around the reef, expanding 20 inches past its edge */
+        val reefZone: Ellipse2d = Ellipse2d(
+            reefCenterBlue,
+            32.745545.inches + 20.inches,
+        )
         
         /**
          * Represents the left and right racks on each side of the reef
@@ -135,5 +149,18 @@ object FieldConstants {
             return nodes.first { it.level == level && it.reefFace == reefFace && it.side == side }
         }
     }
-
+    object Processor {
+        val processorHoleCenter = Pose3d(
+            Translation3d(
+                (221.726104.inches) + (14.0.inches),
+                Inches.zero(),
+                17.0.inches
+            ),
+            Rotation3d()
+        )
+        
+        init {
+            Logger.recordOutput("Processor Hole Center", Pose3d.struct, processorHoleCenter)
+        }
+    }
 }
