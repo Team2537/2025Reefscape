@@ -72,7 +72,7 @@ object FieldConstants {
     
     data class Node(val pose: Pose3d, val side: Side, val level: Level, val reefFace: ReefFace)
     
-    val nodes: List<Node> = Level.values().flatMap { level ->
+    private val nodes: List<Node> = Level.values().flatMap { level ->
         ReefFace.values().flatMap { reefFace ->
             Side.values().map { side ->
                 Node(calcNodePose(level, reefFace, side), side, level, reefFace)
