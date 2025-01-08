@@ -29,18 +29,18 @@ object Robot : LoggedRobot() {
         Logger.recordMetadata("Type", RobotType.type.toString())
         Logger.recordMetadata("Serial Number", HALUtil.getSerialNumber())
         
-        when(RobotType.type){
-            RobotType.Type.COMPETITION_BOT, RobotType.Type.SWERVE_TEST_BOT-> {
+        when(RobotType.mode){
+            RobotType.Mode.REAL -> {
                 Logger.addDataReceiver(NT4Publisher())
                 Logger.addDataReceiver(WPILOGWriter())
                 
                 PowerDistribution(1, PowerDistribution.ModuleType.kRev)
             }
-            RobotType.Type.SIMULATION_BOT -> {
+            RobotType.Mode.SIMULATION -> {
                 Logger.addDataReceiver(NT4Publisher())
                 Logger.addDataReceiver(WPILOGWriter())
             }
-            RobotType.Type.REPLAY -> {
+            RobotType.Mode.REPLAY -> {
                 setUseTiming(false)
                 
                 val logFile = LogFileUtil.findReplayLog()
