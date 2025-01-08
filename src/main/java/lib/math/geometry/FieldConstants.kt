@@ -12,6 +12,8 @@ import edu.wpi.first.units.Units.Centimeter
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.Rotation
+import edu.wpi.first.units.measure.Distance
+import lib.math.units.centi
 import lib.math.units.inches
 import lib.math.units.into
 import lib.math.units.measuredIn
@@ -35,8 +37,11 @@ object FieldConstants {
         RIGHT
     }
     
-    enum class Level {
-        L1, L2, L3, L4
+    enum class Level(val height: Distance, val angle: Double, val radius: Distance) {
+        L1(46.0.centi.meters, 35.0, 29.421141.inches),
+        L2(81.0.centi.meters, 35.0, 29.421141.inches),
+        L3(121.0.centi.meters, 35.0, 29.421141.inches),
+        L4(183.0.centi.meters, 90.0, 29.421141.inches)
     }
     
     enum class ReefFace {
@@ -44,15 +49,10 @@ object FieldConstants {
     }
     
     fun getNodePose(level: Level, side: ReefFace, rack: Side): Pose3d {
-        var x = reefCenterBlue.x.meters - 29.421141.inches
+        var x = reefCenterBlue.x.meters - level.radius
         var y = reefCenterBlue.y.meters
         
-        var z = when (level) {
-            Level.L1 -> Centimeter.of(46.0)
-            Level.L2 -> Centimeter.of(81.0)
-            Level.L3 -> Centimeter.of(121.0)
-            Level.L4 -> Centimeter.of(183.0)
-        }
+        var z = level.height
         
         when (rack) {
             Side.LEFT -> y -= Inches.of(12.937968 / 2)
@@ -61,13 +61,16 @@ object FieldConstants {
         
         var translation2d = Translation2d(x, y)
         
-        val sideDelta = Rotation2d.fromDegrees(60.0)
+        val sideDelta = Rotation2d.fromDegrees(60.0).times(side.ordinal.toDouble())
         
-//        translation2d = translation2d.plus(translation2d.minus(reefCenterBlue).rotateBy(Rotation2d.fromDegrees(sideDelta * side.ordinal)))
+        translation2d = Translation2d(
+            (sideDelta.cos * (translation2d.x - reefCenterBlue.x)) - (sideDelta.sin * (translation2d.y - reefCenterBlue.y)) + reefCenterBlue.x,
+            (sideDelta.sin * (translation2d.x - reefCenterBlue.x)) + (sideDelta.cos * (translation2d.y - reefCenterBlue.y)) + reefCenterBlue.y
+        )
         
         return Pose3d(
             Translation3d(translation2d.x, translation2d.y, z into Meters),
-            Rotation3d(0.0, Units.degreesToRadians(35.0), sideDelta.radians * side.ordinal)
+            Rotation3d(0.0, Units.degreesToRadians(level.angle), sideDelta.radians)
         )
     }
     
