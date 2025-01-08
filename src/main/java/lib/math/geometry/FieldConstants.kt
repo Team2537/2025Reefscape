@@ -20,10 +20,16 @@ import lib.math.units.measuredIn
 import lib.math.units.meters
 import org.littletonrobotics.junction.Logger
 
+/**
+ * Constants for the field
+ *
+ * Everything is blue by default, use the various `.flip()` methods to get red field constants
+ */
 object FieldConstants {
     
     /** Unit safe field width */
     val fieldWidth = (26.0 * 12.0) + 5.0 measuredIn Inches
+    
     /** Unit safe field length */
     val fieldLength = (57.0 * 12.0) + 6.0 + 7.0 / 8 measuredIn Inches
     
@@ -34,6 +40,7 @@ object FieldConstants {
     init {
         Reef
         Processor
+        Barge
     }
     
     object Reef {
@@ -151,6 +158,7 @@ object FieldConstants {
             return nodes.first { it.level == level && it.reefFace == reefFace && it.side == side }
         }
     }
+    
     object Processor {
         val processorHoleCenter = Pose3d(
             Translation3d(
@@ -168,5 +176,48 @@ object FieldConstants {
                 30.0.inches,
             )
         
+    }
+    
+    object Barge {
+        
+        val allianceWallToCage = 346.891642.inches
+        
+        /** First cage from the left while at the blue alliance station */
+        val cage1 = Pose2d(
+            Translation2d(
+                allianceWallToCage,
+                285.822375.inches,
+            ),
+            Rotation2d()
+        )
+        
+        /** Second cage from the left while at the blue alliance station */
+        val cage2 = Pose2d(
+            Translation2d(
+                allianceWallToCage,
+                242.884958.inches,
+            ),
+            Rotation2d()
+        )
+        
+        /** Third cage from the left while at the blue alliance station */
+        val cage3 = Pose2d(
+            Translation2d(
+                allianceWallToCage,
+                199.947458.inches,
+            ),
+            Rotation2d()
+        )
+        
+        val cageZone: Rectangle2d = Rectangle2d(
+            cage2,
+            ((3*12) + 10.0).inches,
+            ((12 * 12) + 2.5).inches
+        )
+        
+        init {
+            Logger.recordOutput("field/barge/cages", cage1, cage2, cage3)
+            Logger.recordOutput("field/barge/cageZone", *cageZone.corners().toTypedArray())
+        }
     }
 }
