@@ -13,6 +13,7 @@ import lib.controllers.gains.PIDGains
 import lib.math.units.measuredIn
 import lib.math.units.metersPerSecond
 import lib.math.vector
+import org.littletonrobotics.junction.Logger
 
 /**
  * Represents a swerve module on the robot.
@@ -29,7 +30,7 @@ class SwerveModule(
     val encoderOffset: Rotation2d,
     val modulePosition: Translation2d
 ) {
-    private val io: ModuleIO = when(RobotType.type){
+    private val io: ModuleIO = when (RobotType.type) {
         RobotType.Type.SIMULATION_BOT -> ModuleIOSim(
             FeedforwardGains(),
             PIDGains(),
@@ -38,41 +39,43 @@ class SwerveModule(
             FeedforwardGains(),
             PIDGains(),
             DCMotor.getNEO(1),
-            150/7.0,
+            150 / 7.0,
             2.0 measuredIn Inches
         )
-        
+
         RobotType.Type.SWERVE_TEST_BOT -> TODO()
         RobotType.Type.COMPETITION_BOT -> TODO()
         RobotType.Type.REPLAY -> TODO()
     }
-    
+
     /** The object that holds the inputs for the module. */
     val inputs: ModuleIO.ModuleInputs = ModuleIO.ModuleInputs()
-    
+
     /** The state of the module. */
     val state: SwerveModuleState
         get() = SwerveModuleState(
             inputs.driveVelocity,
             inputs.absoluteTurnPosition
         )
-    
+
     /** The position of the module. */
     val position: SwerveModulePosition
         get() = SwerveModulePosition(
             inputs.drivePosition,
             inputs.absoluteTurnPosition
         )
-    
+
     /**
      * Vector pointing in the direction that the module would be facing if it was contributing 100% of its velocity
      * to the robot rotating counter-clockwise.
      */
     val positiveRotVec = (modulePosition.angle + Rotation2d.fromDegrees(90.0)).vector
-    
+
     /** Updates the inputs for the module. */
-    fun periodic() { io.updateInputs(inputs) }
-    
+    fun periodic() {
+        io.updateInputs(inputs)
+    }
+
     /**
      * Applies the desired state to the module.
      *
@@ -81,7 +84,7 @@ class SwerveModule(
     fun applyState(desiredState: SwerveModuleState) {
         desiredState.optimize(inputs.absoluteTurnPosition)
         desiredState.cosineScale(inputs.absoluteTurnPosition)
-        
+
         io.setTurnPosition(desiredState.angle)
         io.setDriveVelocity(desiredState.speedMetersPerSecond measuredIn Units.MetersPerSecond)
     }
