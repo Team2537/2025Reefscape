@@ -122,7 +122,7 @@ class ModuleIOSim(
      * @param position The position to set the motor to
      */
     override fun setTurnPosition(position: Rotation2d) {
-        turnMotor.setState(position.radians, 0.0)
+        turnMotor.setAngle(position.radians)
     }
     
     /**
@@ -137,8 +137,10 @@ class ModuleIOSim(
             driveMotor.angularVelocityRPM / 60.0,
             velocityRadPerSec
         )
-        
-        driveMotor.inputVoltage = (output + feedforward)
+
+        driveMotor.setAngularVelocity(velocityRadPerSec)
+
+//        driveMotor.inputVoltage = (output + feedforward)
     }
     
     /** Reset the encoder positions of the module */
