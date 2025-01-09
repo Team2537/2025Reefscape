@@ -8,6 +8,9 @@ import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.util.WPILibVersion
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import frc.robot.subsystems.swerve.Drivebase
+import lib.commands.not
 import org.littletonrobotics.junction.LogFileUtil
 import org.littletonrobotics.junction.LoggedRobot
 import org.littletonrobotics.junction.Logger
@@ -16,6 +19,10 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader
 import org.littletonrobotics.junction.wpilog.WPILOGWriter
 
 object Robot : LoggedRobot() {
+    val driverController = CommandXboxController(0)
+
+    val drivebase: Drivebase = Drivebase()
+
     init {
         // Report the use of the Kotlin Language for "FRC Usage Report" statistics.
         // Please retain this line so that Kotlin's growing use by teams is seen by FRC/WPI.
@@ -50,6 +57,17 @@ object Robot : LoggedRobot() {
         }
         
         Logger.start()
+        configureBindings()
+    }
+
+    fun configureBindings() {
+        drivebase.defaultCommand = drivebase.getDriveCmd(
+            { -Math.pow(driverController.leftY, 3.0) },
+            { -Math.pow(driverController.leftX, 3.0) },
+            { -Math.pow(driverController.rightX, 3.0) },
+            !driverController.leftBumper(),
+            { 1.0 }
+        )
     }
 
     override fun robotPeriodic() {
