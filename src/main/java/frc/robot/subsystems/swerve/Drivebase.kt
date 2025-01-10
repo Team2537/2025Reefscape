@@ -147,4 +147,8 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.recordOutput("$name/chassisSpeeds", chassisSpeeds)
         Logger.recordOutput("$name/wheelStates", *wheelStates)
     }
+    
+    companion object Constants {
+        val maxSpeed = 15.0 measuredIn FeetPerSecond
+    }
 }
