@@ -30,10 +30,14 @@ class SwerveModule(
     val encoderOffset: Rotation2d,
     val modulePosition: Translation2d
 ) {
-    private val io: ModuleIO = when (RobotType.type) {
-        RobotType.Type.SIMULATION_BOT -> ModuleIOSim(
-            FeedforwardGains(),
-            PIDGains(),
+    private val io: ModuleIO = when (RobotType.mode) {
+        RobotType.Mode.SIMULATION -> ModuleIOSim(
+            FeedforwardGains(
+                kV = 12/97.0
+            ),
+            PIDGains(
+                kP = 0.01
+            ),
             DCMotor.getKrakenX60Foc(1),
             6.75,
             FeedforwardGains(),
@@ -42,10 +46,7 @@ class SwerveModule(
             150 / 7.0,
             2.0 measuredIn Inches
         )
-
-        RobotType.Type.SWERVE_TEST_BOT -> TODO()
-        RobotType.Type.COMPETITION_BOT -> TODO()
-        RobotType.Type.REPLAY -> TODO()
+        else -> object : ModuleIO {}
     }
 
     /** The object that holds the inputs for the module. */
