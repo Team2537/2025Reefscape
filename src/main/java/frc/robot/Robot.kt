@@ -4,6 +4,7 @@ import edu.wpi.first.hal.FRCNetComm.tInstances
 import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.hal.HALUtil
+import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.util.WPILibVersion
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.subsystems.swerve.Drivebase
 import lib.commands.not
 import lib.math.geometry.FieldConstants
+import lib.math.units.into
 import org.littletonrobotics.junction.LogFileUtil
 import org.littletonrobotics.junction.LoggedRobot
 import org.littletonrobotics.junction.Logger
@@ -65,9 +67,9 @@ object Robot : LoggedRobot() {
 
     fun configureBindings() {
         drivebase.defaultCommand = drivebase.getDriveCmd(
-            { -Math.pow(driverController.leftY, 3.0) },
-            { -Math.pow(driverController.leftX, 3.0) },
-            { -Math.pow(driverController.rightX, 3.0) },
+            { -Math.pow(driverController.leftY, 3.0) * (Drivebase.maxSpeed into MetersPerSecond) },
+            { -Math.pow(driverController.leftX, 3.0) * (Drivebase.maxSpeed into MetersPerSecond) },
+            { -Math.pow(driverController.rightX, 3.0) * Math.PI * 2 },
             !driverController.leftBumper(),
             { 1.0 }
         )
