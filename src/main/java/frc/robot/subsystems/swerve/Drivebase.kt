@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.units.Units
+import edu.wpi.first.units.Units.FeetPerSecond
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
@@ -16,7 +17,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.RobotType.Type.*
 import frc.robot.RobotType
 import frc.robot.subsystems.swerve.gyro.GyroIO
+import frc.robot.subsystems.swerve.gyro.GyroIOSim
 import frc.robot.subsystems.swerve.module.SwerveModule
+import lib.math.units.measuredIn
 import org.littletonrobotics.junction.Logger
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
@@ -60,13 +63,11 @@ class Drivebase : SubsystemBase("drivebase") {
         SwerveModule(0, 0, 0, false, false, Rotation2d(), moduleTranslations[3])
     )
     
-    val gyro: GyroIO = when(RobotType.){
-
+    val gyro: GyroIO = when(RobotType.mode){
+        RobotType.Mode.SIMULATION -> GyroIOSim(::chassisSpeeds)
         else -> object : GyroIO {}
     }
-
-    var simHeading = 0.0
-
+    
     val gyroInputs: GyroIO.GyroInputs = GyroIO.GyroInputs()
 
     val kinematics: SwerveDriveKinematics = SwerveDriveKinematics(*moduleTranslations)
@@ -111,6 +112,7 @@ class Drivebase : SubsystemBase("drivebase") {
             var strafeS = strafe.asDouble
             var rotationS = rotation.asDouble
 
+            // Potentially adjust the scaling factor to be a function of the slowmode input, rather than just multiplying by it
             forwardS *= slowmodeInput.asDouble
             strafeS *= slowmodeInput.asDouble
 
