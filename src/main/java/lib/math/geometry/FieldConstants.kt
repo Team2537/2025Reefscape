@@ -40,20 +40,57 @@ object FieldConstants {
     }
     
     object Reef {
-        
+        /** The center of the reef */
+        val center: Translation2d get() = currentCenter
+
         /** Center of the blue reef */
         val blueCenter =
             Translation2d(
                 Meters.of(4.489325),
                 Meters.of(4.025877)
             )
-        
+
+        /** Center of the red reef */
+        val redCenter = blueCenter.flipped
+
+        private var currentCenter = blueCenter;
+
+        /**
+         * Flips the perspective of the [Reef] object from red to blue
+         * or vice versa.
+         */
+        @Synchronized
+        fun flip() {
+            if (_isBlue) {
+                currentCenter = redCenter
+                currentZone = redZone
+                currentNodes = redNodes
+            } else {
+                currentCenter = blueCenter
+                currentZone = blueZone
+                currentNodes = blueNodes
+            }
+            _isBlue = !_isBlue
+        }
+
+        private var _isBlue: Boolean = true
+        val isBlue: Boolean get() = _isBlue
+        val isRed: Boolean get() = !_isBlue
+
         /** Circle centered around the reef, expanding 20 inches past its edge */
-        val zone: Ellipse2d = Ellipse2d(
+        val zone: Ellipse2d get() = currentZone;
+
+        /** The circular zone for the blue reef */
+        val blueZone: Ellipse2d = Ellipse2d(
             blueCenter,
             32.745545.inches + 20.inches,
-        )
-        
+        );
+
+        /** The circular zone for the red reef */
+        val redZone: Ellipse2d = blueZone.flipped;
+
+        private var currentZone: Ellipse2d = blueZone
+
         /**
          * Represents the left and right racks on each side of the reef
          */
@@ -97,8 +134,8 @@ object FieldConstants {
          * @return The pose of the node
          */
         private fun calcNodePose(level: Level, side: Face, rack: Side): Pose3d {
-            var x = blueCenter.x.meters - level.radius
-            var y = blueCenter.y.meters
+            var x = center.x.meters - level.radius
+            var y = center.y.meters
             
             when (rack) {
                 Side.LEFT -> y -= Inches.of(12.937968 / 2)
@@ -110,8 +147,8 @@ object FieldConstants {
             val sideDelta = Rotation2d.fromDegrees(60.0).times(side.ordinal.toDouble())
             
             translation2d = Translation2d(
-                (sideDelta.cos * (translation2d.x - blueCenter.x)) - (sideDelta.sin * (translation2d.y - blueCenter.y)) + blueCenter.x,
-                (sideDelta.sin * (translation2d.x - blueCenter.x)) + (sideDelta.cos * (translation2d.y - blueCenter.y)) + blueCenter.y
+                (sideDelta.cos * (translation2d.x - center.x)) - (sideDelta.sin * (translation2d.y - center.y)) + center.x,
+                (sideDelta.sin * (translation2d.x - center.x)) + (sideDelta.cos * (translation2d.y - center.y)) + center.y
             )
             
             return Pose3d(
@@ -131,14 +168,11 @@ object FieldConstants {
         data class Node(val pose: Pose3d, val side: Side, val level: Level, val face: Face)
         
         /** List of all nodes on the reef */
-        private val nodes: List<Node> = Level.entries.flatMap { level ->
-            Face.entries.flatMap { reefFace ->
-                Side.entries.map { side ->
-                    Node(calcNodePose(level, reefFace, side), side, level, reefFace)
-                }
-            }
-        }
-        
+        private val nodes: List<Node> get() = currentNodes
+        private var currentNodes: List<Node>
+        private val blueNodes: List<Node>
+        private val redNodes: List<Node>
+
         /**
          * Gets a node on the reef
          *
@@ -155,8 +189,26 @@ object FieldConstants {
         }
         
         init {
-            Logger.recordOutput("field/reef/reefCenterBlue", blueCenter)
-            Logger.recordOutput("field/reef/reefZone", *zone.cardinals.toTypedArray())
+            // get blue nodes
+            blueNodes = makeNodeList()
+
+            // flip to make red nodes then flip back
+            flip()
+            redNodes = makeNodeList()
+            flip()
+
+            currentNodes = blueNodes
+
+            Logger.recordOutput("field/reef/blueCenter", blueCenter)
+            Logger.recordOutput("field/reef/blueZone", *blueZone.cardinals.toTypedArray())
+        }
+
+        private fun makeNodeList() = Level.entries.flatMap { level ->
+            Face.entries.flatMap { reefFace ->
+                Side.entries.map { side ->
+                    Node(calcNodePose(level, reefFace, side), side, level, reefFace)
+                }
+            }
         }
     }
     
