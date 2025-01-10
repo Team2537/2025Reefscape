@@ -138,9 +138,9 @@ class ModuleIOSim(
             velocityRadPerSec
         )
 
-        driveMotor.setAngularVelocity(velocityRadPerSec)
+//        driveMotor.setAngularVelocity(velocityRadPerSec)
 
-//        driveMotor.inputVoltage = (output + feedforward)
+        driveMotor.inputVoltage = (output + feedforward)
     }
     
     /** Reset the encoder positions of the module */
