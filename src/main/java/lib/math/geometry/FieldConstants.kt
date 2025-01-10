@@ -9,10 +9,12 @@ import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.geometry.Translation3d
-import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
+import lib.math.geometry.FieldConstants.Processor.blueHoleCenter
+import lib.math.geometry.FieldConstants.Processor.currentHoleCenter
+import lib.math.geometry.FieldConstants.Processor.redHoleCenter
 import lib.math.units.*
 import org.littletonrobotics.junction.Logger
 
@@ -213,7 +215,24 @@ object FieldConstants {
     }
     
     object Processor {
-        val holeCenter = Pose3d(
+        private var _isBlue: Boolean = true
+        val isBlue: Boolean get() = _isBlue
+        val isRed: Boolean get() = !_isBlue
+
+        fun flip() {
+            if(_isBlue) {
+                currentHoleCenter = redHoleCenter
+                currentZone = redZone
+            } else {
+                currentHoleCenter = blueHoleCenter
+                currentZone = blueZone
+            }
+            _isBlue = !_isBlue
+        }
+
+        val holeCenter: Pose3d get() = currentHoleCenter
+
+        private val blueHoleCenter: Pose3d = Pose3d(
             Translation3d(
                 (221.726104.inches) + (14.0.inches),
                 Inches.zero(),
@@ -221,14 +240,19 @@ object FieldConstants {
             ),
             Rotation3d()
         )
+        private val redHoleCenter: Pose3d = blueHoleCenter.flipped
+        private var currentHoleCenter = blueHoleCenter
 
-        val zone: Rectangle2d =
-            Rectangle2d(
-                holeCenter.toPose2d().plus(Transform2d(Inches.zero(), 15.0.inches, Rotation2d())),
-                50.inches,
-                30.0.inches,
-            )
-        
+        val zone: Rectangle2d get() = currentZone
+
+        private val blueZone: Rectangle2d = Rectangle2d(
+            holeCenter.toPose2d() + Transform2d(Inches.zero(), 15.0.inches, Rotation2d()),
+            50.inches,
+            30.inches,
+        )
+        private val redZone: Rectangle2d = blueZone.flipped
+        private var currentZone: Rectangle2d = blueZone
+
         init {
             Logger.recordOutput("field/processor/holeCenter", holeCenter)
             // Log corners to display them; default rect2d logging is less intuitive for this
@@ -238,45 +262,77 @@ object FieldConstants {
     }
     
     object Barge {
+        private var _isBlue: Boolean = true
+        val isBlue: Boolean get() = _isBlue
+        val isRed: Boolean get() = !_isBlue
+
+        fun flip() {
+            if(_isBlue) {
+                currentCage1 = redCage1
+                currentCage2 = redCage2
+                currentCage3 = redCage3
+                currentZone = redZone
+            } else {
+                currentCage1 = blueCage1
+                currentCage2 = blueCage2
+                currentCage3 = blueCage3
+                currentZone = blueZone
+
+            }
+            _isBlue = !_isBlue
+        }
+
         
         val allianceWallToCage = 346.891642.inches
         
         /** First cage from the left while at the blue alliance station */
-        val cage1 = Pose2d(
+        val cage1: Pose2d get() = currentCage1
+        private val blueCage1: Pose2d = Pose2d(
             Translation2d(
                 allianceWallToCage,
                 285.822375.inches,
             ),
             Rotation2d()
         )
-        
+        private val redCage1: Pose2d = blueCage1.flipped
+        private var currentCage1: Pose2d = blueCage1
+
         /** Second cage from the left while at the blue alliance station */
-        val cage2 = Pose2d(
+        val cage2: Pose2d get() = currentCage2
+        private val blueCage2: Pose2d = Pose2d(
             Translation2d(
                 allianceWallToCage,
                 242.884958.inches,
             ),
             Rotation2d()
         )
-        
+        private val redCage2: Pose2d = blueCage2.flipped
+        private var currentCage2: Pose2d = blueCage2
+
         /** Third cage from the left while at the blue alliance station */
-        val cage3 = Pose2d(
+        val cage3: Pose2d get() = currentCage3
+        private val blueCage3: Pose2d = Pose2d(
             Translation2d(
                 allianceWallToCage,
                 199.947458.inches,
             ),
             Rotation2d()
         )
-        
-        val cageZone: Rectangle2d = Rectangle2d(
+        private val redCage3: Pose2d = blueCage3.flipped
+        private var currentCage3: Pose2d = blueCage3
+
+        val zone: Rectangle2d get() = currentZone
+        private val blueZone: Rectangle2d = Rectangle2d(
             cage2,
             ((3*12) + 10.0).inches,
             ((12 * 12) + 2.5).inches
         )
-        
+        private val redZone: Rectangle2d = blueZone.flipped
+        private var currentZone: Rectangle2d = blueZone
+
         init {
             Logger.recordOutput("field/barge/cages", cage1, cage2, cage3)
-            Logger.recordOutput("field/barge/cageZone", *cageZone.corners.toTypedArray())
+            Logger.recordOutput("field/barge/zone", *zone.corners.toTypedArray())
         }
     }
 }
