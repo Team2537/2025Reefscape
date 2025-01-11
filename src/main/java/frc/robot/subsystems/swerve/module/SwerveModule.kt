@@ -75,7 +75,7 @@ class SwerveModule(
      * Vector pointing in the direction that the module would be facing if it was contributing 100% of its velocity
      * to the robot rotating counter-clockwise.
      */
-    val positiveRotVec = (modulePosition.angle + Rotation2d.fromDegrees(90.0)).vector
+    val positiveRotationVector = (modulePosition.angle + Rotation2d.fromDegrees(90.0)).vector
 
     /** Updates the inputs for the module. */
     fun periodic() {
