@@ -128,7 +128,6 @@ class Drivebase : SubsystemBase("drivebase") {
             }
 
             applyChassisSpeeds(speeds)
-            println(speeds)
         }
     }
 
