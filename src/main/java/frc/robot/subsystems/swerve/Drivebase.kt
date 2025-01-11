@@ -38,8 +38,8 @@ class Drivebase : SubsystemBase("drivebase") {
      *
      * The translations are in meters.
      */
-    val moduleTranslations: Array<Translation2d> = when(RobotType.type){
-        else -> arrayOf(
+    val moduleTranslations: List<Translation2d> = when(RobotType.type){
+        else -> listOf(
             Translation2d(Inches.of(10.0), Inches.of(10.0)),
             Translation2d(Inches.of(10.0), Inches.of(-10.0)),
             Translation2d(Inches.of(-10.0), Inches.of(10.0)),
@@ -70,7 +70,7 @@ class Drivebase : SubsystemBase("drivebase") {
     
     val gyroInputs: GyroIO.GyroInputs = GyroIO.GyroInputs()
 
-    val kinematics: SwerveDriveKinematics = SwerveDriveKinematics(*moduleTranslations)
+    val kinematics: SwerveDriveKinematics = SwerveDriveKinematics(*moduleTranslations.toTypedArray())
 
     val odometry: SwerveDrivePoseEstimator3d = SwerveDrivePoseEstimator3d(
         kinematics,
@@ -79,14 +79,14 @@ class Drivebase : SubsystemBase("drivebase") {
         Pose3d()
     )
 
-    val wheelPositions: Array<SwerveModulePosition>
-        get() = modules.map { it.position }.toTypedArray()
+    val wheelPositions: List<SwerveModulePosition>
+        get() = modules.map { it.position }
 
-    val wheelStates: Array<SwerveModuleState>
-        get() = modules.map { it.state }.toTypedArray()
+    val wheelStates: List<SwerveModuleState>
+        get() = modules.map { it.state }
 
     val chassisSpeeds: ChassisSpeeds
-        get() = kinematics.toChassisSpeeds(*wheelStates)
+        get() = kinematics.toChassisSpeeds(*wheelStates.toTypedArray())
 
     val pose: Pose3d
         get() = odometry.estimatedPosition
@@ -142,12 +142,12 @@ class Drivebase : SubsystemBase("drivebase") {
 
         odometry.update(
             gyroInputs.fullRotation,
-            wheelPositions,
+            wheelPositions.toTypedArray(),
         )
 
         Logger.recordOutput("$name/pose", Pose3d.struct, pose)
         Logger.recordOutput("$name/chassisSpeeds", chassisSpeeds)
-        Logger.recordOutput("$name/wheelStates", *wheelStates)
+        Logger.recordOutput("$name/wheelStates", *wheelStates.toTypedArray())
     }
     
     companion object Constants {
