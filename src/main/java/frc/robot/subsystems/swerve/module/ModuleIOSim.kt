@@ -16,7 +16,6 @@ import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.simulation.DCMotorSim
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
-import lib.math.units.angularToLinearD
 import lib.math.units.into
 
 class ModuleIOSim(
@@ -69,9 +68,9 @@ class ModuleIOSim(
         driveMotor.update(0.02)
         turnMotor.update(0.02)
         
-        inputs.driveMotorConnected = true
-        inputs.turnMotorConnected = true
-        inputs.absoluteEncoderConnected = true
+        inputs.isDriveMotorConnected = true
+        inputs.isTurnMotorConnected = true
+        inputs.isAbsoluteEncoderConnected = true
         
         inputs.drivePosition.mut_replace(
             driveMotor.angularPositionRad * wheelRadius.into(Meters),

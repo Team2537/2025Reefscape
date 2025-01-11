@@ -4,11 +4,9 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Units.Amps
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.MetersPerSecond
-import edu.wpi.first.units.Units.Radians
 import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.units.Units.Volt
 import edu.wpi.first.units.measure.LinearVelocity
-import edu.wpi.first.units.measure.MutAngle
 import edu.wpi.first.units.measure.MutAngularVelocity
 import edu.wpi.first.units.measure.MutCurrent
 import edu.wpi.first.units.measure.MutDistance
@@ -31,9 +29,9 @@ interface ModuleIO {
      * This class is used to store the current state of the module's sensors and motors
      */
     class ModuleInputs : LoggableInputs {
-        var driveMotorConnected = false
-        var turnMotorConnected = false
-        var absoluteEncoderConnected = false
+        var isDriveMotorConnected = false
+        var isTurnMotorConnected = false
+        var isAbsoluteEncoderConnected = false
         
         var driveVelocity: MutLinearVelocity = MetersPerSecond.zero().mutableCopy()
         var drivePosition: MutDistance = Meters.zero().mutableCopy()
@@ -52,8 +50,9 @@ interface ModuleIO {
         
         
         override fun toLog(table: LogTable) {
-            table.put("driveMotorConnected", driveMotorConnected)
-            table.put("turnMotorConnected", turnMotorConnected)
+            table.put("isDriveMotorConnected", isDriveMotorConnected)
+            table.put("isTurnMotorConnected", isTurnMotorConnected)
+            table.put("isAbsoluteEncoderConnected", isAbsoluteEncoderConnected)
             
             table.put("driveVelocity", driveVelocity)
             table.put("drivePosition", drivePosition)
@@ -71,8 +70,9 @@ interface ModuleIO {
         }
         
         override fun fromLog(table: LogTable) {
-            driveMotorConnected = table.get("driveMotorConnected", driveMotorConnected)
-            turnMotorConnected = table.get("turnMotorConnected", turnMotorConnected)
+            isDriveMotorConnected = table.get("isDriveMotorConnected", isDriveMotorConnected)
+            isTurnMotorConnected = table.get("isTurnMotorConnected", isTurnMotorConnected)
+            isAbsoluteEncoderConnected = table.get("isAbsoluteEncoderConnected", isAbsoluteEncoderConnected)
             
             driveVelocity.mut_replace(table.get("driveVelocity", driveVelocity))
             drivePosition.mut_replace(table.get("drivePosition", drivePosition))
