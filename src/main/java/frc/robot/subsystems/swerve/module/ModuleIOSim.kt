@@ -29,7 +29,7 @@ class ModuleIOSim(
     val turnGearing: Double,
     val wheelRadius: Distance
 ) : ModuleIO {
-    val driveMotor: DCMotorSim = DCMotorSim(
+    private val driveMotor: DCMotorSim = DCMotorSim(
         LinearSystemId.createDCMotorSystem(
             driveMotorGearbox,
             0.025,
@@ -38,7 +38,7 @@ class ModuleIOSim(
         driveMotorGearbox
     )
     
-    val turnMotor: DCMotorSim = DCMotorSim(
+    private val turnMotor: DCMotorSim = DCMotorSim(
         LinearSystemId.createDCMotorSystem(
             turnMotorGearbox,
             0.004,
@@ -47,16 +47,16 @@ class ModuleIOSim(
         turnMotorGearbox
     )
     
-    val driveFeedforward: SimpleMotorFeedforward =
+    private val driveFeedforward: SimpleMotorFeedforward =
         SimpleMotorFeedforward(driveFF.kS, driveFF.kV, driveFF.kA)
     
-    val turnFeedforward: SimpleMotorFeedforward =
+    private val turnFeedforward: SimpleMotorFeedforward =
         SimpleMotorFeedforward(turnFF.kS, turnFF.kV, turnFF.kA)
     
-    val driveFeedback: PIDController =
+    private val driveFeedback: PIDController =
         PIDController(driveGains.kP, driveGains.kI, driveGains.kD)
     
-    val turnFeedback: PIDController =
+    private val turnFeedback: PIDController =
         PIDController(turnGains.kP, turnGains.kI, turnGains.kD)
     
     /**
