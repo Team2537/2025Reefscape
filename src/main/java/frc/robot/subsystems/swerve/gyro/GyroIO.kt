@@ -7,7 +7,12 @@ import edu.wpi.first.units.measure.MutAngularVelocity
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 
+/**
+ * Gyro IO layer for the swerve drive.
+ */
 interface GyroIO {
+    
+    
     class GyroInputs : LoggableInputs {
         var yaw: Rotation2d = Rotation2d()
         var pitch: Rotation2d = Rotation2d()
@@ -45,6 +50,9 @@ interface GyroIO {
             fullRotation = table.get("fullRotation", Rotation3d.struct, fullRotation)
         }
     }
-
+    
+    /**
+     * Method for pulling data from the gyro. Updates the GyroInputs object.
+     */
     fun updateInputs(inputs: GyroInputs) {}
 }
