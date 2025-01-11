@@ -18,8 +18,13 @@ import org.littletonrobotics.junction.Logger
 /**
  * Represents a swerve module on the robot.
  *
- * @param io The IO implementation for the module.
- * @param modulePosition The position of the module relative to the center of the robot.
+ * @param driveID The ID of the drive motor.
+ * @param turnID The ID of the turn motor.
+ * @param encoderID The ID of the encoder.
+ * @param invertDrive Whether the drive motor is inverted.
+ * @param invertTurn Whether the turn motor is inverted.
+ * @param encoderOffset The offset of the encoder.
+ * @param modulePosition The position of the module.
  */
 class SwerveModule(
     val driveID: Int,
