@@ -1,6 +1,8 @@
 package frc.robot.subsystems.swerve
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d
+import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
@@ -72,11 +74,11 @@ class Drivebase : SubsystemBase("drivebase") {
 
     val kinematics: SwerveDriveKinematics = SwerveDriveKinematics(*moduleTranslations.toTypedArray())
 
-    val odometry: SwerveDrivePoseEstimator3d = SwerveDrivePoseEstimator3d(
+    val odometry: SwerveDrivePoseEstimator = SwerveDrivePoseEstimator(
         kinematics,
-        gyroInputs.fullRotation,
-        wheelPositions,
-        Pose3d()
+        gyroInputs.yaw,
+        wheelPositions.toTypedArray(),
+        Pose2d()
     )
 
     val wheelPositions: List<SwerveModulePosition>
@@ -88,7 +90,7 @@ class Drivebase : SubsystemBase("drivebase") {
     val chassisSpeeds: ChassisSpeeds
         get() = kinematics.toChassisSpeeds(*wheelStates.toTypedArray())
 
-    val pose: Pose3d
+    val pose: Pose2d
         get() = odometry.estimatedPosition
 
     fun applyChassisSpeeds(speeds: ChassisSpeeds) {
@@ -121,7 +123,7 @@ class Drivebase : SubsystemBase("drivebase") {
                     forwardS,
                     strafeS,
                     rotationS,
-                    pose.rotation.toRotation2d()
+                    pose.rotation
                 )
             } else {
                 speeds = ChassisSpeeds(forwardS, strafeS, rotationS)
@@ -140,11 +142,11 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.processInputs("$name/gyro", gyroInputs)
 
         odometry.update(
-            gyroInputs.fullRotation,
+            gyroInputs.yaw,
             wheelPositions.toTypedArray(),
         )
 
-        Logger.recordOutput("$name/pose", Pose3d.struct, pose)
+        Logger.recordOutput("$name/pose", Pose2d.struct, pose)
         Logger.recordOutput("$name/chassisSpeeds", chassisSpeeds)
         Logger.recordOutput("$name/wheelStates", *wheelStates.toTypedArray())
     }
