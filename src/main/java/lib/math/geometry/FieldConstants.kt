@@ -53,7 +53,7 @@ object FieldConstants {
             )
 
         /** Center of the red reef */
-        val redCenter = blueCenter.flipped
+        val redCenter = blueCenter.flipped()
 
         private var currentCenter = blueCenter;
 
@@ -89,7 +89,7 @@ object FieldConstants {
         );
 
         /** The circular zone for the red reef */
-        val redZone: Ellipse2d = blueZone.flipped;
+        val redZone: Ellipse2d = blueZone.flipped();
 
         private var currentZone: Ellipse2d = blueZone
 
@@ -240,7 +240,7 @@ object FieldConstants {
             ),
             Rotation3d()
         )
-        private val redHoleCenter: Pose3d = blueHoleCenter.flipped
+        private val redHoleCenter: Pose3d = blueHoleCenter.flipped()
         private var currentHoleCenter = blueHoleCenter
 
         val zone: Rectangle2d get() = currentZone
@@ -250,7 +250,7 @@ object FieldConstants {
             50.inches,
             30.inches,
         )
-        private val redZone: Rectangle2d = blueZone.flipped
+        private val redZone: Rectangle2d = blueZone.flipped()
         private var currentZone: Rectangle2d = blueZone
 
         init {
@@ -294,7 +294,7 @@ object FieldConstants {
             ),
             Rotation2d()
         )
-        private val redCage1: Pose2d = blueCage1.flipped
+        private val redCage1: Pose2d = blueCage1.flipped()
         private var currentCage1: Pose2d = blueCage1
 
         /** Second cage from the left while at the blue alliance station */
@@ -306,7 +306,7 @@ object FieldConstants {
             ),
             Rotation2d()
         )
-        private val redCage2: Pose2d = blueCage2.flipped
+        private val redCage2: Pose2d = blueCage2.flipped()
         private var currentCage2: Pose2d = blueCage2
 
         /** Third cage from the left while at the blue alliance station */
@@ -318,7 +318,7 @@ object FieldConstants {
             ),
             Rotation2d()
         )
-        private val redCage3: Pose2d = blueCage3.flipped
+        private val redCage3: Pose2d = blueCage3.flipped()
         private var currentCage3: Pose2d = blueCage3
 
         val zone: Rectangle2d get() = currentZone
@@ -327,7 +327,7 @@ object FieldConstants {
             ((3*12) + 10.0).inches,
             ((12 * 12) + 2.5).inches
         )
-        private val redZone: Rectangle2d = blueZone.flipped
+        private val redZone: Rectangle2d = blueZone.flipped()
         private var currentZone: Rectangle2d = blueZone
 
         init {
