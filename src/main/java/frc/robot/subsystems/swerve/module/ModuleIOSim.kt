@@ -133,7 +133,7 @@ class ModuleIOSim(
         val velocityRadPerSec = (velocity into MetersPerSecond) / wheelRadius.into(Meters)
         val feedforward = driveFeedforward.calculate(velocityRadPerSec)
         val output = driveFeedback.calculate(
-            driveMotor.angularVelocityRPM / 60.0,
+            driveMotor.angularVelocityRadPerSec,
             velocityRadPerSec
         )
 
