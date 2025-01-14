@@ -12,9 +12,6 @@ import edu.wpi.first.math.geometry.Translation3d
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
-import lib.math.geometry.FieldConstants.Processor.blueHoleCenter
-import lib.math.geometry.FieldConstants.Processor.currentHoleCenter
-import lib.math.geometry.FieldConstants.Processor.redHoleCenter
 import lib.math.units.*
 import org.littletonrobotics.junction.Logger
 
@@ -205,6 +202,13 @@ object FieldConstants {
             Logger.recordOutput("field/reef/blueZone", *blueZone.cardinals.toTypedArray())
         }
 
+        /**
+         * Makes the list of nodes based on the current alliance of the [Reef].
+         * This should be called only once at initialization.
+         * The [blueNodes], [redNodes], and [nodes] can be used for getting the generated nodes.
+         *
+         * @return A **newly generated** list of all nodes on the current side of the Reef.
+         */
         private fun makeNodeList() = Level.entries.flatMap { level ->
             Face.entries.flatMap { reefFace ->
                 Side.entries.map { side ->
