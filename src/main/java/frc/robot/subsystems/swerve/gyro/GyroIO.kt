@@ -14,6 +14,8 @@ interface GyroIO {
     
     
     class GyroInputs : LoggableInputs {
+        var isConnected: Boolean = false
+
         var yaw: Rotation2d = Rotation2d()
         var pitch: Rotation2d = Rotation2d()
         var roll: Rotation2d = Rotation2d()
@@ -26,6 +28,7 @@ interface GyroIO {
          * Updates a LogTable with the data to log.
          */
         override fun toLog(table: LogTable) {
+            table.put("isConnected", isConnected)
             table.put("yaw", yaw)
             table.put("pitch", pitch)
             table.put("roll", roll)
@@ -39,6 +42,7 @@ interface GyroIO {
          * Updates data based on a LogTable.
          */
         override fun fromLog(table: LogTable) {
+            isConnected = table.get("isConnected", isConnected)
             yaw = table.get("yaw", Rotation2d.struct, yaw)
             pitch = table.get("pitch", Rotation2d.struct, pitch)
             roll = table.get("roll", Rotation2d.struct, roll)
