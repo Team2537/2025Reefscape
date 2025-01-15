@@ -89,13 +89,13 @@ class ModuleIOReal(
         config.inverted(turnInverted)
         config.encoder.positionConversionFactor(1/turnGearing)
         config.encoder.velocityConversionFactor(1/turnGearing)
-        config.idleMode(SparkBaseConfig.IdleMode.kBrake)
+        config.idleMode(SparkBaseConfig.IdleMode.kCoast)
         config.smartCurrentLimit(30)
 
         configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters)
     }
 
-    private val absEncoder: CANcoder = CANcoder(turnID).apply {
+    private val absEncoder: CANcoder = CANcoder(encoderID).apply {
         val config = CANcoderConfiguration()
 
         config.MagnetSensor.MagnetOffset = encoderOffset.rotations
@@ -189,5 +189,12 @@ class ModuleIOReal(
     override fun stop() {
         driveMotor.stopMotor()
         turnMotor.stopMotor()
+    }
+
+    override fun setDriveBrake(enabled: Boolean) {
+        val config = TalonFXConfiguration()
+        driveMotor.configurator.refresh(config)
+
+        config.MotorOutput.NeutralMode = if(enabled) NeutralModeValue.Brake else NeutralModeValue.Coast
     }
 }
