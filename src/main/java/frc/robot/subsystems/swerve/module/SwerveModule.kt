@@ -51,6 +51,21 @@ class SwerveModule(
             150 / 7.0,
             2.0 measuredIn Inches
         )
+        RobotType.Mode.REAL -> ModuleIOReal(
+            driveID,
+            6.75,
+            false,
+            FeedforwardGains(),
+            PIDGains(),
+            turnID,
+            150 / 7.0,
+            turnInverted = false,
+            FeedforwardGains(),
+            PIDGains(),
+            encoderID,
+            encoderOffset,
+            wheelRadius = 2.0 measuredIn Inches
+        )
         else -> object : ModuleIO {}
     }
 

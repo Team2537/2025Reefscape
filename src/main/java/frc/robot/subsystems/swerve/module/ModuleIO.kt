@@ -61,9 +61,9 @@ interface ModuleIO {
             table.put("driveSupplyCurrent", driveSupplyCurrent)
             
             table.put("turnVelocity", turnVelocity)
-            table.put("absoluteTurnPosition", absoluteTurnPosition)
+            table.put("absoluteTurnPosition", Rotation2d.struct, absoluteTurnPosition)
             
-            table.put("turnPosition", turnPosition)
+            table.put("turnPosition", Rotation2d.struct, turnPosition)
             table.put("turnAppliedVoltage", turnAppliedVoltage)
             table.put("turnStatorCurrent", turnStatorCurrent)
             table.put("turnSupplyCurrent", turnSupplyCurrent)
@@ -131,4 +131,7 @@ interface ModuleIO {
     
     /** Stop the module */
     fun stop() {}
+
+    fun setTurnBrake(enabled: Boolean) {}
+    fun setDriveBrake(enabled: Boolean) {}
 }

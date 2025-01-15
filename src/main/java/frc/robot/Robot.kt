@@ -62,7 +62,7 @@ object Robot : LoggedRobot() {
         Logger.start()
 
         FieldConstants
-        configureBindings()
+//        configureBindings()
     }
 
     fun configureBindings() {
