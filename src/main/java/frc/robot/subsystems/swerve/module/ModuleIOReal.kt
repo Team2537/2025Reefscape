@@ -107,7 +107,7 @@ class ModuleIOReal(
     val absoluteTurnPosition = absEncoder.absolutePosition.clone()
 
     val openLoopDriveRequest: VoltageOut = VoltageOut(0.0)
-    val closedLoopDriveRequest: VelocityVoltage = VelocityVoltage(0.0)
+    val closedLoopDriveRequest: VelocityTorqueCurrentFOC = VelocityTorqueCurrentFOC(0.0)
 
     override fun updateInputs(inputs: ModuleIO.ModuleInputs) {
         inputs.isDriveMotorConnected = BaseStatusSignal.refreshAll(
