@@ -13,6 +13,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.Units.FeetPerSecond
 import edu.wpi.first.units.Units.Inches
+import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.measure.AngularVelocity
+import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
@@ -49,6 +52,21 @@ class Drivebase : SubsystemBase("drivebase") {
             Translation2d(Inches.of(-10.0), Inches.of(-10.0))
         )
     }
+    
+    /**
+     * The radius of the drivebase.
+     *
+     * This is the radius of the circle that the drivebase moves in. It is the distance from the center
+     * of the robot to the center of a module.
+     */
+    val drivebaseRadius: Distance = moduleTranslations.maxOf { it.norm } measuredIn Meters
+    
+    /**
+     * The maximum angular velocity of the drivebase.
+     *
+     * This is the maximum angular velocity of the drivebase in radians per second.
+     */
+    val maxAngularVelocity: AngularVelocity = (maxSpeed.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn Units.RadiansPerSecond
     
     /**
      * The swerve modules on the robot.
