@@ -68,6 +68,9 @@ class SwerveModule(
         )
         else -> object : ModuleIO {}
     }
+    
+    /** The index of the module in the array of modules. Calculated with math */
+    val index: Int = (driveID - 1) / 3
 
     /** The object that holds the inputs for the module. */
     val inputs: ModuleIO.ModuleInputs = ModuleIO.ModuleInputs()
@@ -85,6 +88,9 @@ class SwerveModule(
             inputs.drivePosition,
             inputs.absoluteTurnPosition
         )
+    
+    /** The desired state of the module. */
+    var desiredState: SwerveModuleState = SwerveModuleState()
 
     /**
      * Vector pointing in the direction that the module would be facing if it was contributing 100% of its velocity
@@ -95,6 +101,9 @@ class SwerveModule(
     /** Updates the inputs for the module. */
     fun periodic() {
         io.updateInputs(inputs)
+        
+        Logger.recordOutput("modules/$index/driveError", inputs.driveVelocity.minus(desiredState.speedMetersPerSecond measuredIn Units.MetersPerSecond))
+        Logger.recordOutput("modules/$index/turnError", inputs.absoluteTurnPosition.minus(desiredState.angle))
     }
 
     /**
@@ -103,6 +112,8 @@ class SwerveModule(
      * @param desiredState The desired state for the module.
      */
     fun applyState(desiredState: SwerveModuleState) {
+        this.desiredState = desiredState
+        
         desiredState.optimize(inputs.absoluteTurnPosition)
         desiredState.cosineScale(inputs.absoluteTurnPosition)
 
