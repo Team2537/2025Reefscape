@@ -7,6 +7,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.Units.Inches
+import edu.wpi.first.units.measure.Voltage
 import frc.robot.RobotType
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
@@ -54,14 +55,14 @@ class SwerveModule(
         RobotType.Mode.REAL -> ModuleIOReal(
             driveID,
             6.75,
-            false,
+            invertDrive,
             FeedforwardGains(),
             PIDGains(),
             turnID,
             150 / 7.0,
-            turnInverted = false,
+            turnInverted = invertTurn,
             FeedforwardGains(),
-            PIDGains(),
+            PIDGains(kP = 5.0),
             encoderID,
             encoderOffset,
             wheelRadius = 2.0 measuredIn Inches
@@ -119,5 +120,10 @@ class SwerveModule(
 
         io.setTurnPosition(desiredState.angle)
         io.setDriveVelocity(desiredState.speedMetersPerSecond measuredIn Units.MetersPerSecond)
+    }
+
+    fun characterize(volts: Voltage) {
+        io.setTurnPosition(Rotation2d())
+        io.setDriveVoltage(volts)
     }
 }

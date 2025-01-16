@@ -5,6 +5,7 @@ import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.hal.HALUtil
 import edu.wpi.first.units.Units.MetersPerSecond
+import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.util.WPILibVersion
@@ -63,13 +64,15 @@ object Robot : LoggedRobot() {
 
         FieldConstants
 //        configureBindings()
+
+        driverController.a().whileTrue(drivebase.driveSysId())
     }
 
     fun configureBindings() {
         drivebase.defaultCommand = drivebase.getDriveCmd(
             { -Math.pow(driverController.leftY, 3.0) * (Drivebase.maxSpeed into MetersPerSecond) },
             { -Math.pow(driverController.leftX, 3.0) * (Drivebase.maxSpeed into MetersPerSecond) },
-            { -Math.pow(driverController.rightX, 3.0) * Math.PI * 2 },
+            { -Math.pow(driverController.rightX, 3.0) * (drivebase.maxAngularVelocity into RadiansPerSecond) },
             !driverController.leftBumper(),
             { 1.0 }
         )

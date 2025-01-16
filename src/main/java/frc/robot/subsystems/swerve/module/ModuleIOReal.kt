@@ -2,6 +2,7 @@ package frc.robot.subsystems.swerve.module
 
 import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.configs.CANcoderConfiguration
+import com.ctre.phoenix6.configs.Slot0Configs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC
 import com.ctre.phoenix6.controls.VelocityVoltage
@@ -77,22 +78,29 @@ class ModuleIOReal(
     private val driveStatorCurrent = driveMotor.statorCurrent.clone()
     private val driveSupplyCurrent = driveMotor.supplyCurrent.clone()
 
-    private val turnMotor = SparkMax(turnID, SparkLowLevel.MotorType.kBrushless).apply {
-        val config = SparkMaxConfig()
-
-        config.closedLoop.pid(
+    val turnBrakeConfig = SparkMaxConfig().apply {
+        closedLoop.pid(
             turnPID.kP,
             turnPID.kI,
             turnPID.kD,
         )
 
-        config.inverted(turnInverted)
-        config.encoder.positionConversionFactor(1/turnGearing)
-        config.encoder.velocityConversionFactor(1/turnGearing)
-        config.idleMode(SparkBaseConfig.IdleMode.kCoast)
-        config.smartCurrentLimit(30)
+        closedLoop.positionWrappingEnabled(true)
+        closedLoop.positionWrappingInputRange(-0.5, 0.5)
 
-        configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters)
+        inverted(turnInverted)
+        encoder.positionConversionFactor(1/turnGearing)
+        encoder.velocityConversionFactor(60/turnGearing)
+        idleMode(SparkBaseConfig.IdleMode.kBrake)
+        smartCurrentLimit(30)
+
+
+    }
+
+    val turnCoastConfig = turnBrakeConfig.idleMode(SparkBaseConfig.IdleMode.kCoast)
+
+    private val turnMotor = SparkMax(turnID, SparkLowLevel.MotorType.kBrushless).apply {
+        configure(turnCoastConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
     }
 
     private val absEncoder: CANcoder = CANcoder(encoderID).apply {
@@ -108,6 +116,10 @@ class ModuleIOReal(
 
     val openLoopDriveRequest: VoltageOut = VoltageOut(0.0)
     val closedLoopDriveRequest: VelocityTorqueCurrentFOC = VelocityTorqueCurrentFOC(0.0)
+
+    init {
+        turnMotor.encoder.setPosition(absoluteTurnPosition.valueAsDouble)
+    }
 
     override fun updateInputs(inputs: ModuleIO.ModuleInputs) {
         inputs.isDriveMotorConnected = BaseStatusSignal.refreshAll(
@@ -164,6 +176,8 @@ class ModuleIOReal(
     }
 
     override fun setTurnPosition(position: Rotation2d) {
+
+        println(position)
         turnMotor.closedLoopController.setReference(
             position.rotations,
             SparkBase.ControlType.kPosition,
@@ -196,5 +210,29 @@ class ModuleIOReal(
         driveMotor.configurator.refresh(config)
 
         config.MotorOutput.NeutralMode = if(enabled) NeutralModeValue.Brake else NeutralModeValue.Coast
+    }
+
+    override fun setTurnBrake(enabled: Boolean) {
+        turnMotor.configure(
+            if(enabled) turnBrakeConfig else turnCoastConfig,
+            SparkBase.ResetMode.kResetSafeParameters,
+            SparkBase.PersistMode.kPersistParameters
+        )
+    }
+
+    override fun setDrivePID(gains: PIDGains) {
+        val config = Slot0Configs()
+        driveMotor.configurator.refresh(config)
+        driveMotor
+            .configurator
+            .apply(config
+                .withKP(gains.kP)
+                .withKI(gains.kI)
+                .withKD(gains.kD)
+            )
+    }
+
+    override fun setSteerPID(gains: PIDGains) {
+
     }
 }

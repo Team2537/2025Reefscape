@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.MutDistance
 import edu.wpi.first.units.measure.MutLinearVelocity
 import edu.wpi.first.units.measure.MutVoltage
 import edu.wpi.first.units.measure.Voltage
+import lib.controllers.gains.PIDGains
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 
@@ -134,4 +135,9 @@ interface ModuleIO {
 
     fun setTurnBrake(enabled: Boolean) {}
     fun setDriveBrake(enabled: Boolean) {}
+
+    fun setDrivePID(gains: PIDGains) {}
+    fun setSteerPID(gains: PIDGains) {}
+
+
 }

@@ -11,14 +11,15 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.units.Units
-import edu.wpi.first.units.Units.FeetPerSecond
-import edu.wpi.first.units.Units.Inches
-import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Distance
+import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import edu.wpi.first.wpilibj2.command.WaitCommand
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.RobotType.Type.*
 import frc.robot.RobotType
 import frc.robot.subsystems.swerve.gyro.GyroIO
@@ -29,6 +30,7 @@ import lib.math.units.measuredIn
 import org.littletonrobotics.junction.Logger
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
+import kotlin.time.Duration.Companion.seconds
 
 class Drivebase : SubsystemBase("drivebase") {
     
@@ -46,10 +48,10 @@ class Drivebase : SubsystemBase("drivebase") {
      */
     val moduleTranslations: List<Translation2d> = when(RobotType.type){
         else -> listOf(
-            Translation2d(Inches.of(10.0), Inches.of(10.0)),
-            Translation2d(Inches.of(10.0), Inches.of(-10.0)),
-            Translation2d(Inches.of(-10.0), Inches.of(10.0)),
-            Translation2d(Inches.of(-10.0), Inches.of(-10.0))
+            Translation2d(Inches.of(8.864613), Inches.of(8.864613)),
+            Translation2d(Inches.of(8.864613), Inches.of(-8.864613)),
+            Translation2d(Inches.of(-8.864613), Inches.of(8.864613)),
+            Translation2d(Inches.of(-8.864613), Inches.of(-8.864613))
         )
     }
     
@@ -78,10 +80,10 @@ class Drivebase : SubsystemBase("drivebase") {
      * 3: Back Right
      */
     val modules: Array<SwerveModule> = arrayOf(
-        SwerveModule(1, 2, 3, false, false, Rotation2d.fromRadians(2.508), moduleTranslations[0]),
-        SwerveModule(4, 5, 6, false, false, Rotation2d.fromRadians(1.155), moduleTranslations[1]),
-        SwerveModule(7, 8, 9, false, false, Rotation2d.fromRadians(-1.982), moduleTranslations[2]),
-        SwerveModule(10, 11, 12, false, false, Rotation2d.fromRadians(-1.764), moduleTranslations[3])
+        SwerveModule(1, 2, 3, false, true, Rotation2d.fromRadians(2.508), moduleTranslations[0]),
+        SwerveModule(4, 5, 6, false, true, Rotation2d.fromRadians(1.155), moduleTranslations[1]),
+        SwerveModule(7, 8, 9, false, true, Rotation2d.fromRadians(-1.982), moduleTranslations[2]),
+        SwerveModule(10, 11, 12, false, true, Rotation2d.fromRadians(-1.764), moduleTranslations[3])
     )
     
     val gyro: GyroIO = when(RobotType.mode){
@@ -116,6 +118,23 @@ class Drivebase : SubsystemBase("drivebase") {
     val pose: Pose2d
         get() = odometry.estimatedPosition
 
+    val driveSysID: SysIdRoutine = SysIdRoutine(
+        SysIdRoutine.Config(
+            null,
+            null,
+            1.5 measuredIn Seconds,
+            {state ->
+                Logger.recordOutput("$name/sysIdState", state.toString())
+                Logger.recordOutput("$name/sysIdState2", state.name)
+            }
+        ),
+        SysIdRoutine.Mechanism(
+            { volts: Voltage -> modules.map { it.characterize(volts) } },
+            null,
+            this
+        )
+    )
+
     fun applyChassisSpeeds(speeds: ChassisSpeeds) {
         val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
 
@@ -132,7 +151,7 @@ class Drivebase : SubsystemBase("drivebase") {
         slowmodeInput: DoubleSupplier
     ): Command {
         return run {
-            var speeds = ChassisSpeeds()
+            val speeds: ChassisSpeeds
             var forwardS = forward.asDouble
             var strafeS = strafe.asDouble
             var rotationS = rotation.asDouble
@@ -154,6 +173,21 @@ class Drivebase : SubsystemBase("drivebase") {
 
             applyChassisSpeeds(speeds)
         }
+    }
+
+    fun driveSysId(): Command {
+        return this.run {
+            modules.map { it.applyState(SwerveModuleState()) }
+        }.withTimeout(1.0)
+            .andThen(
+                driveSysID.dynamic(SysIdRoutine.Direction.kForward),
+                WaitCommand(1.0),
+                driveSysID.dynamic(SysIdRoutine.Direction.kReverse),
+                WaitCommand(1.0),
+                driveSysID.quasistatic(SysIdRoutine.Direction.kForward),
+                WaitCommand(1.0),
+                driveSysID.quasistatic(SysIdRoutine.Direction.kReverse)
+            )
     }
 
     override fun periodic() {
