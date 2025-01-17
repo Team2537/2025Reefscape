@@ -14,7 +14,6 @@ import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
 import lib.math.units.measuredIn
 import lib.math.vector
-import lib.util.LoggedTunableNumber
 import org.littletonrobotics.junction.Logger
 
 /**
@@ -54,7 +53,7 @@ class SwerveModule(
             150 / 7.0,
             2.0 measuredIn Inches
         )
-        RobotType.Mode.REAL -> ModuleIOReal(
+        RobotType.Mode.REAL -> ModuleIOVelocityVoltage(
             driveID,
             6.75,
             invertDrive,
