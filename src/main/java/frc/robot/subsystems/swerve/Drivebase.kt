@@ -1,9 +1,7 @@
 package frc.robot.subsystems.swerve
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator3d
 import edu.wpi.first.math.geometry.Pose2d
-import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
@@ -15,12 +13,11 @@ import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Voltage
-import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.robot.RobotType.Type.*
 import frc.robot.RobotType
 import frc.robot.subsystems.swerve.gyro.GyroIO
 import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2
@@ -30,7 +27,6 @@ import lib.math.units.measuredIn
 import org.littletonrobotics.junction.Logger
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
-import kotlin.time.Duration.Companion.seconds
 
 class Drivebase : SubsystemBase("drivebase") {
     
@@ -118,22 +114,39 @@ class Drivebase : SubsystemBase("drivebase") {
     val pose: Pose2d
         get() = odometry.estimatedPosition
 
-    val driveSysID: SysIdRoutine = SysIdRoutine(
+    val driveSysIDVolts: SysIdRoutine = SysIdRoutine(
         SysIdRoutine.Config(
+            Volts.of(10.0).per(Second),
             null,
-            null,
-            1.5 measuredIn Seconds,
+            2.0 measuredIn Seconds,
             {state ->
                 Logger.recordOutput("$name/sysIdState", state.toString())
-                Logger.recordOutput("$name/sysIdState2", state.name)
             }
         ),
         SysIdRoutine.Mechanism(
-            { volts: Voltage -> modules.map { it.characterize(volts) } },
+            { volts: Voltage -> modules.map { it.characterizeVoltage(volts) } },
             null,
             this
         )
     )
+
+    val driveSysIDCurrent: SysIdRoutine = SysIdRoutine(
+        SysIdRoutine.Config(
+            null,
+            null,
+            2.0 measuredIn Seconds,
+            {state ->
+                Logger.recordOutput("$name/sysIdState", state.toString())
+            }
+        ),
+        SysIdRoutine.Mechanism(
+            { current: Voltage -> modules.map { it.characterizeCurrent(current.baseUnitMagnitude() measuredIn Amps) } },
+            null,
+            this
+        )
+    )
+
+    val driveSysIdRoutine = driveSysIDCurrent
 
     fun applyChassisSpeeds(speeds: ChassisSpeeds) {
         val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
@@ -178,15 +191,16 @@ class Drivebase : SubsystemBase("drivebase") {
     fun driveSysId(): Command {
         return this.run {
             modules.map { it.applyState(SwerveModuleState()) }
-        }.withTimeout(1.0)
+        }.withTimeout(3.0)
             .andThen(
-                driveSysID.dynamic(SysIdRoutine.Direction.kForward),
+                driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kForward),
                 WaitCommand(1.0),
-                driveSysID.dynamic(SysIdRoutine.Direction.kReverse),
+                driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse),
                 WaitCommand(1.0),
-                driveSysID.quasistatic(SysIdRoutine.Direction.kForward),
+                driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward),
                 WaitCommand(1.0),
-                driveSysID.quasistatic(SysIdRoutine.Direction.kReverse)
+                driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+                PrintCommand("done!")
             )
     }
 
@@ -210,6 +224,7 @@ class Drivebase : SubsystemBase("drivebase") {
     }
     
     companion object Constants {
-        val maxSpeed = 15.0 measuredIn FeetPerSecond
+        // DONT FORGET TO CHANGE BACK!
+        val maxSpeed = 2.0 measuredIn FeetPerSecond
     }
 }

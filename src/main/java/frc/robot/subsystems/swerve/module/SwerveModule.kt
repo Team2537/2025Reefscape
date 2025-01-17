@@ -7,13 +7,14 @@ import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.Units.Inches
+import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Voltage
 import frc.robot.RobotType
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
 import lib.math.units.measuredIn
-import lib.math.units.metersPerSecond
 import lib.math.vector
+import lib.util.LoggedTunableNumber
 import org.littletonrobotics.junction.Logger
 
 /**
@@ -36,6 +37,7 @@ class SwerveModule(
     val encoderOffset: Rotation2d,
     val modulePosition: Translation2d
 ) {
+
     private val io: ModuleIO = when (RobotType.mode) {
         RobotType.Mode.SIMULATION -> ModuleIOSim(
             FeedforwardGains(
@@ -56,13 +58,15 @@ class SwerveModule(
             driveID,
             6.75,
             invertDrive,
-            FeedforwardGains(),
-            PIDGains(),
+            FeedforwardGains(
+                kS = 1.1531,
+            ),
+            PIDGains(kP = 0.005),
             turnID,
             150 / 7.0,
             turnInverted = invertTurn,
             FeedforwardGains(),
-            PIDGains(kP = 5.0),
+            PIDGains(kP = 5.0,),
             encoderID,
             encoderOffset,
             wheelRadius = 2.0 measuredIn Inches
@@ -122,8 +126,13 @@ class SwerveModule(
         io.setDriveVelocity(desiredState.speedMetersPerSecond measuredIn Units.MetersPerSecond)
     }
 
-    fun characterize(volts: Voltage) {
+    fun characterizeVoltage(volts: Voltage) {
         io.setTurnPosition(Rotation2d())
         io.setDriveVoltage(volts)
+    }
+
+    fun characterizeCurrent(current: Current){
+        io.setTurnPosition(Rotation2d())
+        io.setDriveCurrent(current)
     }
 }

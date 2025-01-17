@@ -6,13 +6,7 @@ import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.units.Units.Volt
-import edu.wpi.first.units.measure.LinearVelocity
-import edu.wpi.first.units.measure.MutAngularVelocity
-import edu.wpi.first.units.measure.MutCurrent
-import edu.wpi.first.units.measure.MutDistance
-import edu.wpi.first.units.measure.MutLinearVelocity
-import edu.wpi.first.units.measure.MutVoltage
-import edu.wpi.first.units.measure.Voltage
+import edu.wpi.first.units.measure.*
 import lib.controllers.gains.PIDGains
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
@@ -39,6 +33,7 @@ interface ModuleIO {
         var driveAppliedVoltage: MutVoltage = Volt.zero().mutableCopy()
         var driveStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
         var driveSupplyCurrent: MutCurrent = Amps.zero().mutableCopy()
+        var driveTorqueCurrent: MutCurrent = Amps.zero().mutableCopy()
         
         var turnPosition: Rotation2d = Rotation2d.kZero
         var absoluteTurnPosition: Rotation2d = Rotation2d.kZero
@@ -60,6 +55,7 @@ interface ModuleIO {
             table.put("driveAppliedVoltage", driveAppliedVoltage)
             table.put("driveStatorCurrent", driveStatorCurrent)
             table.put("driveSupplyCurrent", driveSupplyCurrent)
+            table.put("driveTorqueCurrent", driveTorqueCurrent)
             
             table.put("turnVelocity", turnVelocity)
             table.put("absoluteTurnPosition", Rotation2d.struct, absoluteTurnPosition)
@@ -80,6 +76,7 @@ interface ModuleIO {
             driveAppliedVoltage.mut_replace(table.get("driveAppliedVoltage", driveAppliedVoltage))
             driveStatorCurrent.mut_replace(table.get("driveStatorCurrent", driveStatorCurrent))
             driveSupplyCurrent.mut_replace(table.get("driveSupplyCurrent", driveSupplyCurrent))
+            driveTorqueCurrent.mut_replace(table.get("driveTorqueCurrent", driveTorqueCurrent))
             
             turnPosition = table.get("turnPosition", Rotation2d.struct, turnPosition)
             absoluteTurnPosition = table.get("absoluteTurnPosition", Rotation2d.struct, absoluteTurnPosition)
@@ -138,6 +135,8 @@ interface ModuleIO {
 
     fun setDrivePID(gains: PIDGains) {}
     fun setSteerPID(gains: PIDGains) {}
+
+    fun setDriveCurrent(current: Current) {}
 
 
 }

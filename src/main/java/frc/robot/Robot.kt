@@ -6,6 +6,8 @@ import edu.wpi.first.hal.HAL
 import edu.wpi.first.hal.HALUtil
 import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.RadiansPerSecond
+import edu.wpi.first.util.datalog.DataLog
+import edu.wpi.first.wpilibj.DataLogManager
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.util.WPILibVersion
@@ -63,9 +65,7 @@ object Robot : LoggedRobot() {
         Logger.start()
 
         FieldConstants
-//        configureBindings()
-
-        driverController.a().whileTrue(drivebase.driveSysId())
+        configureBindings()
     }
 
     fun configureBindings() {
