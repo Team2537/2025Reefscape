@@ -10,6 +10,7 @@ import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Voltage
 import frc.robot.RobotType
+import lib.controllers.gains.ControllerGains
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
 import lib.math.units.measuredIn
@@ -57,17 +58,13 @@ class SwerveModule(
             driveID,
             6.75,
             invertDrive,
-            FeedforwardGains(
-                kV = 1.9168,
-                kS = 0.34113,
-                kA = 0.081352
-            ),
-            PIDGains(kP = 0.88842),
+            driveVelocityVoltageGains.feedforward,
+            driveVelocityVoltageGains.pid,
             turnID,
             150 / 7.0,
             turnInverted = invertTurn,
             FeedforwardGains(),
-            PIDGains(kP = 5.0,),
+            PIDGains(kP = 5.0),
             encoderID,
             encoderOffset,
             wheelRadius = 2.0 measuredIn Inches
@@ -135,5 +132,31 @@ class SwerveModule(
     fun characterizeCurrent(current: Current){
         io.setTurnPosition(Rotation2d())
         io.setDriveCurrent(current)
+    }
+
+    private companion object {
+        val driveTorqueGains: ControllerGains = ControllerGains(
+            PIDGains(
+                kP = 0.0,
+                kI = 0.0,
+                kD = 0.0
+            ),
+            FeedforwardGains(
+                kV = 1.0,
+                kA = 0.0
+            )
+        )
+
+        val driveVelocityVoltageGains: ControllerGains = ControllerGains(
+            PIDGains(
+                kP = 0.88842,
+            ),
+            FeedforwardGains(
+                kV = 1.9168,
+                kS = 0.34113,
+                kA = 0.081352
+            )
+        )
+
     }
 }
