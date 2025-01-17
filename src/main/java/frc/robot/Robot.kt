@@ -65,7 +65,9 @@ object Robot : LoggedRobot() {
         Logger.start()
 
         FieldConstants
-//        configureBindings()
+        configureBindings()
+
+//        driverController.a().whileTrue(drivebase.driveSysId())
     }
 
     fun configureBindings() {

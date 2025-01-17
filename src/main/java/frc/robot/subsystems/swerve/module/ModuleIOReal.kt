@@ -121,7 +121,7 @@ class ModuleIOReal(
 
     val openLoopDriveRequest: VoltageOut = VoltageOut(0.0)
     val openLoopTorqueRequest: TorqueCurrentFOC = TorqueCurrentFOC(0.0)
-    val closedLoopDriveRequest: VelocityTorqueCurrentFOC = VelocityTorqueCurrentFOC(0.0)
+    val closedLoopDriveRequest = VelocityVoltage(0.0)
 
     init {
         turnMotor.encoder.setPosition(absoluteTurnPosition.valueAsDouble)

@@ -59,9 +59,11 @@ class SwerveModule(
             6.75,
             invertDrive,
             FeedforwardGains(
-                kS = 1.1531,
+                kV = 1.9168,
+                kS = 0.34113,
+                kA = 0.081352
             ),
-            PIDGains(kP = 0.005),
+            PIDGains(kP = 0.88842),
             turnID,
             150 / 7.0,
             turnInverted = invertTurn,

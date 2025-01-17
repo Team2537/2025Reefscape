@@ -116,7 +116,7 @@ class Drivebase : SubsystemBase("drivebase") {
 
     val driveSysIDVolts: SysIdRoutine = SysIdRoutine(
         SysIdRoutine.Config(
-            Volts.of(10.0).per(Second),
+            null,
             null,
             2.0 measuredIn Seconds,
             {state ->
@@ -146,7 +146,7 @@ class Drivebase : SubsystemBase("drivebase") {
         )
     )
 
-    val driveSysIdRoutine = driveSysIDCurrent
+    val driveSysIdRoutine = driveSysIDVolts
 
     fun applyChassisSpeeds(speeds: ChassisSpeeds) {
         val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
