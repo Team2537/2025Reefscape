@@ -8,6 +8,23 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.geometry.Translation3d
+import edu.wpi.first.wpilibj.DriverStation.Alliance
+import edu.wpi.first.wpilibj.DriverStation.MatchType
+import kotlin.jvm.optionals.getOrNull
+
+typealias JavaDriverStation = edu.wpi.first.wpilibj.DriverStation
+
+object DriverStation {
+    /**
+     * The current [Alliance] of the robot, or `null` if there is no current valid
+     * alliance.
+     *
+     * @see edu.wpi.first.wpilibj.DriverStation.getAlliance()
+     */
+    val alliance: Alliance? get() = JavaDriverStation.getAlliance().getOrNull()
+
+    // TODO: the rest of driver station stuff
+}
 
 /**
  * Returns a copy of this translation from the perspective of the other team.
@@ -15,8 +32,8 @@ import edu.wpi.first.math.geometry.Translation3d
  * @return This translation as see by the other team.
  */
 fun Translation2d.flipped(): Translation2d = Translation2d(
-        2 * FieldConstants.center.translation.x - this.x,
-        2 * FieldConstants.center.translation.y - this.y
+    2 * FieldConstants.center.translation.x - this.x,
+    2 * FieldConstants.center.translation.y - this.y
 )
 
 /**
@@ -25,8 +42,8 @@ fun Translation2d.flipped(): Translation2d = Translation2d(
  * @return This pose as see by the other team.
  */
 fun Pose2d.flipped(): Pose2d = Pose2d(
-        this.translation.flipped(),
-        this.rotation.rotateBy(Rotation2d.fromDegrees(180.0))
+    this.translation.flipped(),
+    this.rotation.rotateBy(Rotation2d.fromDegrees(180.0))
 )
 
 /**
@@ -35,9 +52,9 @@ fun Pose2d.flipped(): Pose2d = Pose2d(
  * @return This translation as see by the other team.
  */
 fun Translation3d.flipped(): Translation3d = Translation3d(
-        2 * FieldConstants.center.translation.x - this.x,
-        2 * FieldConstants.center.translation.y - this.y,
-        this.z
+    2 * FieldConstants.center.translation.x - this.x,
+    2 * FieldConstants.center.translation.y - this.y,
+    this.z
 )
 
 /**
@@ -46,10 +63,10 @@ fun Translation3d.flipped(): Translation3d = Translation3d(
  * @return This pose as see by the other team.
  */
 fun Pose3d.flipped(): Pose3d = Pose3d(
-        this.translation.flipped(),
-        this.rotation.rotateBy(
-                Rotation3d(Rotation2d.fromDegrees(180.0))
-        )
+    this.translation.flipped(),
+    this.rotation.rotateBy(
+        Rotation3d(Rotation2d.fromDegrees(180.0))
+    )
 )
 
 /**
