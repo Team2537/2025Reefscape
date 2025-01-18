@@ -7,6 +7,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.Units.Inches
+import edu.wpi.first.units.Units.Volts
 import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Voltage
 import frc.robot.RobotType
@@ -54,17 +55,17 @@ class SwerveModule(
             150 / 7.0,
             2.0 measuredIn Inches
         )
-        RobotType.Mode.REAL -> ModuleIOVelocityVoltage(
+        RobotType.Mode.REAL -> ModuleIOTorqueCurrent(
             driveID,
             6.75,
             invertDrive,
-            driveVelocityVoltageGains.feedforward,
-            driveVelocityVoltageGains.pid,
+            driveTorqueGains.feedforward,
+            driveTorqueGains.pid,
             turnID,
             150 / 7.0,
             turnInverted = invertTurn,
-            FeedforwardGains(),
-            PIDGains(kP = 5.0),
+            FeedforwardGains(kS = 0.14403),
+            PIDGains(kP = 15.0),
             encoderID,
             encoderOffset,
             wheelRadius = 2.0 measuredIn Inches
@@ -124,9 +125,14 @@ class SwerveModule(
         io.setDriveVelocity(desiredState.speedMetersPerSecond measuredIn Units.MetersPerSecond)
     }
 
-    fun characterizeVoltage(volts: Voltage) {
+    fun characterizeDriveVoltage(volts: Voltage) {
         io.setTurnPosition(Rotation2d())
         io.setDriveVoltage(volts)
+    }
+
+    fun characterizeSteerVoltage(volts: Voltage) {
+        io.setTurnVoltage(volts)
+        io.setDriveVoltage(Volts.zero())
     }
 
     fun characterizeCurrent(current: Current){
@@ -137,13 +143,10 @@ class SwerveModule(
     private companion object {
         val driveTorqueGains: ControllerGains = ControllerGains(
             PIDGains(
-                kP = 0.0,
-                kI = 0.0,
-                kD = 0.0
+                kP = 10.0
             ),
             FeedforwardGains(
-                kV = 1.0,
-                kA = 0.0
+                kV = 1.15
             )
         )
 

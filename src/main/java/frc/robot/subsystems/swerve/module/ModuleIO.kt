@@ -34,6 +34,8 @@ interface ModuleIO {
         var driveStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
         var driveSupplyCurrent: MutCurrent = Amps.zero().mutableCopy()
         var driveTorqueCurrent: MutCurrent = Amps.zero().mutableCopy()
+        var driveTargetVelocityAngular: MutAngularVelocity = RadiansPerSecond.zero().mutableCopy()
+        var driveVelocityAngular: MutAngularVelocity = RadiansPerSecond.zero().mutableCopy()
         
         var turnPosition: Rotation2d = Rotation2d.kZero
         var absoluteTurnPosition: Rotation2d = Rotation2d.kZero
@@ -56,6 +58,8 @@ interface ModuleIO {
             table.put("driveStatorCurrent", driveStatorCurrent)
             table.put("driveSupplyCurrent", driveSupplyCurrent)
             table.put("driveTorqueCurrent", driveTorqueCurrent)
+            table.put("driveTargetVelocityAngular", driveTargetVelocityAngular)
+            table.put("driveVelocityAngular", driveVelocityAngular)
             
             table.put("turnVelocity", turnVelocity)
             table.put("absoluteTurnPosition", Rotation2d.struct, absoluteTurnPosition)
@@ -77,6 +81,8 @@ interface ModuleIO {
             driveStatorCurrent.mut_replace(table.get("driveStatorCurrent", driveStatorCurrent))
             driveSupplyCurrent.mut_replace(table.get("driveSupplyCurrent", driveSupplyCurrent))
             driveTorqueCurrent.mut_replace(table.get("driveTorqueCurrent", driveTorqueCurrent))
+            driveTargetVelocityAngular.mut_replace(table.get("driveTargetVelocityAngular", driveTargetVelocityAngular))
+            driveVelocityAngular.mut_replace(table.get("driveVelocityAngular", driveVelocityAngular))
             
             turnPosition = table.get("turnPosition", Rotation2d.struct, turnPosition)
             absoluteTurnPosition = table.get("absoluteTurnPosition", Rotation2d.struct, absoluteTurnPosition)

@@ -27,6 +27,7 @@ import edu.wpi.first.units.measure.Voltage
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
 import lib.math.units.into
+import lib.math.units.measuredIn
 
 class ModuleIOTorqueCurrent(
     val driveID: Int,
@@ -98,8 +99,6 @@ class ModuleIOTorqueCurrent(
         encoder.velocityConversionFactor(60/turnGearing)
         idleMode(SparkBaseConfig.IdleMode.kBrake)
         smartCurrentLimit(30)
-        
-        
     }
     
     val turnCoastConfig = turnBrakeConfig.idleMode(SparkBaseConfig.IdleMode.kCoast)
@@ -195,10 +194,9 @@ class ModuleIOTorqueCurrent(
     }
     
     override fun setDriveVelocity(velocity: LinearVelocity) {
-        super.setDriveVelocity(velocity)
         driveMotor.setControl(
             closedLoopDriveRequest.withVelocity(
-                (velocity into MetersPerSecond) / (wheelRadius into Meters),
+                (velocity into MetersPerSecond) / (wheelRadius into Meters) measuredIn RadiansPerSecond,
             ),
         )
         

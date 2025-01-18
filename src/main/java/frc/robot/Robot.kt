@@ -4,6 +4,7 @@ import edu.wpi.first.hal.FRCNetComm.tInstances
 import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.hal.HALUtil
+import edu.wpi.first.math.MathUtil
 import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.util.datalog.DataLog
@@ -72,12 +73,15 @@ object Robot : LoggedRobot() {
 
     fun configureBindings() {
         drivebase.defaultCommand = drivebase.getDriveCmd(
-            { -Math.pow(driverController.leftY, 3.0) * (Drivebase.maxSpeed into MetersPerSecond) },
-            { -Math.pow(driverController.leftX, 3.0) * (Drivebase.maxSpeed into MetersPerSecond) },
-            { -Math.pow(driverController.rightX, 3.0) * (drivebase.maxAngularVelocity into RadiansPerSecond) },
+            { -(MathUtil.applyDeadband(driverController.leftY, 0.05))},
+            { -(MathUtil.applyDeadband(driverController.leftX, 0.05))},
+            { -(MathUtil.applyDeadband(driverController.rightX, 0.05))},
             !driverController.leftBumper(),
-            { 1.0 }
+            { 1.0 },
+            3
         )
+
+        driverController.rightBumper().onTrue(drivebase.resetHeading())
     }
 
     override fun robotPeriodic() {

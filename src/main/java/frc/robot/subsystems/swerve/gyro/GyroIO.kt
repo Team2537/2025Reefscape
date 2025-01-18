@@ -59,4 +59,6 @@ interface GyroIO {
      * Method for pulling data from the gyro. Updates the GyroInputs object.
      */
     fun updateInputs(inputs: GyroInputs) {}
+
+    fun setYaw(heading: Rotation2d) {}
 }

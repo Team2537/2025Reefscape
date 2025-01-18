@@ -13,20 +13,19 @@ import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Voltage
-import edu.wpi.first.wpilibj2.command.Command
-import edu.wpi.first.wpilibj2.command.PrintCommand
-import edu.wpi.first.wpilibj2.command.SubsystemBase
-import edu.wpi.first.wpilibj2.command.WaitCommand
+import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.RobotType
 import frc.robot.subsystems.swerve.gyro.GyroIO
 import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2
 import frc.robot.subsystems.swerve.gyro.GyroIOSim
 import frc.robot.subsystems.swerve.module.SwerveModule
+import lib.math.units.into
 import lib.math.units.measuredIn
 import org.littletonrobotics.junction.Logger
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
+import kotlin.math.*
 
 class Drivebase : SubsystemBase("drivebase") {
     
@@ -76,10 +75,10 @@ class Drivebase : SubsystemBase("drivebase") {
      * 3: Back Right
      */
     val modules: Array<SwerveModule> = arrayOf(
-        SwerveModule(1, 2, 3, false, true, Rotation2d.fromRadians(2.508), moduleTranslations[0]),
-        SwerveModule(4, 5, 6, false, true, Rotation2d.fromRadians(1.155), moduleTranslations[1]),
-        SwerveModule(7, 8, 9, false, true, Rotation2d.fromRadians(-1.982), moduleTranslations[2]),
-        SwerveModule(10, 11, 12, false, true, Rotation2d.fromRadians(-1.764), moduleTranslations[3])
+        SwerveModule(1, 2, 3, false, true, Rotation2d.fromRadians(2.370), moduleTranslations[0]),
+        SwerveModule(4, 5, 6, false, true, Rotation2d.fromRadians(1.2), moduleTranslations[1]),
+        SwerveModule(7, 8, 9, false, true, Rotation2d.fromRadians(-2.008), moduleTranslations[2]),
+        SwerveModule(10, 11, 12, false, true, Rotation2d(-1.640), moduleTranslations[3])
     )
     
     val gyro: GyroIO = when(RobotType.mode){
@@ -124,7 +123,7 @@ class Drivebase : SubsystemBase("drivebase") {
             }
         ),
         SysIdRoutine.Mechanism(
-            { volts: Voltage -> modules.map { it.characterizeVoltage(volts) } },
+            { volts: Voltage -> modules.map { it.characterizeDriveVoltage(volts) } },
             null,
             this
         )
@@ -146,7 +145,22 @@ class Drivebase : SubsystemBase("drivebase") {
         )
     )
 
-    val driveSysIdRoutine = driveSysIDVolts
+    val steerSysIdRoutine: SysIdRoutine =
+        SysIdRoutine(
+            SysIdRoutine.Config(
+                null,
+                null,
+                null,
+                { state -> Logger.recordOutput("$name/state", state.toString())}
+            ),
+            SysIdRoutine.Mechanism(
+                { volts: Voltage -> modules.map { it.characterizeSteerVoltage(volts) }},
+                null,
+                this
+            )
+        )
+
+    val routineToApply = steerSysIdRoutine
 
     fun applyChassisSpeeds(speeds: ChassisSpeeds) {
         val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
@@ -161,31 +175,40 @@ class Drivebase : SubsystemBase("drivebase") {
         strafe: DoubleSupplier,
         rotation: DoubleSupplier,
         shouldFieldOrient: BooleanSupplier,
-        slowmodeInput: DoubleSupplier
+        slowmodeInput: DoubleSupplier,
+        exponent: Int
     ): Command {
         return run {
             val speeds: ChassisSpeeds
-            var forwardS = forward.asDouble
-            var strafeS = strafe.asDouble
-            var rotationS = rotation.asDouble
+            val magnitude = hypot(forward.asDouble, strafe.asDouble).pow(exponent)
+            val direction = Rotation2d.fromRadians(atan2(forward.asDouble, strafe.asDouble))
+            var rotationSpeed = rotation.asDouble
 
-            // Potentially adjust the scaling factor to be a function of the slowmode input, rather than just multiplying by it
-            forwardS *= slowmodeInput.asDouble
-            strafeS *= slowmodeInput.asDouble
+            val forwardS = magnitude * direction.sin
+            val strafeS = magnitude * direction.cos
+
 
             if(shouldFieldOrient.asBoolean){
                 speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                    forwardS,
-                    strafeS,
-                    rotationS,
+                    forwardS * (maxSpeed into MetersPerSecond),
+                    strafeS * (maxSpeed into MetersPerSecond),
+                    rotationSpeed * (maxAngularVelocity into RadiansPerSecond),
                     pose.rotation
                 )
             } else {
-                speeds = ChassisSpeeds(forwardS, strafeS, rotationS)
+                speeds = ChassisSpeeds(
+                    forwardS * (maxSpeed into MetersPerSecond),
+                    strafeS * (maxSpeed into MetersPerSecond),
+                    rotationSpeed * (maxAngularVelocity into RadiansPerSecond)
+                )
             }
 
             applyChassisSpeeds(speeds)
         }
+    }
+
+    fun resetHeading(): Command {
+        return Commands.runOnce({ gyro.setYaw(Rotation2d()) })
     }
 
     fun driveSysId(): Command {
@@ -193,13 +216,13 @@ class Drivebase : SubsystemBase("drivebase") {
             modules.map { it.applyState(SwerveModuleState()) }
         }.withTimeout(3.0)
             .andThen(
-                driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kForward),
+                routineToApply.dynamic(SysIdRoutine.Direction.kForward),
                 WaitCommand(1.0),
-                driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse),
+                routineToApply.dynamic(SysIdRoutine.Direction.kReverse),
                 WaitCommand(1.0),
-                driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward),
+                routineToApply.quasistatic(SysIdRoutine.Direction.kForward),
                 WaitCommand(1.0),
-                driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+                routineToApply.quasistatic(SysIdRoutine.Direction.kReverse),
                 PrintCommand("done!")
             )
     }
@@ -225,6 +248,6 @@ class Drivebase : SubsystemBase("drivebase") {
     
     companion object Constants {
         // DONT FORGET TO CHANGE BACK!
-        val maxSpeed = 2.0 measuredIn FeetPerSecond
+        val maxSpeed = 15.0 measuredIn FeetPerSecond
     }
 }
