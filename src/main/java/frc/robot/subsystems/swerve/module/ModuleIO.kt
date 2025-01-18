@@ -1,11 +1,7 @@
 package frc.robot.subsystems.swerve.module
 
 import edu.wpi.first.math.geometry.Rotation2d
-import edu.wpi.first.units.Units.Amps
-import edu.wpi.first.units.Units.Meters
-import edu.wpi.first.units.Units.MetersPerSecond
-import edu.wpi.first.units.Units.RadiansPerSecond
-import edu.wpi.first.units.Units.Volt
+import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.*
 import lib.controllers.gains.PIDGains
 import org.littletonrobotics.junction.LogTable
@@ -30,6 +26,7 @@ interface ModuleIO {
         
         var driveVelocity: MutLinearVelocity = MetersPerSecond.zero().mutableCopy()
         var drivePosition: MutDistance = Meters.zero().mutableCopy()
+        var drivePositionAngular: MutAngle = Radians.zero().mutableCopy()
         var driveAppliedVoltage: MutVoltage = Volt.zero().mutableCopy()
         var driveStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
         var driveSupplyCurrent: MutCurrent = Amps.zero().mutableCopy()
@@ -54,6 +51,7 @@ interface ModuleIO {
             
             table.put("driveVelocity", driveVelocity)
             table.put("drivePosition", drivePosition)
+            table.put("drivePositionAngular", drivePositionAngular)
             table.put("driveAppliedVoltage", driveAppliedVoltage)
             table.put("driveStatorCurrent", driveStatorCurrent)
             table.put("driveSupplyCurrent", driveSupplyCurrent)
@@ -77,6 +75,7 @@ interface ModuleIO {
             
             driveVelocity.mut_replace(table.get("driveVelocity", driveVelocity))
             drivePosition.mut_replace(table.get("drivePosition", drivePosition))
+            drivePositionAngular.mut_replace(table.get("drivePositionAngular", drivePositionAngular))
             driveAppliedVoltage.mut_replace(table.get("driveAppliedVoltage", driveAppliedVoltage))
             driveStatorCurrent.mut_replace(table.get("driveStatorCurrent", driveStatorCurrent))
             driveSupplyCurrent.mut_replace(table.get("driveSupplyCurrent", driveSupplyCurrent))

@@ -8,6 +8,7 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.units.Units.Volts
+import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Voltage
 import frc.robot.RobotType
@@ -85,6 +86,9 @@ class SwerveModule(
             inputs.driveVelocity,
             inputs.absoluteTurnPosition
         )
+
+    val radiusCharacterizationAngle: Angle
+        get() = inputs.drivePositionAngular
 
     /** The position of the module. */
     val position: SwerveModulePosition
