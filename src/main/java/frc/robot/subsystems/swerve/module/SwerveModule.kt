@@ -57,12 +57,12 @@ class SwerveModule(
         )
         RobotType.Mode.REAL -> ModuleIOTorqueCurrent(
             driveID,
-            6.75,
+            6.75, // 6.75:1 drive gearing
             invertDrive,
             driveTorqueGains.feedforward,
             driveTorqueGains.pid,
             turnID,
-            150 / 7.0,
+            150 / 7.0, // 150:7 turn gearing
             turnInverted = invertTurn,
             FeedforwardGains(kS = 0.14403),
             PIDGains(kP = 15.0),
@@ -146,7 +146,7 @@ class SwerveModule(
                 kP = 10.0
             ),
             FeedforwardGains(
-                kV = 1.15
+                kS = 1.15
             )
         )
 
