@@ -148,6 +148,11 @@ class ModuleIOVelocityVoltage(
             MetersPerSecond
         )
 
+        inputs.drivePosition.mut_replace(
+            (drivePosition.value into Radians) * (wheelRadius into Meters),
+            Meters
+        )
+
         inputs.driveAppliedVoltage.mut_replace(
             driveMotorVolts.value
         )
