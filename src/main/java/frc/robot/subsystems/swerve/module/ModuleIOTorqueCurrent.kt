@@ -152,6 +152,8 @@ class ModuleIOTorqueCurrent(
             (drivePosition.value into Radians) * (wheelRadius into Meters),
             Meters
         )
+
+        inputs.drivePositionAngular.mut_replace(drivePosition.value)
         
         inputs.driveAppliedVoltage.mut_replace(
             driveMotorVolts.value
