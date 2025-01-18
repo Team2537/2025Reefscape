@@ -7,11 +7,14 @@ import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.Units.Inches
+import edu.wpi.first.units.Units.Volts
+import edu.wpi.first.units.measure.Current
+import edu.wpi.first.units.measure.Voltage
 import frc.robot.RobotType
+import lib.controllers.gains.ControllerGains
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
 import lib.math.units.measuredIn
-import lib.math.units.metersPerSecond
 import lib.math.vector
 import org.littletonrobotics.junction.Logger
 
@@ -35,6 +38,7 @@ class SwerveModule(
     val encoderOffset: Rotation2d,
     val modulePosition: Translation2d
 ) {
+
     private val io: ModuleIO = when (RobotType.mode) {
         RobotType.Mode.SIMULATION -> ModuleIOSim(
             FeedforwardGains(
@@ -51,8 +55,26 @@ class SwerveModule(
             150 / 7.0,
             2.0 measuredIn Inches
         )
+        RobotType.Mode.REAL -> ModuleIOTorqueCurrent(
+            driveID,
+            6.75, // 6.75:1 drive gearing
+            invertDrive,
+            driveTorqueGains.feedforward,
+            driveTorqueGains.pid,
+            turnID,
+            150 / 7.0, // 150:7 turn gearing
+            turnInverted = invertTurn,
+            FeedforwardGains(kS = 0.14403),
+            PIDGains(kP = 15.0),
+            encoderID,
+            encoderOffset,
+            wheelRadius = 2.0 measuredIn Inches
+        )
         else -> object : ModuleIO {}
     }
+    
+    /** The index of the module in the array of modules. Calculated with math */
+    val index: Int = (driveID - 1) / 3
 
     /** The object that holds the inputs for the module. */
     val inputs: ModuleIO.ModuleInputs = ModuleIO.ModuleInputs()
@@ -70,6 +92,9 @@ class SwerveModule(
             inputs.drivePosition,
             inputs.absoluteTurnPosition
         )
+    
+    /** The desired state of the module. */
+    var desiredState: SwerveModuleState = SwerveModuleState()
 
     /**
      * Vector pointing in the direction that the module would be facing if it was contributing 100% of its velocity
@@ -80,6 +105,9 @@ class SwerveModule(
     /** Updates the inputs for the module. */
     fun periodic() {
         io.updateInputs(inputs)
+        
+        Logger.recordOutput("modules/$index/driveError", inputs.driveVelocity.minus(desiredState.speedMetersPerSecond measuredIn Units.MetersPerSecond))
+        Logger.recordOutput("modules/$index/turnError", inputs.absoluteTurnPosition.minus(desiredState.angle))
     }
 
     /**
@@ -88,10 +116,50 @@ class SwerveModule(
      * @param desiredState The desired state for the module.
      */
     fun applyState(desiredState: SwerveModuleState) {
+        this.desiredState = desiredState
+        
         desiredState.optimize(inputs.absoluteTurnPosition)
         desiredState.cosineScale(inputs.absoluteTurnPosition)
 
         io.setTurnPosition(desiredState.angle)
         io.setDriveVelocity(desiredState.speedMetersPerSecond measuredIn Units.MetersPerSecond)
+    }
+
+    fun characterizeDriveVoltage(volts: Voltage) {
+        io.setTurnPosition(Rotation2d())
+        io.setDriveVoltage(volts)
+    }
+
+    fun characterizeSteerVoltage(volts: Voltage) {
+        io.setTurnVoltage(volts)
+        io.setDriveVoltage(Volts.zero())
+    }
+
+    fun characterizeCurrent(current: Current){
+        io.setTurnPosition(Rotation2d())
+        io.setDriveCurrent(current)
+    }
+
+    private companion object {
+        val driveTorqueGains: ControllerGains = ControllerGains(
+            PIDGains(
+                kP = 10.0
+            ),
+            FeedforwardGains(
+                kS = 1.15
+            )
+        )
+
+        val driveVelocityVoltageGains: ControllerGains = ControllerGains(
+            PIDGains(
+                kP = 0.88842,
+            ),
+            FeedforwardGains(
+                kV = 1.9168,
+                kS = 0.34113,
+                kA = 0.081352
+            )
+        )
+
     }
 }
