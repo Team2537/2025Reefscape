@@ -231,6 +231,7 @@ class ModuleIOTorqueCurrent(
             SparkBase.ResetMode.kResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         )
+        println("Setting brake to $enabled")
     }
     
     override fun setDrivePID(gains: PIDGains) {
