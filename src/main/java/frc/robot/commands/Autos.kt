@@ -12,14 +12,19 @@ import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.robot.subsystems.swerve.Drivebase
 import org.littletonrobotics.junction.Logger
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
 
 class Autos(
     val drivebase: Drivebase
 ) {
 
-    fun getAutoCommand(): Command {
-        return tenFootTest().cmd()
+    private val chooser = LoggedDashboardChooser<AutoRoutine>("auto").apply {
+        addDefaultOption("Ten Foot Test", tenFootTest())
+        addOption("Two Piece", twoPiece())
     }
+    
+    val selectedRoutine: AutoRoutine
+        get() = chooser.get()
 
     val autoFactory: AutoFactory = AutoFactory(
         drivebase::pose,
