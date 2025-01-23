@@ -84,27 +84,25 @@ class ModuleIOTorqueCurrent(
     private val driveSupplyCurrent = driveMotor.supplyCurrent.clone()
     private val driveTorqueCurrent = driveMotor.torqueCurrent.clone()
     
-    val turnBrakeConfig = SparkMaxConfig().apply {
-        closedLoop.pid(
-            turnPID.kP,
-            turnPID.kI,
-            turnPID.kD,
-        )
-        
-        closedLoop.positionWrappingEnabled(true)
-        closedLoop.positionWrappingInputRange(-0.5, 0.5)
-        
-        inverted(turnInverted)
-        encoder.positionConversionFactor(1/turnGearing)
-        encoder.velocityConversionFactor(60/turnGearing)
-        idleMode(SparkBaseConfig.IdleMode.kBrake)
-        smartCurrentLimit(30)
-    }
-    
-    val turnCoastConfig = turnBrakeConfig.idleMode(SparkBaseConfig.IdleMode.kCoast)
-    
     private val turnMotor = SparkMax(turnID, SparkLowLevel.MotorType.kBrushless).apply {
-        configure(turnBrakeConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+        val config = SparkMaxConfig().apply {
+            closedLoop.pid(
+                turnPID.kP,
+                turnPID.kI,
+                turnPID.kD,
+            )
+            
+            closedLoop.positionWrappingEnabled(true)
+            closedLoop.positionWrappingInputRange(-0.5, 0.5)
+            
+            inverted(turnInverted)
+            encoder.positionConversionFactor(1/turnGearing)
+            encoder.velocityConversionFactor(60/turnGearing)
+            idleMode(SparkBaseConfig.IdleMode.kBrake)
+            smartCurrentLimit(30)
+        }
+        
+        configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
     }
     
     private val absEncoder: CANcoder = CANcoder(encoderID).apply {
@@ -226,9 +224,13 @@ class ModuleIOTorqueCurrent(
     }
     
     override fun setTurnBrake(enabled: Boolean) {
+        val config = SparkMaxConfig()
+        
+        config.idleMode(if(enabled) SparkBaseConfig.IdleMode.kBrake else SparkBaseConfig.IdleMode.kCoast)
+        
         turnMotor.configure(
-            if(enabled) turnBrakeConfig else turnCoastConfig,
-            SparkBase.ResetMode.kResetSafeParameters,
+            config,
+            SparkBase.ResetMode.kNoResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         )
     }
