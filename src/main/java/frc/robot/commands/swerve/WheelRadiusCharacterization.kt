@@ -2,6 +2,7 @@ package frc.robot.commands.swerve
 
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.filter.SlewRateLimiter
+import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.AngularVelocity
@@ -27,7 +28,7 @@ class WheelRadiusCharacterization(
     private var gyroYawAccumRads = 0.0
 
     override fun initialize() {
-        startWheelPositions = drivebase.wheelRadiusCharacterizationAngles
+        startWheelPositions = drivebase.wheelRadiusCharacterizationAngles.map { it.copy() }
         gyroYawAccumRads = 0.0
 
         lastGyroYawRads = drivebase.gyroInputs.yaw.radians
@@ -48,10 +49,11 @@ class WheelRadiusCharacterization(
         val averageWheelPositionRad  = startWheelPositions.zip(wheelPositions).sumOf { (start, current) ->
             abs(current.into(Radians) - start.into(Radians))
         } / wheelPositions.size
-        
+
+        Logger.recordOutput("${drivebase.name}/radiusCharacterization/averageWheelPositionRad", averageWheelPositionRad)
         
 
-        val currentEffectiveWheelRadiusMeters = (gyroYawAccumRads * (drivebase.drivebaseRadius into Meters)) / averageWheelPositionRad
+        val currentEffectiveWheelRadiusMeters = ((gyroYawAccumRads * (drivebase.drivebaseRadius into Meters)) / averageWheelPositionRad) * direction.i
 
         Logger.recordOutput("${drivebase.name}/radiusCharacterization/wheelRadius", currentEffectiveWheelRadiusMeters)
 
@@ -61,6 +63,10 @@ class WheelRadiusCharacterization(
     enum class Direction(val i: Int) {
         CLOCKWISE(-1),
         COUNTERCLOCKWISE(1)
+    }
+
+    override fun end(interrupted: Boolean) {
+        drivebase.applyChassisSpeeds(ChassisSpeeds())
     }
 
 }

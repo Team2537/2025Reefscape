@@ -17,15 +17,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
 class Autos(
     val drivebase: Drivebase
 ) {
-
-    private val chooser = LoggedDashboardChooser<AutoRoutine>("auto").apply {
-        addDefaultOption("Ten Foot Test", tenFootTest())
-        addOption("Two Piece", twoPiece())
-    }
-    
-    val selectedRoutine: AutoRoutine
-        get() = chooser.get()
-
     val autoFactory: AutoFactory = AutoFactory(
         drivebase::pose,
         drivebase::resetOdometry,
@@ -40,6 +31,14 @@ class Autos(
             }
         }
     )
+
+    private val chooser = LoggedDashboardChooser<AutoRoutine>("auto").apply {
+        addDefaultOption("Ten Foot Test", nineFootTest())
+        addOption("Two Piece", twoPiece())
+    }
+
+    val selectedRoutine: AutoRoutine
+        get() = chooser.get()
 
     fun twoPiece(): AutoRoutine {
         val routine = autoFactory.newRoutine("twoPiece")
@@ -67,19 +66,19 @@ class Autos(
 
     }
 
-    fun tenFootTest(): AutoRoutine {
-        val routine = autoFactory.newRoutine("tenFootTest")
+    fun nineFootTest(): AutoRoutine {
+        val routine = autoFactory.newRoutine("nineFootTest")
 
-        val tenFootForwards = routine.trajectory("10ftForward")
-        val tenFootBack = routine.trajectory("10ftBack")
+        val nineFootForwards = routine.trajectory("9ftForward")
+        val nineFootBack = routine.trajectory("9ftBack")
 
         routine.active().onTrue(
             Commands.sequence(
-                tenFootForwards.resetOdometry(),
-                tenFootForwards.cmd(),
+                nineFootForwards.resetOdometry(),
+                nineFootForwards.cmd(),
                 drivebase.getStopCmd(),
                 Commands.waitSeconds(3.0),
-                tenFootBack.cmd(),
+                nineFootBack.cmd(),
                 drivebase.getStopCmd()
             )
         )
