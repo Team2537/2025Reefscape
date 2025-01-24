@@ -49,7 +49,7 @@ class SwerveModule(
                 kP = 0.01
             ),
             DCMotor.getKrakenX60Foc(1),
-            6.75,
+            8.14,
             FeedforwardGains(),
             PIDGains(),
             DCMotor.getNEO(1),
@@ -58,7 +58,7 @@ class SwerveModule(
         )
         RobotType.Mode.REAL -> ModuleIOTorqueCurrent(
             driveID,
-            6.75, // 6.75:1 drive gearing
+            8.14, // 8.14:1 drive gearing
             invertDrive,
             driveTorqueGains.feedforward,
             driveTorqueGains.pid,
