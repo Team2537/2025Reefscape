@@ -80,7 +80,7 @@ class Drivebase : SubsystemBase("drivebase") {
      * 3: Back Right
      */
     val modules: Array<SwerveModule> = arrayOf(
-        SwerveModule(1, 2, 3, false, true, Rotation2d.fromRadians(2.370), moduleTranslations[0]),
+        SwerveModule(1, 2, 3, false, true, Rotation2d.fromRadians(2.490), moduleTranslations[0]),
         SwerveModule(4, 5, 6, false, true, Rotation2d.fromRadians(1.2), moduleTranslations[1]),
         SwerveModule(7, 8, 9, false, true, Rotation2d.fromRadians(-2.008), moduleTranslations[2]),
         SwerveModule(10, 11, 12, false, true, Rotation2d(-1.640), moduleTranslations[3])

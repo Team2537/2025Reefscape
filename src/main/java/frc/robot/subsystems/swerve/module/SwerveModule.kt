@@ -69,7 +69,7 @@ class SwerveModule(
             PIDGains(kP = 15.0),
             encoderID,
             encoderOffset,
-            wheelRadius = 2.0 measuredIn Inches
+            wheelRadius = wheelRadius
         )
         else -> object : ModuleIO {}
     }
@@ -145,6 +145,8 @@ class SwerveModule(
     }
 
     private companion object {
+        val wheelRadius = 1.94 measuredIn Inches
+
         val driveTorqueGains: ControllerGains = ControllerGains(
             PIDGains(
                 kP = 10.0

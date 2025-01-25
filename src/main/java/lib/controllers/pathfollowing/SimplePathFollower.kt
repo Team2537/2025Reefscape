@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import frc.robot.subsystems.swerve.Drivebase
 import lib.controllers.gains.PIDGains
+import org.littletonrobotics.junction.Logger
 import java.util.function.Consumer
 import java.util.function.Supplier
 import kotlin.math.PI
@@ -30,6 +31,13 @@ class SimplePathFollower(
         val xOutput = xPID.calculate(pose.translation.x, sample.x)
         val yOutput = yPID.calculate(pose.translation.y, sample.y)
         val thetaOutput = thetaPID.calculate(pose.rotation.radians, sample.heading)
+
+        Logger.recordOutput("drivebase/auto/xError", xPID.error)
+        Logger.recordOutput("drivebase/auto/yError", yPID.error)
+        Logger.recordOutput("drivebase/auto/thetaError", thetaPID.error)
+
+        Logger.recordOutput("drivebase/auto/samplePose", sample.pose)
+        Logger.recordOutput("drivebase/auto/pose", pose)
 
         speedConsumer.accept(
             ChassisSpeeds.fromFieldRelativeSpeeds(
