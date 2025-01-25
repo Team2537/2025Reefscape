@@ -1,22 +1,26 @@
 package lib.controllers.pathfollowing
 
 import choreo.trajectory.SwerveSample
+import edu.wpi.first.math.VecBuilder
+import edu.wpi.first.math.Vector
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.math.numbers.N2
 import frc.robot.subsystems.swerve.Drivebase
 import lib.controllers.gains.PIDGains
 import org.littletonrobotics.junction.Logger
+import java.util.function.BiConsumer
 import java.util.function.Consumer
 import java.util.function.Supplier
 import kotlin.math.PI
 
-class SimplePathFollower(
+class ModuleForcesPathFollower(
     private val drivebase: Drivebase,
     xPidGains: PIDGains,
     yPidGains: PIDGains,
     thetaPidGains: PIDGains,
-    private val speedConsumer: Consumer<ChassisSpeeds>,
+    private val speedConsumer: BiConsumer<ChassisSpeeds, List<Vector<N2>>>,
     private val poseSupplier: Supplier<Pose2d>
 ): PathFollower {
 
@@ -45,7 +49,8 @@ class SimplePathFollower(
                 yOutput + sample.vy,
                 thetaOutput + sample.omega,
                 pose.rotation
-            )
+            ),
+            sample.moduleForcesX().zip(sample.moduleForcesY()).map { VecBuilder.fill(it.first, it.second) }
         )
     }
 }
