@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.WheelRadiusCharacterization
 import frc.robot.subsystems.swerve.Drivebase
+import frc.robot.subsystems.vision.Vision
+import frc.robot.subsystems.vision.VisionIO
 import lib.commands.not
 import lib.math.geometry.FieldConstants
 import lib.math.units.into
@@ -32,6 +34,7 @@ object Robot : LoggedRobot() {
     val driverController = CommandXboxController(0)
 
     val drivebase: Drivebase = Drivebase()
+    val vision: Vision = Vision()
 
     val autos = Autos(drivebase)
 

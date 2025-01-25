@@ -1,5 +1,7 @@
 package lib.math.geometry
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout
+import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.geometry.Ellipse2d
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Pose3d
@@ -35,6 +37,8 @@ object FieldConstants {
     
     /** Center of the field */
     val fieldCenter = Pose2d(fieldLength / 2.0, fieldWidth / 2.0, Rotation2d())
+
+    val tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape)
     
     // Access the reef and processor constants to initialize them
     init {
