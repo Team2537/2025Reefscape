@@ -129,6 +129,14 @@ interface ModuleIO {
      */
     fun setDriveVelocity(velocity: LinearVelocity) {}
     
+    /**
+     * Send a velocity setpoint to the drive motor
+     *
+     * @param velocity The velocity to set the motor to
+     * @param torqueCurrentFF The feedforward torque current to apply
+     */
+    fun setDriveVelocity(velocity: LinearVelocity, torqueCurrentFF: Current) {}
+    
     /** Reset the encoder positions of the module */
     fun reset() {}
     

@@ -199,12 +199,21 @@ class ModuleIOTorqueCurrent(
     }
     
     override fun setDriveVelocity(velocity: LinearVelocity) {
+        setDriveVelocity(velocity, Amps.zero())
+    }
+    
+    /**
+     * Send a velocity setpoint to the drive motor
+     *
+     * @param velocity The velocity to set the motor to
+     * @param torqueCurrentFF The feedforward torque current to apply
+     */
+    override fun setDriveVelocity(velocity: LinearVelocity, torqueCurrentFF: Current) {
         driveMotor.setControl(
             closedLoopDriveRequest.withVelocity(
                 (velocity into MetersPerSecond) / (wheelRadius into Meters) measuredIn RadiansPerSecond,
-            ),
+            ).withFeedForward(torqueCurrentFF),
         )
-        
     }
     
     override fun reset() {

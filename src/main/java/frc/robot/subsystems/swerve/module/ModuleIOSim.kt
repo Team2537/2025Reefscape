@@ -10,6 +10,7 @@ import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.units.Units.Volts
+import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.LinearVelocity
 import edu.wpi.first.units.measure.Voltage
@@ -140,6 +141,10 @@ class ModuleIOSim(
 //        driveMotor.setAngularVelocity(velocityRadPerSec)
 
         driveMotor.inputVoltage = (output + feedforward)
+    }
+    
+    override fun setDriveVelocity(velocity: LinearVelocity, torqueCurrentFF: Current) {
+        setDriveVelocity(velocity)
     }
     
     /** Reset the encoder positions of the module */
