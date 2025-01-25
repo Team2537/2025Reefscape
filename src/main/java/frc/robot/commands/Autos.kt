@@ -33,7 +33,8 @@ class Autos(
     )
 
     private val chooser = LoggedDashboardChooser<AutoRoutine>("auto").apply {
-        addDefaultOption("Ten Foot Test", nineFootTest())
+        addOption("Nine Foot Test", nineFootTest())
+        addDefaultOption("Wiggly", wiggly())
         addOption("Two Piece", twoPiece())
     }
 
@@ -79,6 +80,22 @@ class Autos(
                 drivebase.getStopCmd(),
                 Commands.waitSeconds(3.0),
                 nineFootBack.cmd(),
+                drivebase.getStopCmd()
+            )
+        )
+
+        return routine
+    }
+    
+    fun wiggly(): AutoRoutine {
+        val routine = autoFactory.newRoutine("wiggly")
+
+        val wiggly = routine.trajectory("wiggly")
+
+        routine.active().onTrue(
+            Commands.sequence(
+                wiggly.resetOdometry(),
+                wiggly.cmd(),
                 drivebase.getStopCmd()
             )
         )

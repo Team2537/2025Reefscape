@@ -115,6 +115,9 @@ class Drivebase : SubsystemBase("drivebase") {
 
     val desiredStates: List<SwerveModuleState>
         get() = modules.map { it.desiredState }
+    
+    val moduleForces: List<SwerveModuleState>
+        get() = modules.map { it.wheelForce }
 
     val chassisSpeeds: ChassisSpeeds
         get() = kinematics.toChassisSpeeds(*wheelStates.toTypedArray())
@@ -291,6 +294,7 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.recordOutput("$name/wheelStates", *wheelStates.toTypedArray())
         Logger.recordOutput("$name/desiredStates", *desiredStates.toTypedArray())
         Logger.recordOutput("$name/wheelPositions", *wheelPositions.toTypedArray())
+        Logger.recordOutput("$name/moduleForces", *moduleForces.toTypedArray())
     }
 
     companion object Constants {
