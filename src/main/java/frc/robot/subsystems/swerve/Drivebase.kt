@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve
 
 import choreo.auto.AutoFactory
+import edu.wpi.first.math.Vector
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
@@ -9,6 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
+import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Angle
@@ -23,6 +25,8 @@ import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2
 import frc.robot.subsystems.swerve.gyro.GyroIOSim
 import frc.robot.subsystems.swerve.module.SwerveModule
 import lib.controllers.gains.PIDGains
+import lib.controllers.pathfollowing.ModuleForcesPathFollower
+import lib.controllers.pathfollowing.PathFollower
 import lib.controllers.pathfollowing.SimplePathFollower
 import lib.math.units.into
 import lib.math.units.measuredIn
@@ -170,8 +174,8 @@ class Drivebase : SubsystemBase("drivebase") {
 
     val routineToApply = steerSysIdRoutine
 
-    val pathFollower: SimplePathFollower =
-        SimplePathFollower(
+    val pathFollower: PathFollower =
+        ModuleForcesPathFollower(
             drivebase = this,
             xPidGains = PIDGains(10.0, 0.0, 0.0),
             yPidGains = PIDGains(10.0, 0.0, 0.0),
@@ -180,7 +184,16 @@ class Drivebase : SubsystemBase("drivebase") {
             poseSupplier = ::pose,
         )
 
+    fun applyChassisSpeeds(speeds: ChassisSpeeds, moduleForces: List<Vector<N2>>) {
+        val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
 
+        val states = kinematics.toSwerveModuleStates(discretizedSpeeds)
+
+        modules.zip(states).forEachIndexed { index, (module, state) ->
+            module.applyState(state, moduleForces[index])
+        }
+    }
+    
     fun applyChassisSpeeds(speeds: ChassisSpeeds) {
         val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
 
