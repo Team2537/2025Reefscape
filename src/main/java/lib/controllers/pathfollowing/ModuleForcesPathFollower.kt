@@ -40,8 +40,8 @@ class ModuleForcesPathFollower(
         Logger.recordOutput("drivebase/auto/yError", yPID.error)
         Logger.recordOutput("drivebase/auto/thetaError", thetaPID.error)
 
-        Logger.recordOutput("drivebase/auto/samplePose", sample.pose)
-        Logger.recordOutput("drivebase/auto/pose", pose)
+        Logger.recordOutput("drivebase/auto/samplePose", Pose2d.struct, sample.pose)
+        Logger.recordOutput("drivebase/auto/pose", Pose2d.struct, pose)
 
         speedConsumer.accept(
             ChassisSpeeds.fromFieldRelativeSpeeds(
