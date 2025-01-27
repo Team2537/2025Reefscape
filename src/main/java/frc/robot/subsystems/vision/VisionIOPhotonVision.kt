@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Transform3d
 import lib.math.geometry.FieldConstants
 import org.photonvision.PhotonCamera
 
-class VisionIOPhotonVision(name: String, val robotToCamera: Transform3d) : VisionIO {
+open class VisionIOPhotonVision(name: String, val robotToCamera: Transform3d) : VisionIO {
     val camera = PhotonCamera(name)
 
     override fun updateInputs(inputs: VisionIO.VisionInputs) {
