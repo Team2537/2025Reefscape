@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.math.numbers.N2
+import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Angle
@@ -275,6 +276,10 @@ class Drivebase : SubsystemBase("drivebase") {
                 routineToApply.quasistatic(SysIdRoutine.Direction.kReverse),
                 PrintCommand("done!")
             )
+    }
+    
+    fun addVisionMeasurement(pose: Pose2d, timestamp: Double, stdDevs: Vector<N3>) {
+//        odometry.addVisionMeasurement(pose, timestamp, stdDevs)
     }
 
     override fun periodic() {

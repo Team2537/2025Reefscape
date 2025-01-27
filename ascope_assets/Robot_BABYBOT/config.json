@@ -1,0 +1,63 @@
+{
+  "name": "BabyBot",
+  "sourceUrl": "",
+  "disableSimplification": false,
+  "rotations": [
+    {
+      "axis": "z",
+      "degrees": 90
+    }
+  ],
+  "position": [
+    0.0,
+    0.0,
+    0.0381
+  ],
+  "cameras": [
+    {
+      "name": "Front Left",
+      "rotations": [
+        { "axis": "x", "degrees": 0.0 },
+        { "axis": "y", "degrees": -28.125 },
+        { "axis": "z", "degrees": 30.0 }
+      ],
+      "position": [0.196, 0.229, 0.212],
+      "resolution": [640, 480],
+      "fov": 50
+    },
+    {
+      "name": "Front Right",
+      "rotations": [
+        { "axis": "x", "degrees": 0.0 },
+        { "axis": "y", "degrees": -28.125 },
+        { "axis": "z", "degrees": -30.0 }
+      ],
+      "position": [0.196, -0.229, 0.212],
+      "resolution": [640, 480],
+      "fov": 50
+    },
+    {
+      "name": "Back Left",
+      "rotations": [
+        { "axis": "x", "degrees": 0.0 },
+        { "axis": "y", "degrees": -28.125 },
+        { "axis": "z", "degrees": 150.0 }
+      ],
+      "position": [-0.196, 0.229, 0.212],
+      "resolution": [640, 480],
+      "fov": 50
+    },
+    {
+      "name": "Back Right",
+      "rotations": [
+        { "axis": "x", "degrees": 0.0 },
+        { "axis": "y", "degrees": -28.125 },
+        { "axis": "z", "degrees": 210.0 }
+      ],
+      "position": [-0.196, -0.229, 0.212],
+      "resolution": [640, 480],
+      "fov": 50
+    }
+  ],
+  "components": []
+}

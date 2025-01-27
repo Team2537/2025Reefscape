@@ -36,7 +36,7 @@ object Robot : LoggedRobot() {
     val driverController = CommandXboxController(0)
 
     val drivebase: Drivebase = Drivebase()
-    val vision: Vision = Vision()
+    val vision: Vision = Vision(drivebase::addVisionMeasurement)
 
     val autos = Autos(drivebase)
 
