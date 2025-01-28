@@ -7,6 +7,7 @@ import edu.wpi.first.units.Units.Amps
 import edu.wpi.first.units.measure.*
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
+import com.reduxrobotics.sensors.canandcolor.ColorData
 
 interface IntakeIO {
     class IntakeInputs : LoggableInputs {
@@ -20,7 +21,7 @@ interface IntakeIO {
         var doesDistanceMatchCoralPlateSensor: Boolean = false
         
         /** Can be used to store color of algae and coral, making it easier for robot to differentiate between the two */
-        var colorFromPlateSensor: String = "#000000" // Hex code format
+        var colorFromPlateSensor: ColorData = ColorData(0.0, 0.0, 0.0)
         
         /** Color can be used to determine if plate contains an algae */
         var doesColorMatchAlgaePlateSensor: Boolean = false 
@@ -59,7 +60,7 @@ interface IntakeIO {
             table.put("distanceFromPlateSensor", distanceFromPlateSensor)
             table.put("doesDistanceMatchAlgaePlateSensor", doesDistanceMatchAlgaePlateSensor)
             table.put("doesDistanceMatchCoralPlateSensor", doesDistanceMatchCoralPlateSensor)
-            table.put("colorFromPlateSensor", colorFromPlateSensor)
+            table.put("colorFromPlateSensor", ColorData.struct, colorFromPlateSensor)
             table.put("doesColorMatchAlgaePlateSensor", doesColorMatchAlgaePlateSensor)
             table.put("doesColorMatchCoralPlateSensor", doesColorMatchCoralPlateSensor)
             
@@ -85,7 +86,7 @@ interface IntakeIO {
         override fun fromLog(table: LogTable) {
             doesDistanceMatchAlgaePlateSensor = table.get("doesDistanceMatchAlgaePlateSensor", doesDistanceMatchAlgaePlateSensor)
             doesDistanceMatchCoralPlateSensor = table.get("doesDistanceMatchCoralPlateSensor", doesDistanceMatchCoralPlateSensor)
-            colorFromPlateSensor = table.get("colorFromPlateSensor", colorFromPlateSensor)
+            colorFromPlateSensor = table.get("colorFromPlateSensor", ColorData.struct, colorFromPlateSensor)
             doesColorMatchAlgaePlateSensor = table.get("doesColorMatchAlgaePlateSensor", doesColorMatchAlgaePlateSensor)
             doesColorMatchCoralPlateSensor = table.get("doesColorMatchCoralPlateSensor", doesColorMatchCoralPlateSensor)
             
