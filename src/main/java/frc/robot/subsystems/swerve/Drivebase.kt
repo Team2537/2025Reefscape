@@ -123,7 +123,7 @@ class Drivebase : SubsystemBase("drivebase") {
         get() = kinematics.toChassisSpeeds(*wheelStates.toTypedArray())
 
     val pose: Pose2d
-        get() = odometry.estimatedPosition
+        get() = Pose2d(odometry.estimatedPosition.translation, gyroInputs.yaw)
 
     val wheelRadiusCharacterizationAngles: List<Angle>
         get() = modules.map { it.radiusCharacterizationAngle }
@@ -254,6 +254,7 @@ class Drivebase : SubsystemBase("drivebase") {
 
     fun resetOdometry(newPose: Pose2d) {
         odometry.resetPose(newPose)
+        gyro.setYaw(newPose.rotation)
     }
 
     fun resetHeading(): Command {
