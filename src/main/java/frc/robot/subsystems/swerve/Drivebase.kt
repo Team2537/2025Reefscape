@@ -279,7 +279,7 @@ class Drivebase : SubsystemBase("drivebase") {
     }
     
     fun addVisionMeasurement(pose: Pose2d, timestamp: Double, stdDevs: Vector<N3>) {
-//        odometry.addVisionMeasurement(pose, timestamp, stdDevs)
+        odometry.addVisionMeasurement(pose, timestamp, stdDevs)
     }
 
     override fun periodic() {
