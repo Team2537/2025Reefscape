@@ -4,11 +4,20 @@ import edu.wpi.first.hal.FRCNetComm.tInstances
 import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.hal.HALUtil
+import edu.wpi.first.math.MathUtil
+import edu.wpi.first.units.Units.MetersPerSecond
+import edu.wpi.first.units.Units.RadiansPerSecond
+import edu.wpi.first.util.datalog.DataLog
+import edu.wpi.first.wpilibj.DataLogManager
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.util.WPILibVersion
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import frc.robot.subsystems.swerve.Drivebase
+import lib.commands.not
 import lib.math.geometry.FieldConstants
+import lib.math.units.into
 import org.littletonrobotics.junction.LogFileUtil
 import org.littletonrobotics.junction.LoggedRobot
 import org.littletonrobotics.junction.Logger
@@ -17,6 +26,10 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader
 import org.littletonrobotics.junction.wpilog.WPILOGWriter
 
 object Robot : LoggedRobot() {
+    val driverController = CommandXboxController(0)
+
+    val drivebase: Drivebase = Drivebase()
+
     init {
         // Report the use of the Kotlin Language for "FRC Usage Report" statistics.
         // Please retain this line so that Kotlin's growing use by teams is seen by FRC/WPI.
@@ -51,8 +64,23 @@ object Robot : LoggedRobot() {
         }
         
         Logger.start()
-        
         FieldConstants
+        configureBindings()
+
+//        driverController.a().whileTrue(drivebase.driveSysId())
+    }
+
+    fun configureBindings() {
+        drivebase.defaultCommand = drivebase.getDriveCmd(
+            { -(MathUtil.applyDeadband(driverController.leftY, 0.05))},
+            { -(MathUtil.applyDeadband(driverController.leftX, 0.05))},
+            { -(MathUtil.applyDeadband(driverController.rightX, 0.05))},
+            !driverController.leftBumper(),
+            { 1.0 },
+            3
+        )
+
+        driverController.rightBumper().onTrue(drivebase.resetHeading())
     }
 
     override fun robotPeriodic() {

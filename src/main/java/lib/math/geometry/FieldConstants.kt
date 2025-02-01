@@ -48,7 +48,6 @@ object FieldConstants {
                 Meters.of(4.489325),
                 Meters.of(4.025877)
             )
-
         /** Center of the red reef */
         val redCenter = blueCenter.flipped()
 
@@ -135,6 +134,7 @@ object FieldConstants {
         private fun calcNodePose(level: Level, side: Face, rack: Side): Pose3d {
             var x = center.x.meters - level.radius
             var y = center.y.meters
+
             
             when (rack) {
                 Side.LEFT -> y -= Inches.of(12.937968 / 2)
@@ -285,7 +285,6 @@ object FieldConstants {
             }
             _isBlue = !_isBlue
         }
-
         
         val allianceWallToCage = 346.891642.inches
         
@@ -337,6 +336,10 @@ object FieldConstants {
         init {
             Logger.recordOutput("field/barge/cages", cage1, cage2, cage3)
             Logger.recordOutput("field/barge/zone", *zone.corners.toTypedArray())
+        
+        init {
+            Logger.recordOutput("field/barge/cages", cage1, cage2, cage3)
+            Logger.recordOutput("field/barge/cageZone", *cageZone.corners().toTypedArray())
         }
     }
 }
