@@ -1,6 +1,7 @@
 package frc.robot
 
 import edu.wpi.first.units.Units.*
+import lib.math.geometry.Flipper2d
 import lib.math.units.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -40,5 +41,13 @@ class UnitTestForUnits {
 
         val a2lv = angularToLinearV(4.radiansPerSecond, 2.5.meters)
         assertEquals(10.metersPerSecond, a2lv)
+    }
+
+    @Test
+    fun `Flipper Test`() {
+        println("Hello")
+        val f = Flipper2d.justFlipX { 10.meters - it }
+        println(f.flipX(6.meters))
+        println(Flipper2d.None)
     }
 }
