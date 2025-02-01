@@ -1,17 +1,15 @@
-package frc.robot.subsystems
+package frc.robot.subsystems.gripper
 
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.MutAngle
 import edu.wpi.first.units.measure.MutAngularVelocity
 import edu.wpi.first.units.measure.MutVoltage
 import edu.wpi.first.units.measure.Voltage
-import jdk.jfr.Enabled
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import edu.wpi.first.units.Units.*
-import edu.wpi.first.units.measure.MutDistance
 
-interface GripperIO{
+interface GripperIO {
     class GripperInputs: LoggableInputs {
         val gripperDistance: MutAngle = Rotations.zero().mutableCopy()
         val gripperPosition: MutAngle = Rotations.zero().mutableCopy()
@@ -32,8 +30,9 @@ interface GripperIO{
             gripperAppliedVoltage.mut_replace(table.get("gripperAppliedVoltage", gripperAppliedVoltage))
         }
     }
-    fun applyVoltage(volts: Voltage)
-    fun sendPos(angle: Angle)
-    fun setBrake(brakeEnabled: Boolean)
+
     fun updateInputs(inputs: GripperInputs)
+    fun setVoltage(voltage: Voltage)
+    fun setPosition(position: Angle)
+    fun setBrakeMode(enabled: Boolean)
 }
