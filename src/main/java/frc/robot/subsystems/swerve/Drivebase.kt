@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve
 
 import choreo.auto.AutoFactory
+import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.Vector
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
 import edu.wpi.first.math.geometry.Pose2d
@@ -105,7 +106,9 @@ class Drivebase : SubsystemBase("drivebase") {
         kinematics,
         gyroInputs.yaw,
         wheelPositions.toTypedArray(),
-        Pose2d()
+        Pose2d(),
+        VecBuilder.fill(0.0, 0.0, 0.0),
+        VecBuilder.fill(0.9, 0.9, 0.9),
     )
 
     val wheelPositions: List<SwerveModulePosition>
@@ -204,6 +207,7 @@ class Drivebase : SubsystemBase("drivebase") {
         val states = kinematics.toSwerveModuleStates(discretizedSpeeds)
 
         modules.zip(states).forEach { (module, state) -> module.applyState(state) }
+        Logger.recordOutput("$name/discretizedChassisSpeeds", discretizedSpeeds)
     }
 
     fun runWheelRadiusCharacterization(omegaSpeed: AngularVelocity) {
@@ -214,7 +218,12 @@ class Drivebase : SubsystemBase("drivebase") {
         )
     }
 
-    fun getStopCmd() = runOnce { applyChassisSpeeds(ChassisSpeeds()) }
+    fun getStopCmd() = runOnce {
+        modules.zip(wheelStates).forEach {
+            (module: SwerveModule, state: SwerveModuleState) ->
+            module.applyState(SwerveModuleState(0.0, state.angle))
+        }
+    }
 
     fun getDriveCmd(
         forward: DoubleSupplier,
@@ -296,7 +305,6 @@ class Drivebase : SubsystemBase("drivebase") {
         )
 
         Logger.recordOutput("$name/pose", Pose2d.struct, pose)
-        Logger.recordOutput("$name/chassisSpeeds", chassisSpeeds)
         Logger.recordOutput("$name/wheelStates", *wheelStates.toTypedArray())
         Logger.recordOutput("$name/desiredStates", *desiredStates.toTypedArray())
         Logger.recordOutput("$name/wheelPositions", *wheelPositions.toTypedArray())
