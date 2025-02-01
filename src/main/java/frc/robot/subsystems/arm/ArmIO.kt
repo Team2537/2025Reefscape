@@ -13,45 +13,45 @@ import org.littletonrobotics.junction.inputs.LoggableInputs
 interface ArmIO {
     class ArmInputs : LoggableInputs {
         /** The position of the motor(s), measured relatively by the motor(s)'s encoder. */
-        val relativePosition: MutAngle = Rotations.zero().mutableCopy()
+        val motorRelativePosition: MutAngle = Rotations.zero().mutableCopy()
 
         /** The position of the motor(s), measured absolutely. */
-        val absolutePosition: MutAngle = Rotations.zero().mutableCopy()
+        val motorAbsolutePosition: MutAngle = Rotations.zero().mutableCopy()
 
         /** The velocity of the motor(s)'s rotation. */
-        val velocity: MutAngularVelocity = RotationsPerSecond.zero().mutableCopy()
+        val motorVelocity: MutAngularVelocity = RotationsPerSecond.zero().mutableCopy()
 
         /** The voltage supplied to the motor(s). */
-        val supplyVoltage: MutVoltage = Volts.zero().mutableCopy()
+        val motorSupplyVoltage: MutVoltage = Volts.zero().mutableCopy()
 
         /** The voltage the motor(s) is/are using. */
-        val outputVoltage: MutVoltage = Volts.zero().mutableCopy()
+        val motorVoltage: MutVoltage = Volts.zero().mutableCopy()
 
         /** The current applied to the motor(s). */
-        val statorCurrent: MutCurrent = Amps.zero().mutableCopy()
+        val motorStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
 
         /**
          * Updates a LogTable with the data to log.
          */
         override fun toLog(table: LogTable) {
-            table.put("motor/relativePosition", relativePosition)
-            table.put("motor/absolutePosition", absolutePosition)
-            table.put("motor/velocity", velocity)
-            table.put("motor/supplyVoltage", supplyVoltage)
-            table.put("motor/outputVoltage", outputVoltage)
-            table.put("motor/statorCurrent", statorCurrent)
+            table.put("motorRelativePosition", motorRelativePosition)
+            table.put("motorAbsolutePosition", motorAbsolutePosition)
+            table.put("motorVelocity", motorVelocity)
+            table.put("motorSupplyVoltage", motorSupplyVoltage)
+            table.put("motorVoltage", motorVoltage)
+            table.put("motorStatorCurrent", motorStatorCurrent)
         }
 
         /**
          * Updates data based on a LogTable.
          */
         override fun fromLog(table: LogTable) {
-            relativePosition.mut_replace(table.get("motor/relativePosition", relativePosition))
-            absolutePosition.mut_replace(table.get("motor/absolutePosition", absolutePosition))
-            velocity.mut_replace(table.get("motor/velocity", velocity))
-            supplyVoltage.mut_replace(table.get("motor/supplyVoltage", supplyVoltage))
-            outputVoltage.mut_replace(table.get("motor/outputVoltage", outputVoltage))
-            statorCurrent.mut_replace(table.get("motor/statorCurrent", statorCurrent))
+            motorRelativePosition.mut_replace(table.get("motorRelativePosition", motorRelativePosition))
+            motorAbsolutePosition.mut_replace(table.get("motorAbsolutePosition", motorAbsolutePosition))
+            motorVelocity.mut_replace(table.get("motorVelocity", motorVelocity))
+            motorSupplyVoltage.mut_replace(table.get("motorSupplyVoltage", motorSupplyVoltage))
+            motorVoltage.mut_replace(table.get("motorVoltage", motorVoltage))
+            motorStatorCurrent.mut_replace(table.get("motorStatorCurrent", motorStatorCurrent))
         }
     }
 
