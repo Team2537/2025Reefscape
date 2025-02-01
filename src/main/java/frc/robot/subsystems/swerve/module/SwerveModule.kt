@@ -134,18 +134,15 @@ class SwerveModule(
      * @param desiredState The desired state for the module.
      */
     fun applyState(desiredState: SwerveModuleState) {
-        this.desiredState = desiredState
-        
         desiredState.optimize(inputs.absoluteTurnPosition)
         desiredState.cosineScale(inputs.absoluteTurnPosition)
 
         io.setTurnPosition(desiredState.angle)
         io.setDriveVelocity(desiredState.speedMetersPerSecond measuredIn Units.MetersPerSecond)
+        this.desiredState = desiredState
     }
     
     fun applyState(desiredState: SwerveModuleState, wheelForce: Vector<N2>) {
-        this.desiredState = desiredState
-        
         desiredState.optimize(inputs.absoluteTurnPosition)
         desiredState.cosineScale(inputs.absoluteTurnPosition)
         
@@ -162,6 +159,7 @@ class SwerveModule(
             wheelTorqueNm,
             desiredState.angle
         )
+        this.desiredState = desiredState
     }
 
     fun characterizeDriveVoltage(volts: Voltage) {

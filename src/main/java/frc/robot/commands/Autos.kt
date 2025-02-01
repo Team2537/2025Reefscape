@@ -24,7 +24,7 @@ class Autos(
         true,
         drivebase,
         { trajectory: Trajectory<SwerveSample>, isStart: Boolean ->
-            if(isStart) {
+            if (isStart) {
                 Logger.recordOutput("${drivebase.name}/traj", *trajectory.poses)
             } else {
                 Logger.recordOutput("${drivebase.name}/traj", Pose2d())
@@ -37,6 +37,8 @@ class Autos(
         addOption("Two Piece", twoPiece())
         addOption("Square Test", squareTest())
         addOption("Nine Foot Test Back", nineFootTestBack())
+        addOption("Nine Foot Test Left", nineFootTestLeft())
+        addOption("Nine Foot Repeat", nineFootRepeat())
     }
 
     val selectedRoutine: AutoRoutine
@@ -88,6 +90,58 @@ class Autos(
         return routine
     }
 
+    fun nineFootRepeat(): AutoRoutine {
+        val routine = autoFactory.newRoutine("nineFootRepeat")
+
+        val nineFootForwards = routine.trajectory("9ftForward")
+        val nineFootBack = routine.trajectory("9ftBack")
+
+        routine.active().onTrue(
+            Commands.sequence(
+                nineFootForwards.resetOdometry(),
+                nineFootForwards.cmd(),
+                drivebase.getStopCmd(),
+                Commands.waitSeconds(1.0),
+                nineFootBack.cmd(),
+                drivebase.getStopCmd(),
+                Commands.waitSeconds(1.0),
+                nineFootForwards.cmd(),
+                drivebase.getStopCmd(),
+                Commands.waitSeconds(1.0),
+                nineFootBack.cmd(),
+                drivebase.getStopCmd(),
+                Commands.waitSeconds(1.0),
+                nineFootForwards.cmd(),
+                drivebase.getStopCmd(),
+                Commands.waitSeconds(1.0),
+                nineFootBack.cmd(),
+                drivebase.getStopCmd(),
+            )
+        )
+
+        return routine
+    }
+
+    fun nineFootTestLeft(): AutoRoutine {
+        val routine = autoFactory.newRoutine("nineFootTestLeft")
+
+        val nineFootLeft = routine.trajectory("9ftLeft")
+        val nineFootRight = routine.trajectory("9ftRight")
+
+        routine.active().onTrue(
+            Commands.sequence(
+                nineFootLeft.resetOdometry(),
+                nineFootLeft.cmd(),
+                drivebase.getStopCmd(),
+                Commands.waitSeconds(3.0),
+                nineFootRight.cmd(),
+                drivebase.getStopCmd()
+            )
+        )
+
+        return routine
+    }
+
     fun nineFootTestBack(): AutoRoutine {
         val routine = autoFactory.newRoutine("nineFootTestBack")
 
@@ -123,7 +177,7 @@ class Autos(
 
         return routine
     }
-    
+
     fun wiggly(): AutoRoutine {
         val routine = autoFactory.newRoutine("wiggly")
 

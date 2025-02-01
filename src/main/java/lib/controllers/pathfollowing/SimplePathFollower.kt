@@ -32,20 +32,21 @@ class SimplePathFollower(
         val yOutput = yPID.calculate(pose.translation.y, sample.y)
         val thetaOutput = thetaPID.calculate(pose.rotation.radians, sample.heading)
 
+        val speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            xOutput + sample.vx,
+            yOutput + sample.vy,
+            thetaOutput + sample.omega,
+            pose.rotation
+        )
+
         Logger.recordOutput("drivebase/auto/xError", xPID.error)
         Logger.recordOutput("drivebase/auto/yError", yPID.error)
         Logger.recordOutput("drivebase/auto/thetaError", thetaPID.error)
         
         Logger.recordOutput("drivebase/auto/samplePose", Pose2d.struct, sample.pose)
         Logger.recordOutput("drivebase/auto/pose", Pose2d.struct, pose)
+        Logger.recordOutput("drivebase/auto/speeds", ChassisSpeeds.struct, speeds)
 
-        speedConsumer.accept(
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                xOutput + sample.vx,
-                yOutput + sample.vy,
-                thetaOutput + sample.omega,
-                pose.rotation
-            )
-        )
+        speedConsumer.accept(speeds)
     }
 }
