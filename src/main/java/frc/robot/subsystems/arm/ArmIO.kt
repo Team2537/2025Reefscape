@@ -12,23 +12,6 @@ import org.littletonrobotics.junction.inputs.LoggableInputs
 
 interface ArmIO {
     class ArmInputs : LoggableInputs {
-        // It's so clean though... (,_,)
-//        /** The inputs for the motor that pivots the arm. */
-//        val pivot: MotorInputs = MotorInputs()
-//
-//        /**
-//         * Updates a LogTable with the data to log.
-//         */
-//        override fun toLog(table: LogTable) {
-//            table.put("pivot", pivot)
-//        }
-//
-//        /**
-//         * Updates data based on a LogTable.
-//         */
-//        override fun fromLog(table: LogTable) {
-//            table.get("pivot", pivot)
-//        }
         /** The position of the motor(s), measured relatively by the motor(s)'s encoder. */
         val relativePosition: MutAngle = Rotations.zero().mutableCopy()
 
