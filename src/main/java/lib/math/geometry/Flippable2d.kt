@@ -21,43 +21,153 @@ import lib.math.geometry.JavaDriverStation.*
  *
  * Note that there is no bounding on the type parameter of a [Flippable2d].
  * Attempting to use a type that cannot be flipped will result in a
- * [ClassCastException] being thrown.
+ * [ClassCastException] being thrown. For convenience, static factory
+ * methods exist only for currently supported geometrical types.
  *
  * Based on team 686 "Bovine Intervention"'s [`FlippedGeometry`](https://github.com/FRC-686-Bovine-Intervention/Robot-2025-Reefscape/blob/gamepiece-vis/src/main/java/frc/util/AllianceFlipUtil.java#L188)
  */
-class Flippable2d<T> {
-    // TODO: maybe with private constructors for type safety? unsure...
-    // I will make the rest of these factory methods later if so
+class Flippable2d<out T> private constructor(val blue: T, val red: T) {
     companion object {
+        /**
+         * Creates a `Flippable2d<Translation2d>` from the given blue [Translation2d].
+         *
+         * By default, red's version is [reflected across the x-axis][Flipper2d.ReflectX].
+         *
+         * @param blue The blue [Translation2d]
+         * @param flip The [flipping contract][Flipper2d]
+         *
+         * @return A `Flippable2d<Translation2d>` derived from a blue [Translation2d].
+         */
         fun withBlue(blue: Translation2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Translation2d> {
             return Flippable2d(blue, flip(blue))
         }
 
+        /**
+         * Creates a `Flippable2d<Translation2d>` from the given red [Translation2d].
+         *
+         * By default, blue's version is [reflected across the x-axis][Flipper2d.ReflectX].
+         *
+         * @param red The red [Translation2d]
+         * @param flip The [flipping contract][Flipper2d]
+         *
+         * @return A `Flippable2d<Translation2d>` derived from a red [Translation2d].
+         */
         fun withRed(red: Translation2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Translation2d> {
             return Flippable2d(flip(red), red)
         }
 
+        /**
+         * Creates a `Flippable2d<Rotation2d>` from the given blue [Rotation2d].
+         *
+         * By default, red's version is [reflected across the x-axis][Flipper2d.ReflectX].
+         *
+         * @param blue The blue [Rotation2d]
+         * @param flip The [flipping contract][Flipper2d]
+         *
+         * @return A `Flippable2d<Rotation2d>` derived from a blue [Rotation2d].
+         */
         fun withBlue(blue: Rotation2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Rotation2d> {
             return Flippable2d(blue, flip(blue))
         }
 
+        /**
+         * Creates a `Flippable2d<Rotation2d>` from the given red [Rotation2d].
+         *
+         * By default, blue's version is [reflected across the x-axis][Flipper2d.ReflectX].
+         *
+         * @param red The red [Rotation2d]
+         * @param flip The [flipping contract][Flipper2d]
+         *
+         * @return A `Flippable2d<Rotation2d>` derived from a red [Rotation2d].
+         */
         fun withRed(red: Rotation2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Rotation2d> {
             return Flippable2d(flip(red), red)
         }
-    }
 
-    constructor(raw: T, flip: Flipper2d = Flipper2d.None) {
-        blue = raw
-        red = flip(blue)
-    }
+        /**
+         * Creates a `Flippable2d<Pose2d>` from the given blue [Pose2d].
+         *
+         * By default, red's version is [reflected across the x-axis][Flipper2d.ReflectX].
+         *
+         * @param blue The blue [Pose2d]
+         * @param flip The [flipping contract][Flipper2d]
+         *
+         * @return A `Flippable2d<Pose2d>` derived from a blue [Pose2d].
+         */
+        fun withBlue(blue: Pose2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Pose2d> {
+            return Flippable2d(blue, flip(blue))
+        }
 
-    private constructor(blue: T, red: T) {
-        this.blue = blue
-        this.red = red
-    }
+        /**
+         * Creates a `Flippable2d<Pose2d>` from the given red [Pose2d].
+         *
+         * By default, blue's version is [reflected across the x-axis][Flipper2d.ReflectX].
+         *
+         * @param red The red [Pose2d]
+         * @param flip The [flipping contract][Flipper2d]
+         *
+         * @return A `Flippable2d<Pose2d>` derived from a red [Pose2d].
+         */
+        fun withRed(red: Pose2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Pose2d> {
+            return Flippable2d(flip(red), red)
+        }
 
-    val blue: T
-    val red: T
+        /**
+         * Creates a `Flippable2d<Transform2d>` from the given blue [Transform2d].
+         *
+         * By default, red's version is [reflected across the x-axis][Flipper2d.ReflectX].
+         *
+         * @param blue The blue [Transform2d]
+         * @param flip The [flipping contract][Flipper2d]
+         *
+         * @return A `Flippable2d<Transform2d>` derived from a blue [Transform2d].
+         */
+        fun withBlue(blue: Transform2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Transform2d> {
+            return Flippable2d(blue, flip(blue))
+        }
+
+        /**
+         * Creates a `Flippable2d<Transform2d>` from the given red [Transform2d].
+         *
+         * By default, blue's version is [reflected across the x-axis][Flipper2d.ReflectX].
+         *
+         * @param red The red [Transform2d]
+         * @param flip The [flipping contract][Flipper2d]
+         *
+         * @return A `Flippable2d<Transform2d>` derived from a red [Transform2d].
+         */
+        fun withRed(red: Transform2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Transform2d> {
+            return Flippable2d(flip(red), red)
+        }
+
+        /**
+         * Creates a `Flippable2d<Twist2d>` from the given blue [Twist2d].
+         *
+         * By default, red's version is [reflected across the x-axis][Flipper2d.ReflectX].
+         *
+         * @param blue The blue [Twist2d]
+         * @param flip The [flipping contract][Flipper2d]
+         *
+         * @return A `Flippable2d<Twist2d>` derived from a blue [Twist2d].
+         */
+        fun withBlue(blue: Twist2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Twist2d> {
+            return Flippable2d(blue, flip(blue))
+        }
+
+        /**
+         * Creates a `Flippable2d<Twist2d>` from the given red [Twist2d].
+         *
+         * By default, blue's version is [reflected across the x-axis][Flipper2d.ReflectX].
+         *
+         * @param red The red [Twist2d]
+         * @param flip The [flipping contract][Flipper2d]
+         *
+         * @return A `Flippable2d<Twist2d>` derived from a red [Twist2d].
+         */
+        fun withRed(red: Twist2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Twist2d> {
+            return Flippable2d(flip(red), red)
+        }
+    }
 
     val ours: T get() {
         return if(DriverStation.alliance == Red)

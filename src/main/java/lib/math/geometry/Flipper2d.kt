@@ -18,8 +18,8 @@ import lib.math.units.radians
 /**
  * A contract for flipping 2-dimensional geometrical objects.
  *
- * There are existing contracts for (no flipping)[None],
- * (reflection across the x-axis)[ReflectX], and (reflection across the y-axis)[ReflectY].
+ * There are existing contracts for [no flipping][None],
+ * [reflection across the x-axis][ReflectX], and [reflection across the y-axis][ReflectY].
  *
  * @see None
  * @see ReflectX
@@ -160,6 +160,8 @@ interface Flipper2d {
         override fun invoke(a: Transform2d): Transform2d = a
         override fun invoke(a: Twist2d): Twist2d = a
         override fun invoke(a: Pose2d): Pose2d = a
+
+        override fun toString(): String = "Flipper2d\$None"
     }
 
     /**
@@ -172,6 +174,8 @@ interface Flipper2d {
 
         override fun flipR(r: Angle): Angle = -r // rotations are centered on 0, so simple
                                                  // negation does the trick
+
+        override fun toString(): String = "Flipper2d\$ReflectX"
     }
 
     /**
@@ -183,6 +187,8 @@ interface Flipper2d {
         override fun flipY(y: Distance): Distance = noGarbageFlip(y, FieldConstants.width)
 
         override fun flipR(r: Angle): Angle = noGarbageFlip(r, HALF_CIRCLE)
+
+        override fun toString(): String = "Flipper2d\$ReflectY"
     }
 
     /**
@@ -195,6 +201,8 @@ interface Flipper2d {
 
         // a - -r == r + a
         override fun flipR(r: Angle): Angle = r + HALF_CIRCLE
+
+        override fun toString(): String = "Flipper2d\$ReflectXY"
     }
 
     /**
