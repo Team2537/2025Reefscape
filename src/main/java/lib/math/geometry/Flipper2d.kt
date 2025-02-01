@@ -5,14 +5,28 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.geometry.Twist2d
-import edu.wpi.first.units.Units.Meters
-import edu.wpi.first.units.Units.Radians
+import edu.wpi.first.units.Measure
+import edu.wpi.first.units.Unit
+import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
+import lib.math.units.degrees
 import lib.math.units.into
 import lib.math.units.meters
 import lib.math.units.radians
 
+/**
+ * A contract for flipping 2-dimensional geometrical objects.
+ *
+ * There are existing contracts for (no flipping)[None],
+ * (reflection across the x-axis)[ReflectX], and (reflection across the y-axis)[ReflectY].
+ *
+ * @see None
+ * @see ReflectX
+ * @see ReflectY
+ * @see ReflectXY
+ * @see LambdaFlipper2d
+ */
 interface Flipper2d {
     /**
      * Gets the flipped value of an x-coordinate. Coordinate space is
@@ -88,6 +102,22 @@ interface Flipper2d {
         fun justFlipRotation(flipR: (Angle) -> Angle): Flipper2d {
             return LambdaFlipper2d(rFun = flipR)
         }
+
+        /**
+         * Calculates `a - x` while retaining the unit of `x` and without
+         * allocating any "garbage" measures (i.e. measures that are only
+         * used in intermediary mathematical steps).
+         *
+         * @param x The value to flip
+         * @param a The constant value, or twice the radius of flipping
+         */
+        @Suppress("UNCHECKED_CAST")
+        private fun <U : Unit, M: Measure<U>> noGarbageFlip(x: M, a: M): M {
+            val unit = x.unit()
+            return unit.of((a into unit) - x.magnitude()) as M
+        }
+
+        private val HALF_CIRCLE = Math.PI.radians
     }
 
     operator fun invoke(a: Translation2d): Translation2d {
@@ -95,7 +125,7 @@ interface Flipper2d {
     }
 
     operator fun invoke(a: Rotation2d): Rotation2d {
-        return Rotation2d(a.radians.radians)
+        return Rotation2d(flipR(a.radians.radians))
     }
 
     operator fun invoke(a: Pose2d): Pose2d {
@@ -115,7 +145,8 @@ interface Flipper2d {
     }
 
     /**
-     * A `Flipper2d` that applies no flipping whatsoever.
+     * A `Flipper2d` that applies no flipping whatsoever. This flipper will
+     * **never** allocate memory.
      */
     object None : Flipper2d {
         override fun flipX(x: Distance): Distance = x
@@ -132,8 +163,48 @@ interface Flipper2d {
     }
 
     /**
+     * A `Flipper2d` that reflects across the x-axis.
+     */
+    object ReflectX : Flipper2d {
+        override fun flipX(x: Distance): Distance = noGarbageFlip(x, FieldConstants.length)
+
+        override fun flipY(y: Distance): Distance = y
+
+        override fun flipR(r: Angle): Angle = -r // rotations are centered on 0, so simple
+                                                 // negation does the trick
+    }
+
+    /**
+     * A `Flipper2d` that reflects across the y-axis.
+     */
+    object ReflectY : Flipper2d {
+        override fun flipX(x: Distance): Distance = x
+
+        override fun flipY(y: Distance): Distance = noGarbageFlip(y, FieldConstants.width)
+
+        override fun flipR(r: Angle): Angle = noGarbageFlip(r, HALF_CIRCLE)
+    }
+
+    /**
+     * A `Flipper2d` that reflects across the line *`y = x`*.
+     */
+    object ReflectXY : Flipper2d {
+        override fun flipX(x: Distance): Distance = noGarbageFlip(x, FieldConstants.length)
+
+        override fun flipY(y: Distance): Distance = noGarbageFlip(y, FieldConstants.width)
+
+        // a - -r == r + a
+        override fun flipR(r: Angle): Angle = r + HALF_CIRCLE
+    }
+
+    /**
      * An implementation of a `Flipper2d` that uses given functions to
      * apply flipping.
+     *
+     * By default, each function returns the same angle,
+     * creating a similar effect to [None]. However, this class will
+     * **always** create a copy of geometrical objects, whereas [None]
+     * **never** does.
      */
     class LambdaFlipper2d(
         private val xFun: (Distance) -> Distance = it(),

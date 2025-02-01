@@ -8,14 +8,56 @@ import edu.wpi.first.math.geometry.Twist2d
 import edu.wpi.first.wpilibj.DriverStation.Alliance.*
 import lib.math.geometry.JavaDriverStation.*
 
-class Flippable2d<T>(raw: T, flip: Flipper2d = Flipper2d.None) {
-    enum class Side {
-        RED,
-        BLUE,
+/**
+ * A [Flippable2d] is a type of geometry object that can be flipped across
+ * the field in various ways.
+ *
+ * By default, a [Flippable2d] will [not have any flipping][Flipper2d.None]
+ * -- i.e. [blue] and [red] will be the same object (`blue === red`).
+ *
+ * Flippable geometry can also be accessed with relative respect through
+ * the use of [ours] and [theirs]. Note that "our" side will be blue if
+ * there is not a valid alliance found.
+ *
+ * Note that there is no bounding on the type parameter of a [Flippable2d].
+ * Attempting to use a type that cannot be flipped will result in a
+ * [ClassCastException] being thrown.
+ *
+ * Based on team 686 "Bovine Intervention"'s [`FlippedGeometry`](https://github.com/FRC-686-Bovine-Intervention/Robot-2025-Reefscape/blob/gamepiece-vis/src/main/java/frc/util/AllianceFlipUtil.java#L188)
+ */
+class Flippable2d<T> {
+    // TODO: maybe with private constructors for type safety? unsure...
+    // I will make the rest of these factory methods later if so
+    companion object {
+        fun withBlue(blue: Translation2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Translation2d> {
+            return Flippable2d(blue, flip(blue))
+        }
+
+        fun withRed(red: Translation2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Translation2d> {
+            return Flippable2d(flip(red), red)
+        }
+
+        fun withBlue(blue: Rotation2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Rotation2d> {
+            return Flippable2d(blue, flip(blue))
+        }
+
+        fun withRed(red: Rotation2d, flip: Flipper2d = Flipper2d.ReflectX): Flippable2d<Rotation2d> {
+            return Flippable2d(flip(red), red)
+        }
     }
 
-    var blue: T private set
-    var red: T private set
+    constructor(raw: T, flip: Flipper2d = Flipper2d.None) {
+        blue = raw
+        red = flip(blue)
+    }
+
+    private constructor(blue: T, red: T) {
+        this.blue = blue
+        this.red = red
+    }
+
+    val blue: T
+    val red: T
 
     val ours: T get() {
         return if(DriverStation.alliance == Red)
@@ -31,19 +73,6 @@ class Flippable2d<T>(raw: T, flip: Flipper2d = Flipper2d.None) {
             red
     }
 
-    init {
-        // TODO: find a better and more general solution to this
-        if(
-            raw !is Translation2d && raw !is Rotation2d && raw !is Pose2d &&
-            raw !is Transform2d && raw !is Twist2d
-        ) {
-            throw ClassCastException("Cannot have flippable ${raw!!::class.qualifiedName}")
-        }
-
-        blue = raw
-        red = flip(blue)
-    }
-
     // extension so that it may not be overridden
     /**
      * Attempts to invoke a [Flipper2d] on an arbitrary object.
@@ -57,15 +86,17 @@ class Flippable2d<T>(raw: T, flip: Flipper2d = Flipper2d.None) {
      */
     @Throws(ClassCastException::class)
     @Suppress("UNCHECKED_CAST")
-    operator fun <T> Flipper2d.invoke(obj: T): T {
+    operator fun <U> Flipper2d.invoke(obj: U): U {
+        // NOTE: This switch will need to be updated if ever there are other
+        // geometry classes we want to flip.
         @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
         return when(obj) {
-            null -> null as T
-            is Translation2d -> this(obj) as T
-            is Rotation2d -> this(obj) as T
-            is Pose2d -> this(obj) as T
-            is Transform2d -> this(obj) as T
-            is Twist2d -> this(obj) as T
+            null -> null as U
+            is Translation2d -> this(obj) as U
+            is Rotation2d -> this(obj) as U
+            is Pose2d -> this(obj) as U
+            is Transform2d -> this(obj) as U
+            is Twist2d -> this(obj) as U
             // The non-null assertion is needed for this to compile.
             // The non-null assertion is not needed as we have already checked for null
             // The non-null assertion is here to stay
@@ -73,4 +104,25 @@ class Flippable2d<T>(raw: T, flip: Flipper2d = Flipper2d.None) {
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Flippable2d<*>
+
+        if (blue != other.blue) return false
+        if (red != other.red) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = blue?.hashCode() ?: 0
+        result = 31 * result + (red?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String {
+        return "Flippable2d(blue=$blue, red=$red)"
+    }
 }
