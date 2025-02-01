@@ -1,4 +1,4 @@
-package frc.robot.subsystems
+package frc.robot.subsystems.climb
 
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Angle
@@ -12,34 +12,29 @@ import org.littletonrobotics.junction.inputs.LoggableInputs
 
 interface ClimbIO{
     class ClimbArmInputs: LoggableInputs {
-        val angleFromAbsoluteEncoder: MutAngle = Rotations.zero().mutableCopy()
+        val absoluteAngle: MutAngle = Rotations.zero().mutableCopy()
         val climbArmAngularVelocity: MutAngularVelocity = RotationsPerSecond.zero().mutableCopy()
         val climbArmSupplyVoltage: MutVoltage = Volt.zero().mutableCopy()
         val climbArmMotorVoltage: MutVoltage = Volt.zero().mutableCopy()
         val climbArmStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
-        val climbSupplyCurrent: MutCurrent = Amps.zero().mutableCopy()
 
         override fun toLog(table: LogTable) {
-            table.put("angleFromAbsoluteEncoder", angleFromAbsoluteEncoder)
+            table.put("climbArmAbsoluteAngle", absoluteAngle)
             table.put("climbArmAngularVelocity", climbArmAngularVelocity)
             table.put("climbArmSupplyVoltage", climbArmSupplyVoltage)
             table.put("climbArmMotorVoltage", climbArmMotorVoltage)
             table.put("climbArmStatorCurrent", climbArmStatorCurrent)
-            table.put("climbSupplyCurrent", climbSupplyCurrent)
         }
 
         override fun fromLog(table: LogTable) {
-            angleFromAbsoluteEncoder.mut_replace(table.get("angleFromAbsoluteEncoder", angleFromAbsoluteEncoder))
+            absoluteAngle.mut_replace(table.get("climbArmAbsoluteAngle", absoluteAngle))
             climbArmAngularVelocity.mut_replace(table.get("climbArmAngularVelocity", climbArmAngularVelocity))
             climbArmSupplyVoltage.mut_replace(table.get("climbArmSupplyVoltage", climbArmSupplyVoltage))
             climbArmMotorVoltage.mut_replace(table.get("climbArmMotorVoltage", climbArmMotorVoltage))
             climbArmStatorCurrent.mut_replace(table.get("climbArmStatorCurrent", climbArmStatorCurrent))
-            climbSupplyCurrent.mut_replace(table.get("climbSupplyCurrent", climbSupplyCurrent))
         }
     }
-    fun climbArmSetVoltage(voltage: Voltage)
-    fun climbArmStop()
-    fun stopAll()
-    fun setPos(angle: Angle)
-    fun setBrake(brakeEnabled: Boolean)
+    fun setVoltage(voltage: Voltage)
+    fun setBrakeMode(brakeEnabled: Boolean)
+    fun stop()
 }
