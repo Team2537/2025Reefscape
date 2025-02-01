@@ -7,7 +7,6 @@ import edu.wpi.first.units.measure.MutAngularVelocity
 import edu.wpi.first.units.measure.MutCurrent
 import edu.wpi.first.units.measure.MutVoltage
 import edu.wpi.first.units.measure.Voltage
-import jdk.jfr.Enabled
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 
@@ -41,6 +40,6 @@ interface ClimbIO{
     fun climbArmSetVoltage(voltage: Voltage)
     fun climbArmStop()
     fun stopAll()
-    fun senPos(angle: Angle)
+    fun setPos(angle: Angle)
     fun setBrake(brakeEnabled: Boolean)
 }
