@@ -35,6 +35,8 @@ class Autos(
     private val chooser = LoggedDashboardChooser<AutoRoutine>("auto").apply {
         addOption("Nine Foot Test", nineFootTest())
         addOption("Two Piece", twoPiece())
+        addOption("Square Test", squareTest())
+        addOption("Nine Foot Test Back", nineFootTestBack())
     }
 
     val selectedRoutine: AutoRoutine
@@ -79,6 +81,42 @@ class Autos(
                 drivebase.getStopCmd(),
                 Commands.waitSeconds(3.0),
                 nineFootBack.cmd(),
+                drivebase.getStopCmd()
+            )
+        )
+
+        return routine
+    }
+
+    fun nineFootTestBack(): AutoRoutine {
+        val routine = autoFactory.newRoutine("nineFootTestBack")
+
+        val nineFootBack = routine.trajectory("9ftBack")
+        val nineFootForwards = routine.trajectory("9ftForward")
+
+        routine.active().onTrue(
+            Commands.sequence(
+                nineFootBack.resetOdometry(),
+                nineFootBack.cmd(),
+                drivebase.getStopCmd(),
+                Commands.waitSeconds(3.0),
+                nineFootForwards.cmd(),
+                drivebase.getStopCmd()
+            )
+        )
+
+        return routine
+    }
+
+    fun squareTest(): AutoRoutine {
+        val routine: AutoRoutine = autoFactory.newRoutine("squareTest")
+
+        val square = routine.trajectory("squareTest")
+
+        routine.active().onTrue(
+            Commands.sequence(
+                square.resetOdometry(),
+                square.cmd(),
                 drivebase.getStopCmd()
             )
         )

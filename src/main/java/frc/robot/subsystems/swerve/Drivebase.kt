@@ -179,11 +179,11 @@ class Drivebase : SubsystemBase("drivebase") {
     val routineToApply = steerSysIdRoutine
 
     val pathFollower: PathFollower =
-        ModuleForcesPathFollower(
+        SimplePathFollower(
             drivebase = this,
-            xPidGains = PIDGains(10.0, 0.0, 0.0),
-            yPidGains = PIDGains(10.0, 0.0, 0.0),
-            thetaPidGains = PIDGains(1.0, 0.0, 0.0),
+            xPidGains = PIDGains(3.0, 0.0, 0.0),
+            yPidGains = PIDGains(3.0, 0.0, 0.0),
+            thetaPidGains = PIDGains(4.0, 0.0, 0.0),
             speedConsumer = ::applyChassisSpeeds,
             poseSupplier = ::pose,
         )
@@ -305,6 +305,6 @@ class Drivebase : SubsystemBase("drivebase") {
 
     companion object Constants {
         // DONT FORGET TO CHANGE BACK!
-        val maxSpeed = 15.0 measuredIn FeetPerSecond
+        val maxSpeed = 12.4 measuredIn FeetPerSecond
     }
 }
