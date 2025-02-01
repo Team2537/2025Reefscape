@@ -7,7 +7,6 @@ import edu.wpi.first.units.measure.MutAngularVelocity
 import edu.wpi.first.units.measure.MutCurrent
 import edu.wpi.first.units.measure.MutVoltage
 import edu.wpi.first.units.measure.Voltage
-import frc.robot.subsystems.util.MotorInputs
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 
