@@ -14,6 +14,7 @@ import lib.controllers.gains.ArmFeedforward
 import lib.controllers.gains.ControllerGains
 import lib.controllers.gains.PIDController
 import lib.math.units.into
+import lib.math.units.volts
 
 class ArmIOSim(
     motor: DCMotor,
@@ -57,6 +58,8 @@ class ArmIOSim(
         inputs.motorRelativePosition.mut_replace(sim.angleRads, Radians)
         inputs.motorAbsolutePosition.mut_replace(sim.angleRads, Radians)
         inputs.motorVelocity.mut_replace(sim.velocityRadPerSec, RadiansPerSecond)
+        // FIXME: THIS IS HARDCODED AND SHOULD NOT BE; REPLACE WITH REAL CONSTANT ASAP
+        inputs.motorSupplyVoltage.mut_replace(12.volts)
         inputs.motorVoltage.mut_replace(cachedVoltage)
         inputs.motorStatorCurrent.mut_replace(sim.currentDrawAmps, Amps)
 
