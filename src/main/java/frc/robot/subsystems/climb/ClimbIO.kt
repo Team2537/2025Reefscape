@@ -13,25 +13,25 @@ import org.littletonrobotics.junction.inputs.LoggableInputs
 interface ClimbIO{
     class ClimbArmInputs: LoggableInputs {
         val absoluteAngle: MutAngle = Rotations.zero().mutableCopy()
-        val climbArmAngularVelocity: MutAngularVelocity = RotationsPerSecond.zero().mutableCopy()
-        val climbArmSupplyVoltage: MutVoltage = Volt.zero().mutableCopy()
-        val climbArmMotorVoltage: MutVoltage = Volt.zero().mutableCopy()
-        val climbArmStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
+        val angularVelocity: MutAngularVelocity = RotationsPerSecond.zero().mutableCopy()
+        val supplyVoltage: MutVoltage = Volt.zero().mutableCopy()
+        val motorVoltage: MutVoltage = Volt.zero().mutableCopy()
+        val statorCurrent: MutCurrent = Amps.zero().mutableCopy()
 
         override fun toLog(table: LogTable) {
-            table.put("climbArmAbsoluteAngle", absoluteAngle)
-            table.put("climbArmAngularVelocity", climbArmAngularVelocity)
-            table.put("climbArmSupplyVoltage", climbArmSupplyVoltage)
-            table.put("climbArmMotorVoltage", climbArmMotorVoltage)
-            table.put("climbArmStatorCurrent", climbArmStatorCurrent)
+            table.put("absoluteAngle", absoluteAngle)
+            table.put("angularVelocity", angularVelocity)
+            table.put("supplyVoltage", supplyVoltage)
+            table.put("motorVoltage", motorVoltage)
+            table.put("statorCurrent", statorCurrent)
         }
 
         override fun fromLog(table: LogTable) {
-            absoluteAngle.mut_replace(table.get("climbArmAbsoluteAngle", absoluteAngle))
-            climbArmAngularVelocity.mut_replace(table.get("climbArmAngularVelocity", climbArmAngularVelocity))
-            climbArmSupplyVoltage.mut_replace(table.get("climbArmSupplyVoltage", climbArmSupplyVoltage))
-            climbArmMotorVoltage.mut_replace(table.get("climbArmMotorVoltage", climbArmMotorVoltage))
-            climbArmStatorCurrent.mut_replace(table.get("climbArmStatorCurrent", climbArmStatorCurrent))
+            absoluteAngle.mut_replace(table.get("absoluteAngle", absoluteAngle))
+            angularVelocity.mut_replace(table.get("angularVelocity", angularVelocity))
+            supplyVoltage.mut_replace(table.get("supplyVoltage", supplyVoltage))
+            motorVoltage.mut_replace(table.get("motorVoltage", motorVoltage))
+            statorCurrent.mut_replace(table.get("statorCurrent", statorCurrent))
         }
     }
     fun setVoltage(voltage: Voltage)
