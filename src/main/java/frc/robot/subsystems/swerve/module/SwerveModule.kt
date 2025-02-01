@@ -74,7 +74,10 @@ class SwerveModule(
             150 / 7.0, // 150:7 turn gearing
             turnInverted = invertTurn,
             FeedforwardGains(kS = 0.14403),
-            PIDGains(kP = 15.0),
+            PIDGains(
+                kP = 50.0,
+                kD = 0.05
+            ),
             encoderID,
             encoderOffset,
             wheelRadius = wheelRadius
