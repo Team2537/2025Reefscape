@@ -4,12 +4,14 @@ import choreo.trajectory.SwerveSample
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.math.util.Units
 import frc.robot.subsystems.swerve.Drivebase
 import lib.controllers.gains.PIDGains
 import org.littletonrobotics.junction.Logger
 import java.util.function.Consumer
 import java.util.function.Supplier
 import kotlin.math.PI
+import kotlin.math.absoluteValue
 
 class SimplePathFollower(
     private val drivebase: Drivebase,
@@ -18,7 +20,7 @@ class SimplePathFollower(
     thetaPidGains: PIDGains,
     private val speedConsumer: Consumer<ChassisSpeeds>,
     private val poseSupplier: Supplier<Pose2d>
-): PathFollower {
+) : PathFollower {
 
     private val xPID = PIDController(xPidGains.kP, xPidGains.kI, xPidGains.kD)
     private val yPID = PIDController(yPidGains.kP, yPidGains.kI, yPidGains.kD)
@@ -39,14 +41,24 @@ class SimplePathFollower(
             pose.rotation
         )
 
+
         Logger.recordOutput("drivebase/auto/xError", xPID.error)
         Logger.recordOutput("drivebase/auto/yError", yPID.error)
         Logger.recordOutput("drivebase/auto/thetaError", thetaPID.error)
-        
+
         Logger.recordOutput("drivebase/auto/samplePose", Pose2d.struct, sample.pose)
         Logger.recordOutput("drivebase/auto/pose", Pose2d.struct, pose)
-        Logger.recordOutput("drivebase/auto/speeds", ChassisSpeeds.struct, speeds)
 
-        speedConsumer.accept(speeds)
+        if (
+            speeds.vxMetersPerSecond.absoluteValue < Units.inchesToMeters(1.0)
+            && speeds.vyMetersPerSecond.absoluteValue < Units.inchesToMeters(1.0)
+            && speeds.omegaRadiansPerSecond.absoluteValue < Units.degreesToRadians(1.0)
+        ) {
+            speedConsumer.accept(ChassisSpeeds())
+            Logger.recordOutput("drivebase/auto/speeds", ChassisSpeeds.struct, ChassisSpeeds())
+        } else {
+            speedConsumer.accept(speeds)
+            Logger.recordOutput("drivebase/auto/speeds", ChassisSpeeds.struct, speeds)
+        }
     }
 }

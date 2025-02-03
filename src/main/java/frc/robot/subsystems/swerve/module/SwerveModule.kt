@@ -76,7 +76,7 @@ class SwerveModule(
             FeedforwardGains(kS = 0.14403),
             PIDGains(
                 kP = 50.0,
-                kD = 0.05
+                kD = 0.5
             ),
             encoderID,
             encoderOffset,
@@ -134,8 +134,12 @@ class SwerveModule(
      * @param desiredState The desired state for the module.
      */
     fun applyState(desiredState: SwerveModuleState) {
+        Logger.recordOutput("modules/$index/preOptimize", SwerveModuleState.struct, desiredState)
+
         desiredState.optimize(inputs.absoluteTurnPosition)
         desiredState.cosineScale(inputs.absoluteTurnPosition)
+
+        Logger.recordOutput("modules/$index/postOptimize", SwerveModuleState.struct, desiredState)
 
         io.setTurnPosition(desiredState.angle)
         io.setDriveVelocity(desiredState.speedMetersPerSecond measuredIn Units.MetersPerSecond)
@@ -178,7 +182,7 @@ class SwerveModule(
     }
 
     private companion object {
-        val wheelRadius = 1.947 measuredIn Inches
+        val wheelRadius = 1.91 measuredIn Inches
 
         val driveTorqueGains: ControllerGains = ControllerGains(
             PIDGains(
