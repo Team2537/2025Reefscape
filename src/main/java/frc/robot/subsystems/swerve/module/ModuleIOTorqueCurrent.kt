@@ -93,7 +93,7 @@ class ModuleIOTorqueCurrent(
             )
             
             closedLoop.positionWrappingEnabled(true)
-            closedLoop.positionWrappingInputRange(-0.5, 0.5)
+            closedLoop.positionWrappingInputRange(0.0, 1.0)
             
             inverted(turnInverted)
             encoder.positionConversionFactor(1/turnGearing)
