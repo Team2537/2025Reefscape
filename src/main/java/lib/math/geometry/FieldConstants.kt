@@ -336,10 +336,6 @@ object FieldConstants {
         init {
             Logger.recordOutput("field/barge/cages", cage1, cage2, cage3)
             Logger.recordOutput("field/barge/zone", *zone.corners.toTypedArray())
-        
-        init {
-            Logger.recordOutput("field/barge/cages", cage1, cage2, cage3)
-            Logger.recordOutput("field/barge/cageZone", *cageZone.corners().toTypedArray())
         }
     }
 }
