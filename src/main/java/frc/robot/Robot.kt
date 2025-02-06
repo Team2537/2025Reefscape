@@ -106,7 +106,7 @@ object Robot : LoggedRobot() {
     override fun disabledPeriodic() {}
 
     override fun autonomousInit() {
-        autos.selectedRoutine.cmd().schedule()
+        autos.selectedRoutine.schedule()
     }
 
     override fun autonomousPeriodic() {}
