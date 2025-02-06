@@ -67,7 +67,7 @@ interface ElevatorIO {
     fun updateInputs(inputs: ElevatorInputs) {}
     
     // Output functions
-    fun setLeftMotorVoltage(voltage: Voltage)
-    fun setRightMotorVoltage(voltage: Voltage)
-    fun stop()
+    fun setElevatorVoltage(volts: Voltage) {}
+    fun setElevatorHeightTarget(height: Distance) {}
+    fun stop() {}
 }
