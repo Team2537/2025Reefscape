@@ -1,6 +1,11 @@
 package frc.robot.subsystems.swerve
 
 import choreo.auto.AutoFactory
+import com.pathplanner.lib.auto.AutoBuilder
+import com.pathplanner.lib.config.PIDConstants
+import com.pathplanner.lib.config.RobotConfig
+import com.pathplanner.lib.controllers.PPHolonomicDriveController
+import com.pathplanner.lib.util.DriveFeedforwards
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.Vector
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
@@ -19,6 +24,7 @@ import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Voltage
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.RobotType
@@ -35,6 +41,7 @@ import lib.math.units.measuredIn
 import org.littletonrobotics.junction.Logger
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
+import kotlin.jvm.optionals.getOrDefault
 import kotlin.math.*
 
 class Drivebase : SubsystemBase("drivebase") {
@@ -179,17 +186,34 @@ class Drivebase : SubsystemBase("drivebase") {
             )
         )
 
+
+
     val routineToApply = steerSysIdRoutine
 
-    val pathFollower: PathFollower =
-        SimplePathFollower(
-            drivebase = this,
-            xPidGains = PIDGains(3.0, 0.0, 0.0),
-            yPidGains = PIDGains(3.0, 0.0, 0.0),
-            thetaPidGains = PIDGains(4.0, 0.0, 0.0),
-            speedConsumer = ::applyChassisSpeeds,
-            poseSupplier = ::pose,
+    val robotConfig: RobotConfig? = try {
+        RobotConfig.fromGUISettings()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+
+    init {
+        AutoBuilder.configure(
+            ::pose,
+            ::resetOdometry,
+            ::chassisSpeeds,
+            {speeds: ChassisSpeeds, feedforward: DriveFeedforwards -> applyChassisSpeeds(speeds)},
+            PPHolonomicDriveController(
+                PIDConstants(3.0),
+                PIDConstants(3.0),
+            ),
+            robotConfig,
+            {
+                DriverStation.getAlliance().getOrDefault(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red
+            },
+            this
         )
+    }
 
     fun applyChassisSpeeds(speeds: ChassisSpeeds, moduleForces: List<Vector<N2>>) {
         val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
