@@ -33,7 +33,7 @@ class Autos(
     )
 
     private val chooser = LoggedDashboardChooser<AutoRoutine>("auto").apply {
-        addOption("Nine Foot Test", nineFootTest())
+        addDefaultOption("Nine Foot Test", nineFootTest())
         addOption("Two Piece", twoPiece())
         addOption("Square Test", squareTest())
         addOption("Nine Foot Test Back", nineFootTestBack())
