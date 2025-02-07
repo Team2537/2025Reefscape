@@ -1,6 +1,7 @@
 package frc.robot.subsystems.elevator
 
 import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.units.Units.Radians
 import edu.wpi.first.units.Units.Volt
