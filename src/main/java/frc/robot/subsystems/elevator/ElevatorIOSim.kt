@@ -4,10 +4,10 @@ import edu.wpi.first.math.controller.ElevatorFeedforward
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.util.Units
-import edu.wpi.first.units.Units.Kilograms
-import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Mass
+import edu.wpi.first.units.measure.MutVoltage
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.simulation.ElevatorSim
 import lib.controllers.gains.FeedforwardGains
@@ -38,19 +38,41 @@ class ElevatorIOSim(
     private val controller = PIDController(pidGains.kP, pidGains.kI, pidGains.kD)
     private val ff = ElevatorFeedforward(ffGains.kS, kG, ffGains.kV, ffGains.kA)
 
-    override fun updateInputs(inputs: ElevatorIO.ElevatorInputs) {
+    private var isClosedLoop = false
 
+    private val appliedVoltage: MutVoltage = Volts.zero().mutableCopy()
+
+    override fun updateInputs(inputs: ElevatorIO.ElevatorInputs) {
+        elevatorSim.update(0.02)
+
+        inputs.carriageHeight.mut_replace(elevatorSim.positionMeters, Meters)
+        inputs.carriageVelocity.mut_replace(elevatorSim.velocityMetersPerSecond, MetersPerSecond)
+
+        inputs.leftMotorVoltage.mut_replace(appliedVoltage)
+        inputs.rightMotorVoltage.mut_replace(appliedVoltage)
+
+        inputs.leftStatorCurrent.mut_replace(elevatorSim.currentDrawAmps, Amps)
+        inputs.rightStatorCurrent.mut_replace(elevatorSim.currentDrawAmps, Amps)
+
+        if(isClosedLoop) {
+            val voltage = controller.calculate(inputs.carriageHeight into Meters)
+            elevatorSim.setInputVoltage(voltage + kG)
+            appliedVoltage.mut_replace(voltage + kG, Volts)
+        }
     }
 
     override fun setElevatorVoltage(volts: Voltage) {
-        super.setElevatorVoltage(volts)
+        elevatorSim.setInputVoltage(volts into Volts)
+        appliedVoltage.mut_replace(volts)
+        isClosedLoop = false
     }
 
     override fun setElevatorHeightTarget(height: Distance) {
-        super.setElevatorHeightTarget(height)
+        isClosedLoop = true
+        controller.setpoint = height into Meters
     }
 
     override fun stop() {
-        super.stop()
+        elevatorSim.setInputVoltage(0.0)
     }
 }
