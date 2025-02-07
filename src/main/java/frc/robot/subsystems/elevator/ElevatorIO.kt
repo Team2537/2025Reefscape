@@ -30,6 +30,9 @@ interface ElevatorIO {
         var rightStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
         var rightEncoderPosition: MutAngle = Radians.zero().mutableCopy()
 
+        var carriageHeight: MutDistance = Meters.zero().mutableCopy()
+        var carriageVelocity: MutLinearVelocity = MetersPerSecond.zero().mutableCopy()
+
         /**
          * Updates a LogTable with the data to log.
          */
