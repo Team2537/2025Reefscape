@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.Slot0Configs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.configs.TalonFXSConfiguration
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage
+import com.ctre.phoenix6.controls.PositionVoltage
 import com.ctre.phoenix6.controls.TorqueCurrentFOC
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC
 import com.ctre.phoenix6.controls.VoltageOut
@@ -67,8 +68,8 @@ class ModuleIOHybridFXS(
         config.TorqueCurrent.withPeakReverseTorqueCurrent(-120.0)
 
         config.MotorOutput.Inverted =
-            if (driveInverted) InvertedValue.CounterClockwise_Positive
-            else InvertedValue.Clockwise_Positive
+            if (driveInverted) InvertedValue.Clockwise_Positive
+            else InvertedValue.CounterClockwise_Positive
 
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake
 
@@ -95,13 +96,16 @@ class ModuleIOHybridFXS(
 
         config.ClosedLoopGeneral.ContinuousWrap = true
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake
+        config.MotorOutput.Inverted =
+            if (turnInverted) InvertedValue.Clockwise_Positive
+            else InvertedValue.CounterClockwise_Positive
 
-        config.Slot0.kP = drivePID.kP
-        config.Slot0.kI = drivePID.kI
-        config.Slot0.kD = drivePID.kD
-        config.Slot0.kV = driveFF.kV
-        config.Slot0.kA = driveFF.kA
-        config.Slot0.kS = driveFF.kS
+        config.Slot0.kP = turnPID.kP
+        config.Slot0.kI = turnPID.kI
+        config.Slot0.kD = turnPID.kD
+        config.Slot0.kV = turnFF.kV
+        config.Slot0.kA = turnFF.kA
+        config.Slot0.kS = turnFF.kS
 
         configurator.apply(config)
     }
@@ -127,7 +131,7 @@ class ModuleIOHybridFXS(
     val openLoopTorqueRequest: TorqueCurrentFOC = TorqueCurrentFOC(0.0)
     val closedLoopDriveRequest: VelocityTorqueCurrentFOC = VelocityTorqueCurrentFOC(0.0)
 
-    val closedLoopTurnRequest: MotionMagicExpoVoltage = MotionMagicExpoVoltage(0.0)
+    val closedLoopTurnRequest: PositionVoltage = PositionVoltage(0.0)
 
     override fun updateInputs(inputs: ModuleIO.ModuleInputs) {
         inputs.isDriveMotorConnected = BaseStatusSignal.refreshAll(

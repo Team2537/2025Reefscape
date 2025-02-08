@@ -259,7 +259,7 @@ class Drivebase : SubsystemBase("drivebase") {
     ): Command {
         return run {
             val speeds: ChassisSpeeds
-            val magnitude = hypot(forward.asDouble, strafe.asDouble).pow(exponent)
+            val magnitude = hypot(strafe.asDouble, forward.asDouble).pow(exponent)
             val direction = Rotation2d.fromRadians(atan2(forward.asDouble, strafe.asDouble))
             var rotationSpeed = rotation.asDouble
 
