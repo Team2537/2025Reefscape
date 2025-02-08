@@ -64,7 +64,7 @@ class SwerveModule(
             150 / 7.0,
             2.0 measuredIn Inches
         )
-        RobotType.Mode.REAL -> ModuleIOTorqueCurrent(
+        RobotType.Mode.REAL -> ModuleIOHybridFXS(
             driveID,
             8.14, // 8.14:1 drive gearing
             invertDrive,
