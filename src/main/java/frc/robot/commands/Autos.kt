@@ -22,6 +22,7 @@ class Autos(
 
     private val chooser = LoggedDashboardChooser<Command>("auto").apply {
         addDefaultOption("Nine Foot Test", nineFootTest())
+        addOption("Nine Foot Test - Choreo", nineFootTestChoreo())
     }
 
     fun nineFootTest(): Command {
