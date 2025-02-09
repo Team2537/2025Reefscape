@@ -39,6 +39,17 @@ interface GripperIO {
             gripperAppliedVoltage.mut_replace(table.get("gripperAppliedVoltage", gripperAppliedVoltage))
             gripperStatorCurrent.mut_replace(table.get("gripperStatorCurrent", gripperStatorCurrent))
         }
+
+        override fun toString(): String {
+            return "GripperInputs(" +
+                    "isHoldingCoral=$isHoldingCoral, " +
+                    "gripperPosition=$gripperPosition, " +
+                    "gripperVelocity=$gripperVelocity, " +
+                    "gripperAppliedVoltage=$gripperAppliedVoltage, " +
+                    "gripperStatorCurrent=$gripperStatorCurrent" +
+                    ")"
+        }
+
     }
 
     /**
