@@ -9,7 +9,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Voltage
 
-class ElevatorIOHardware(
+class ElevatorIOKraken(
     private val leftMotorId: Int,
     private val rightMotorId: Int,
     private val gearRatio: Double,
