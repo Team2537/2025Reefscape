@@ -13,6 +13,7 @@ class ElevatorIOKraken(
     private val leftMotorId: Int,
     private val rightMotorId: Int,
     private val gearRatio: Double,
+    // it is very important that one of these is true and the other is false, or else the motors will fight each other
     private val leftMotorInverted: Boolean = false,
     private val rightMotorInverted: Boolean = true
 ) : ElevatorIO {
@@ -91,12 +92,8 @@ class ElevatorIOKraken(
         inputs.rightEncoderPosition.mut_replace(rightPosition.value)
     }
 
-    override fun setLeftMotorVoltage(voltage: Voltage) {
+    override fun setMotorVoltage(voltage: Voltage) {
         leftMotor.setVoltage(voltage.baseUnitMagnitude())
-    }
-
-    override fun setRightMotorVoltage(voltage: Voltage) {
-        rightMotor.setVoltage(voltage.baseUnitMagnitude())
     }
 
     override fun stop() {
