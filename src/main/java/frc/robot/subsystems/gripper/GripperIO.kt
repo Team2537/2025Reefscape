@@ -4,30 +4,40 @@ import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.MutAngle
 import edu.wpi.first.units.measure.MutAngularVelocity
 import edu.wpi.first.units.measure.MutVoltage
+import edu.wpi.first.units.measure.MutDistance
 import edu.wpi.first.units.measure.Voltage
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
+import com.reduxrobotics.sensors.canandcolor.ColorData
+
 import edu.wpi.first.units.Units.*
+import edu.wpi.first.units.measure.MutCurrent
 
 interface GripperIO {
     class GripperInputs: LoggableInputs {
-        val gripperDistance: MutAngle = Rotations.zero().mutableCopy()
+
+        var isHoldingCoral : Boolean = false
+
         val gripperPosition: MutAngle = Rotations.zero().mutableCopy()
         val gripperVelocity: MutAngularVelocity = RotationsPerSecond.zero().mutableCopy()
         val gripperAppliedVoltage: MutVoltage = Volt.zero().mutableCopy()
+        val gripperStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
 
         override fun toLog(table: LogTable) {
-            table.put("gripperDistance", gripperDistance)
+            table.put("isHoldingCoral", isHoldingCoral)
+
             table.put("gripperPosition", gripperPosition)
             table.put("gripperVelocity", gripperVelocity)
             table.put("gripperAppliedVoltage", gripperAppliedVoltage)
+            table.put("gripperStatorCurrent", gripperStatorCurrent)
         }
 
         override fun fromLog(table: LogTable) {
-            gripperDistance.mut_replace(table.get("gripperDistance", gripperDistance))
+            isHoldingCoral = table.get("isHoldingCoral", isHoldingCoral)
             gripperPosition.mut_replace(table.get("gripperPosition", gripperPosition))
             gripperVelocity.mut_replace(table.get("gripperVelocity", gripperVelocity))
             gripperAppliedVoltage.mut_replace(table.get("gripperAppliedVoltage", gripperAppliedVoltage))
+            gripperStatorCurrent.mut_replace(table.get("gripperStatorCurrent", gripperStatorCurrent))
         }
     }
 

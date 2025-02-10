@@ -1,6 +1,7 @@
 package frc.robot.subsystems.elevator
 
 import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.units.Units.Radians
 import edu.wpi.first.units.Units.Volt
@@ -29,6 +30,9 @@ interface ElevatorIO {
         var rightAngularVelocity: MutAngularVelocity = RadiansPerSecond.zero().mutableCopy()
         var rightStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
         var rightEncoderPosition: MutAngle = Radians.zero().mutableCopy()
+
+        var carriageHeight: MutDistance = Meters.zero().mutableCopy()
+        var carriageVelocity: MutLinearVelocity = MetersPerSecond.zero().mutableCopy()
 
         /**
          * Updates a LogTable with the data to log.
@@ -67,6 +71,7 @@ interface ElevatorIO {
     fun updateInputs(inputs: ElevatorInputs) {}
     
     // Output functions
-    fun setMotorVoltage(voltage: Voltage)
-    fun stop()
+    fun setElevatorVoltage(volts: Voltage) {}
+    fun setElevatorHeightTarget(height: Distance) {}
+    fun stop() {}
 }
