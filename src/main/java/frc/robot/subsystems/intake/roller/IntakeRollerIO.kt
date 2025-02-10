@@ -5,8 +5,8 @@ import edu.wpi.first.units.measure.*
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 
-interface RollerIO {
-    class RollerInputs: LoggableInputs {
+interface IntakeRollerIO {
+    class IntakeRollerInputs: LoggableInputs {
         val position: MutAngle = Radians.zero().mutableCopy()
         val velocity: MutAngularVelocity = RadiansPerSecond.zero().mutableCopy()
         val appliedVoltage: MutVoltage = Volt.zero().mutableCopy()
@@ -27,7 +27,7 @@ interface RollerIO {
         }
     }
 
-    fun updateInputs(inputs: RollerInputs) {}
+    fun updateInputs(inputs: IntakeRollerInputs) {}
     
     fun setVoltage(voltage: Voltage) {}
 }

@@ -5,8 +5,8 @@ import edu.wpi.first.units.measure.*
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 
-interface PivotIO {
-    class PivotInputs: LoggableInputs {
+interface IntakePivotIO {
+    class IntakePivotInputs: LoggableInputs {
         val position: MutAngle = Radians.zero().mutableCopy()
         val velocity: MutAngularVelocity = RadiansPerSecond.zero().mutableCopy()
         val appliedVoltage: MutVoltage = Volt.zero().mutableCopy()
@@ -28,7 +28,7 @@ interface PivotIO {
     }
 
     /** Poll the sensors to update the passed in inputs object */
-    fun updateInputs(inputs: PivotInputs) {}
+    fun updateInputs(inputs: IntakePivotInputs) {}
 
     fun setVoltage(volts: Voltage) {}
 
