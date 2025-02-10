@@ -1,10 +1,7 @@
 package frc.robot.subsystems.intake.roller
 
 import edu.wpi.first.units.Units.*
-import edu.wpi.first.units.measure.MutAngle
-import edu.wpi.first.units.measure.MutAngularVelocity
-import edu.wpi.first.units.measure.MutCurrent
-import edu.wpi.first.units.measure.MutVoltage
+import edu.wpi.first.units.measure.*
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 
@@ -29,4 +26,8 @@ interface RollerIO {
             table.put("statorCurrent", statorCurrent)
         }
     }
+
+    fun updateInputs(inputs: RollerInputs) {}
+    
+    fun setVoltage(voltage: Voltage) {}
 }
