@@ -36,6 +36,7 @@ class ArmIOSim(
 
     private val controller: PIDController =
         PIDController(pidGains.kP, pidGains.kI, pidGains.kD)
+            .apply { enableContinuousInput(0.0, 1.0) }
 
     private var isClosedLoop: Boolean = false
 
