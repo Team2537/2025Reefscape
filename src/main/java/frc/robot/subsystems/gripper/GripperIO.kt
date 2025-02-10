@@ -11,43 +11,33 @@ import org.littletonrobotics.junction.inputs.LoggableInputs
 import com.reduxrobotics.sensors.canandcolor.ColorData
 
 import edu.wpi.first.units.Units.*
+import edu.wpi.first.units.measure.MutCurrent
 
 interface GripperIO {
     class GripperInputs: LoggableInputs {
 
-        var distanceFromSensor: MutDistance = Meters.zero().mutableCopy()
-        var doesDistanceMatchAlgaeSensor: Boolean = false
-        var doesDistanceMatchCoralSensor: Boolean = false
-        var colorFromSensor: ColorData = ColorData(0.0, 0.0, 0.0)
-        var doesColorMatchAlgaeSensor: Boolean = false 
-        var doesColorMatchCoralSensor: Boolean = false
+        var isHoldingCoral : Boolean = false
 
         val gripperPosition: MutAngle = Rotations.zero().mutableCopy()
         val gripperVelocity: MutAngularVelocity = RotationsPerSecond.zero().mutableCopy()
         val gripperAppliedVoltage: MutVoltage = Volt.zero().mutableCopy()
+        val gripperStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
 
         override fun toLog(table: LogTable) {
-            table.put("distanceFromSensor", distanceFromSensor)
-            table.put("doesDistanceMatchAlgaeSensor", doesDistanceMatchAlgaeSensor)
-            table.put("doesDistanceMatchCoralSensor", doesDistanceMatchCoralSensor)
-            table.put("colorFromSensor", ColorData.struct, colorFromSensor)
-            table.put("doesColorMatchAlgaeSensor", doesColorMatchAlgaeSensor)
-            table.put("doesColorMatchCoralSensor", doesColorMatchCoralSensor)
+            table.put("isHoldingCoral", isHoldingCoral)
+
             table.put("gripperPosition", gripperPosition)
             table.put("gripperVelocity", gripperVelocity)
             table.put("gripperAppliedVoltage", gripperAppliedVoltage)
+            table.put("gripperStatorCurrent", gripperStatorCurrent)
         }
 
         override fun fromLog(table: LogTable) {
-            distanceFromSensor.mut_replace(table.get("distanceFromSensor", distanceFromSensor))
-            doesDistanceMatchAlgaeSensor = table.get("doesDistanceMatchAlgaeSensor", doesDistanceMatchAlgaeSensor)
-            doesDistanceMatchCoralSensor = table.get("doesDistanceMatchCoralSensor", doesDistanceMatchCoralSensor)
-            colorFromSensor = table.get("colorFromSensor", ColorData.struct, colorFromSensor)
-            doesColorMatchAlgaeSensor = table.get("doesColorMatchAlgaeSensor", doesColorMatchAlgaeSensor)
-            doesColorMatchCoralSensor = table.get("doesColorMatchCoralSensor", doesColorMatchCoralSensor)
+            isHoldingCoral = table.get("isHoldingCoral", isHoldingCoral)
             gripperPosition.mut_replace(table.get("gripperPosition", gripperPosition))
             gripperVelocity.mut_replace(table.get("gripperVelocity", gripperVelocity))
             gripperAppliedVoltage.mut_replace(table.get("gripperAppliedVoltage", gripperAppliedVoltage))
+            gripperStatorCurrent.mut_replace(table.get("gripperStatorCurrent", gripperStatorCurrent))
         }
     }
 
