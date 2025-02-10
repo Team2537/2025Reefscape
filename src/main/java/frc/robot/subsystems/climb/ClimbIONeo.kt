@@ -10,7 +10,7 @@ import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Voltage
 import kotlin.math.PI
 
-class ClimbIOHardware(
+class ClimbIONeo(
     private val id: Int,
     private val isInverted: Boolean,
     private val gearing: Double,
