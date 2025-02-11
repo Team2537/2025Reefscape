@@ -27,11 +27,11 @@ class IntakePivotIOSim(
             motor,
             gearing,
             moi into KilogramSquareMeters,
-            Units.inchesToMeters(20.0),
-            Units.degreesToRadians(45.0),
-            Units.degreesToRadians(90.0),
+            armLength into Meters,
+            minAngle into Radians,
+            maxAngle into Radians,
             true,
-            Units.degreesToRadians(90.0)
+            startAngle into Radians,
         )
 
     private val controller: PIDController =
@@ -67,5 +67,12 @@ class IntakePivotIOSim(
     override fun setTargetAngle(angle: Angle) {
         isClosedLoop = true
         controller.setpoint = angle into Rotations
+    }
+
+    companion object {
+        val armLength = Inches.of(20.0)
+        val maxAngle = Degrees.of(90.0)
+        val minAngle = Degrees.of(45.0)
+        val startAngle = Degrees.of(90.0)
     }
 }
