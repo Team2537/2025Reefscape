@@ -26,6 +26,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader
 import org.littletonrobotics.junction.wpilog.WPILOGWriter
 
 object Robot : LoggedRobot() {
+    val updateRateMs = 0.02
+    
     val driverController = CommandXboxController(0)
 
     val drivebase: Drivebase = Drivebase()
