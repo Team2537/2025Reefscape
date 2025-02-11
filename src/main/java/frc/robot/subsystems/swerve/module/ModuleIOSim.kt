@@ -15,6 +15,7 @@ import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.LinearVelocity
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.simulation.DCMotorSim
+import frc.robot.Robot
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
 import lib.math.units.into
@@ -33,7 +34,7 @@ class ModuleIOSim(
     private val driveMotor: DCMotorSim = DCMotorSim(
         LinearSystemId.createDCMotorSystem(
             driveMotorGearbox,
-            0.025,
+            0.025, // This is vaguely a magic number, its not measured it just works okay
             driveGearing
         ),
         driveMotorGearbox
@@ -42,7 +43,7 @@ class ModuleIOSim(
     private val turnMotor: DCMotorSim = DCMotorSim(
         LinearSystemId.createDCMotorSystem(
             turnMotorGearbox,
-            0.004,
+            0.004, // This is vaguely a magic number, its not measured it just works okay
             turnGearing
         ),
         turnMotorGearbox
@@ -66,8 +67,8 @@ class ModuleIOSim(
      * @param inputs The inputs to update
      */
     override fun updateInputs(inputs: ModuleIO.ModuleInputs) {
-        driveMotor.update(0.02)
-        turnMotor.update(0.02)
+        driveMotor.update(Robot.updateRateMs)
+        turnMotor.update(Robot.updateRateMs)
         
         inputs.isDriveMotorConnected = true
         inputs.isTurnMotorConnected = true
