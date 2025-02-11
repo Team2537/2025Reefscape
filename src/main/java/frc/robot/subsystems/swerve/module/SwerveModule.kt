@@ -57,21 +57,21 @@ class SwerveModule(
                 kP = 0.01
             ),
             driveMotor,
-            8.14,
+            driveGearing,
             FeedforwardGains(),
             PIDGains(),
             turnMotor,
-            150 / 7.0,
-            2.0 measuredIn Inches
+            turnGearing,
+            wheelRadius
         )
         RobotType.Mode.REAL -> ModuleIOHybridFXS(
             driveID,
-            8.14, // 8.14:1 drive gearing
+            driveGearing, // 8.14:1 drive gearing
             invertDrive,
             driveTorqueGains.feedforward,
             driveTorqueGains.pid,
             turnID,
-            150 / 7.0, // 150:7 turn gearing
+            turnGearing, // 150:7 turn gearing
             turnInverted = invertTurn,
             FeedforwardGains(kS = 0.14403),
             PIDGains(
@@ -80,7 +80,7 @@ class SwerveModule(
             ),
             encoderID,
             encoderOffset,
-            wheelRadius = wheelRadius
+            wheelRadius
         )
         else -> object : ModuleIO {}
     }
@@ -167,7 +167,7 @@ class SwerveModule(
     }
 
     fun characterizeDriveVoltage(volts: Voltage) {
-        io.setTurnPosition(Rotation2d())
+        io.setTurnPosition(Rotation2d.kZero)
         io.setDriveVoltage(volts)
     }
 
@@ -177,12 +177,14 @@ class SwerveModule(
     }
 
     fun characterizeCurrent(current: Current){
-        io.setTurnPosition(Rotation2d())
+        io.setTurnPosition(Rotation2d.kZero)
         io.setDriveCurrent(current)
     }
 
     private companion object {
         val wheelRadius = 1.91 measuredIn Inches
+        val turnGearing: Double = 150.0/7.0
+        val driveGearing: Double = 6.14
 
         val driveTorqueGains: ControllerGains = ControllerGains(
             PIDGains(
