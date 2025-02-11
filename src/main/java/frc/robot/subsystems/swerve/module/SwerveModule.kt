@@ -1,19 +1,25 @@
 package frc.robot.subsystems.swerve.module
 
+import edu.wpi.first.math.Vector
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
+import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
+import edu.wpi.first.units.Units.Amps
 import edu.wpi.first.units.Units.Inches
+import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.Volts
+import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Voltage
 import frc.robot.RobotType
 import lib.controllers.gains.ControllerGains
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
+import lib.math.units.into
 import lib.math.units.measuredIn
 import lib.math.vector
 import org.littletonrobotics.junction.Logger
@@ -39,6 +45,9 @@ class SwerveModule(
     val modulePosition: Translation2d
 ) {
 
+    val driveMotor = DCMotor.getKrakenX60Foc(1)
+    val turnMotor = DCMotor.getNEO(1)
+    
     private val io: ModuleIO = when (RobotType.mode) {
         RobotType.Mode.SIMULATION -> ModuleIOSim(
             FeedforwardGains(
@@ -47,28 +56,31 @@ class SwerveModule(
             PIDGains(
                 kP = 0.01
             ),
-            DCMotor.getKrakenX60Foc(1),
-            6.75,
+            driveMotor,
+            driveGearing,
             FeedforwardGains(),
             PIDGains(),
-            DCMotor.getNEO(1),
-            150 / 7.0,
-            2.0 measuredIn Inches
+            turnMotor,
+            turnGearing,
+            wheelRadius
         )
-        RobotType.Mode.REAL -> ModuleIOTorqueCurrent(
+        RobotType.Mode.REAL -> ModuleIOHybridFXS(
             driveID,
-            6.75, // 6.75:1 drive gearing
+            driveGearing, // 8.14:1 drive gearing
             invertDrive,
             driveTorqueGains.feedforward,
             driveTorqueGains.pid,
             turnID,
-            150 / 7.0, // 150:7 turn gearing
+            turnGearing, // 150:7 turn gearing
             turnInverted = invertTurn,
             FeedforwardGains(kS = 0.14403),
-            PIDGains(kP = 15.0),
+            PIDGains(
+                kP = 50.0,
+                kD = 0.5
+            ),
             encoderID,
             encoderOffset,
-            wheelRadius = 2.0 measuredIn Inches
+            wheelRadius
         )
         else -> object : ModuleIO {}
     }
@@ -86,12 +98,18 @@ class SwerveModule(
             inputs.absoluteTurnPosition
         )
 
+    val radiusCharacterizationAngle: Angle
+        get() = inputs.drivePositionAngular
+
     /** The position of the module. */
     val position: SwerveModulePosition
         get() = SwerveModulePosition(
             inputs.drivePosition,
             inputs.absoluteTurnPosition
         )
+    
+    var wheelForce: SwerveModuleState = SwerveModuleState()
+        private set
     
     /** The desired state of the module. */
     var desiredState: SwerveModuleState = SwerveModuleState()
@@ -116,17 +134,40 @@ class SwerveModule(
      * @param desiredState The desired state for the module.
      */
     fun applyState(desiredState: SwerveModuleState) {
-        this.desiredState = desiredState
-        
+        Logger.recordOutput("modules/$index/preOptimize", SwerveModuleState.struct, desiredState)
+
         desiredState.optimize(inputs.absoluteTurnPosition)
         desiredState.cosineScale(inputs.absoluteTurnPosition)
 
+        Logger.recordOutput("modules/$index/postOptimize", SwerveModuleState.struct, desiredState)
+
         io.setTurnPosition(desiredState.angle)
         io.setDriveVelocity(desiredState.speedMetersPerSecond measuredIn Units.MetersPerSecond)
+        this.desiredState = desiredState
+    }
+    
+    fun applyState(desiredState: SwerveModuleState, wheelForce: Vector<N2>) {
+        desiredState.optimize(inputs.absoluteTurnPosition)
+        desiredState.cosineScale(inputs.absoluteTurnPosition)
+        
+        val wheelDirection = state.angle.vector
+        
+        val wheelTorqueNm = wheelForce.dot(wheelDirection) * (wheelRadius into Meters)
+
+        io.setTurnPosition(desiredState.angle)
+        io.setDriveVelocity(
+            desiredState.speedMetersPerSecond measuredIn Units.MetersPerSecond,
+            (wheelTorqueNm * driveMotor.KtNMPerAmp) measuredIn Amps)
+        
+        this.wheelForce = SwerveModuleState(
+            wheelTorqueNm,
+            desiredState.angle
+        )
+        this.desiredState = desiredState
     }
 
     fun characterizeDriveVoltage(volts: Voltage) {
-        io.setTurnPosition(Rotation2d())
+        io.setTurnPosition(Rotation2d.kZero)
         io.setDriveVoltage(volts)
     }
 
@@ -136,11 +177,15 @@ class SwerveModule(
     }
 
     fun characterizeCurrent(current: Current){
-        io.setTurnPosition(Rotation2d())
+        io.setTurnPosition(Rotation2d.kZero)
         io.setDriveCurrent(current)
     }
 
     private companion object {
+        val wheelRadius = 1.91 measuredIn Inches
+        val turnGearing: Double = 150.0/7.0
+        val driveGearing: Double = 6.14
+
         val driveTorqueGains: ControllerGains = ControllerGains(
             PIDGains(
                 kP = 10.0
