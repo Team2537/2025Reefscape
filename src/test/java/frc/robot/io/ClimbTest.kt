@@ -26,10 +26,10 @@ internal class ClimbTest {
         assert(HAL.initialize(500, 0))
 
         io = ClimbIOSim(
-            DCMotor.getNEO(1),
-            75.0,
-            KilogramSquareMeters.of(0.004135203),
-            Inches.of(14.0)
+            motor = DCMotor.getNEO(1),
+            gearing = 75.0,
+            moi = KilogramSquareMeters.of(0.004135203),
+            armLength = Inches.of(14.0)
         )
 
         inputs = ClimbIO.ClimbArmInputs()

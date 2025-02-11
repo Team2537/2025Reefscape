@@ -8,6 +8,7 @@ import edu.wpi.first.units.measure.MomentOfInertia
 import edu.wpi.first.units.measure.MutVoltage
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
+import frc.robot.Robot
 import lib.math.units.into
 import kotlin.math.PI
 
@@ -23,17 +24,17 @@ class ClimbIOSim(
         gearing,
         moi into KilogramSquareMeters,
         armLength into Meters,
-        Units.degreesToRadians(-45.0),
-        Units.degreesToRadians(180.0 + 45.0),
+        minAngle,
+        maxAngle,
         true,
-        PI / 2
+        startAngle
     )
 
     private val appliedVoltage: MutVoltage = Volts.zero().mutableCopy()
 
     override fun updateInputs(inputs: ClimbIO.ClimbArmInputs) {
 
-        armSim.update(0.02)
+        armSim.update(Robot.updateRateMs)
 
         inputs.motorVoltage.mut_replace(appliedVoltage)
         inputs.supplyVoltage.mut_replace(Volts.of(12.0))
@@ -50,5 +51,11 @@ class ClimbIOSim(
     override fun stop() {
         appliedVoltage.mut_replace(Volts.zero())
         armSim.setInputVoltage(0.0)
+    }
+
+    companion object {
+        val minAngle = Units.degreesToRadians(-45.0)
+        val maxAngle = Units.degreesToRadians(180.0 + 45.0)
+        val startAngle = PI / 2
     }
 }
