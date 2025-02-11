@@ -26,12 +26,12 @@ internal class IntakePivotTest {
         assert(HAL.initialize(500, 0))
 
         io = IntakePivotIOSim(
-            DCMotor.getKrakenX60Foc(1),
-            1.0,
-            1.0 measuredIn KilogramSquareMeters,
-            PIDGains(),
-            FeedforwardGains(),
-            0.0
+            motor = DCMotor.getKrakenX60Foc(1),
+            gearing = 13.33,
+            moi = 1.0 measuredIn KilogramSquareMeters,
+            pidGains = PIDGains(),
+            ffGains = FeedforwardGains(),
+            kG = 0.0
         )
 
         inputs = IntakePivotIO.IntakePivotInputs()
