@@ -39,23 +39,34 @@ interface GripperIO {
             gripperAppliedVoltage.mut_replace(table.get("gripperAppliedVoltage", gripperAppliedVoltage))
             gripperStatorCurrent.mut_replace(table.get("gripperStatorCurrent", gripperStatorCurrent))
         }
+
+        override fun toString(): String {
+            return "GripperInputs(" +
+                    "isHoldingCoral=$isHoldingCoral, " +
+                    "gripperPosition=$gripperPosition, " +
+                    "gripperVelocity=$gripperVelocity, " +
+                    "gripperAppliedVoltage=$gripperAppliedVoltage, " +
+                    "gripperStatorCurrent=$gripperStatorCurrent" +
+                    ")"
+        }
+
     }
 
     /**
      * Updates the input values for the gripper subsystem
      * @param inputs The inputs object to update with current gripper state
      */
-    fun updateInputs(inputs: GripperInputs)
+    fun updateInputs(inputs: GripperInputs) {}
 
     /**
      * Sets the voltage to be applied to the gripper motor
      * @param voltage The voltage to apply
      */
-    fun setVoltage(voltage: Voltage)
+    fun setVoltage(voltage: Voltage) {}
 
     /**
      * Enables or disables brake mode on the gripper motor
      * @param enabled True to enable brake mode, false for coast
      */
-    fun setBrakeMode(enabled: Boolean)
+    fun setBrakeMode(enabled: Boolean) {}
 }
