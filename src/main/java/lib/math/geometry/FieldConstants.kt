@@ -164,7 +164,7 @@ object FieldConstants {
         
         init {
             Logger.recordOutput("field/reef/reefCenterBlue", reefCenterBlue)
-            Logger.recordOutput("field/reef/reefZone", *reefZone.cardinals().toTypedArray())
+            Logger.recordOutput("field/reef/reefZone", *reefZone.cardinals.toTypedArray())
         }
     }
     
@@ -187,7 +187,7 @@ object FieldConstants {
         
         init {
             Logger.recordOutput("field/processor/processorHoleCenter", processorHoleCenter)
-            Logger.recordOutput("field/processor/processorZone", *processorZone.corners().toTypedArray())
+            Logger.recordOutput("field/processor/processorZone", *processorZone.corners.toTypedArray())
         }
         
     }
@@ -231,7 +231,7 @@ object FieldConstants {
         
         init {
             Logger.recordOutput("field/barge/cages", cage1, cage2, cage3)
-            Logger.recordOutput("field/barge/cageZone", *cageZone.corners().toTypedArray())
+            Logger.recordOutput("field/barge/cageZone", *cageZone.corners.toTypedArray())
         }
     }
 }

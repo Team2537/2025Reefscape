@@ -32,8 +32,8 @@ object DriverStation {
  * @return This translation as see by the other team.
  */
 fun Translation2d.flipped(): Translation2d = Translation2d(
-    2 * FieldConstants.center.translation.x - this.x,
-    2 * FieldConstants.center.translation.y - this.y
+    2 * FieldConstants.fieldCenter.translation.x - this.x,
+    2 * FieldConstants.fieldCenter.translation.y - this.y
 )
 
 /**
@@ -52,8 +52,8 @@ fun Pose2d.flipped(): Pose2d = Pose2d(
  * @return This translation as see by the other team.
  */
 fun Translation3d.flipped(): Translation3d = Translation3d(
-    2 * FieldConstants.center.translation.x - this.x,
-    2 * FieldConstants.center.translation.y - this.y,
+    2 * FieldConstants.fieldCenter.translation.x - this.x,
+    2 * FieldConstants.fieldCenter.translation.y - this.y,
     this.z
 )
 

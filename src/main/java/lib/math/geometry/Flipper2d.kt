@@ -168,7 +168,7 @@ interface Flipper2d {
      * A `Flipper2d` that reflects across the x-axis.
      */
     object ReflectX : Flipper2d {
-        override fun flipX(x: Distance): Distance = noGarbageFlip(x, FieldConstants.length)
+        override fun flipX(x: Distance): Distance = noGarbageFlip(x, FieldConstants.fieldLength)
 
         override fun flipY(y: Distance): Distance = y
 
@@ -184,7 +184,7 @@ interface Flipper2d {
     object ReflectY : Flipper2d {
         override fun flipX(x: Distance): Distance = x
 
-        override fun flipY(y: Distance): Distance = noGarbageFlip(y, FieldConstants.width)
+        override fun flipY(y: Distance): Distance = noGarbageFlip(y, FieldConstants.fieldWidth)
 
         override fun flipR(r: Angle): Angle = noGarbageFlip(r, HALF_CIRCLE)
 
@@ -195,9 +195,9 @@ interface Flipper2d {
      * A `Flipper2d` that reflects across the line *`y = x`*.
      */
     object ReflectXY : Flipper2d {
-        override fun flipX(x: Distance): Distance = noGarbageFlip(x, FieldConstants.length)
+        override fun flipX(x: Distance): Distance = noGarbageFlip(x, FieldConstants.fieldLength)
 
-        override fun flipY(y: Distance): Distance = noGarbageFlip(y, FieldConstants.width)
+        override fun flipY(y: Distance): Distance = noGarbageFlip(y, FieldConstants.fieldWidth)
 
         // a - -r == r + a
         override fun flipR(r: Angle): Angle = r + HALF_CIRCLE
