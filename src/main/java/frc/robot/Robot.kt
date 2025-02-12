@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.WheelRadiusCharacterization
+import frc.robot.subsystems.elevator.Elevator
 import frc.robot.subsystems.swerve.Drivebase
 import frc.robot.subsystems.vision.Vision
 import frc.robot.subsystems.vision.VisionIO
@@ -36,9 +37,11 @@ object Robot : LoggedRobot() {
     val updateRateMs = 0.02
     
     val driverController = CommandXboxController(0)
+    val operatorController = CommandXboxController(1)
     
     val drivebase: Drivebase = Drivebase()
     val vision: Vision = Vision(drivebase::addVisionMeasurement)
+    val elevator: Elevator = Elevator()
     
     val autos = Autos(drivebase)
     
@@ -101,6 +104,10 @@ object Robot : LoggedRobot() {
         driverController.b()
             .whileTrue(WheelRadiusCharacterization(drivebase, WheelRadiusCharacterization.Direction.CLOCKWISE))
         
+        operatorController.b().onTrue(elevator.getSendToHomeCmd())
+        
+        operatorController.povUp().onTrue(elevator.getMoveUpCmd())
+        operatorController.povDown().onTrue(elevator.getMoveDownCmd())
     }
     
     override fun robotPeriodic() {
