@@ -19,12 +19,14 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.WheelRadiusCharacterization
+import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.elevator.Elevator
 import frc.robot.subsystems.swerve.Drivebase
 import frc.robot.subsystems.vision.Vision
 import frc.robot.subsystems.vision.VisionIO
 import lib.commands.not
 import lib.math.geometry.FieldConstants
+import lib.math.units.degrees
 import lib.math.units.into
 import org.littletonrobotics.junction.LogFileUtil
 import org.littletonrobotics.junction.LoggedRobot
@@ -42,6 +44,7 @@ object Robot : LoggedRobot() {
     val drivebase: Drivebase = Drivebase()
     val vision: Vision = Vision(drivebase::addVisionMeasurement)
     val elevator: Elevator = Elevator()
+    val arm: Arm = Arm()
     
     val autos = Autos(drivebase)
     
@@ -104,7 +107,12 @@ object Robot : LoggedRobot() {
         driverController.b()
             .whileTrue(WheelRadiusCharacterization(drivebase, WheelRadiusCharacterization.Direction.CLOCKWISE))
         
-        operatorController.b().onTrue(elevator.getSendToHomeCmd())
+//        operatorController.b().onTrue(elevator.getSendToHomeCmd())
+        
+        operatorController.button(1).onTrue(arm.getSendToAngleCmd((-90.0).degrees))
+        operatorController.button(2).onTrue(arm.getSendToAngleCmd((-45.0).degrees))
+        operatorController.button(3).onTrue(arm.getSendToAngleCmd(0.0.degrees))
+        operatorController.button(4).onTrue(arm.getSendToAngleCmd(45.0.degrees))
         
         operatorController.povUp().onTrue(elevator.getMoveUpCmd())
         operatorController.povDown().onTrue(elevator.getMoveDownCmd())
