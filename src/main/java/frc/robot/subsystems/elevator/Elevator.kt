@@ -26,6 +26,7 @@ class Elevator : SubsystemBase("elevator") {
      */
     enum class Setpoint(val height: Distance) {
         HOME(0.0.inches),
+        SOURCE(5.0.inches),
         L1(5.0.inches),
         L2(15.0.inches),
         L3(30.0.inches),
@@ -49,8 +50,9 @@ class Elevator : SubsystemBase("elevator") {
     val inputs: ElevatorIO.ElevatorInputs = ElevatorIO.ElevatorInputs()
     
     private var currentSetpoint = Setpoint.HOME
-    
-    val isHomingTrigger: Trigger by lazy { Trigger { currentSetpoint == Setpoint.HOME } }
+
+    val setpointIsHomeTrigger: Trigger by lazy { Trigger { currentSetpoint == Setpoint.HOME } }
+    val setpointIsSourceTrigger: Trigger by lazy { Trigger { currentSetpoint == Setpoint.SOURCE } }
     val setpointIsL1Trigger: Trigger by lazy { Trigger { currentSetpoint == Setpoint.L1 } }
     val setpointIsL2Trigger: Trigger by lazy { Trigger { currentSetpoint == Setpoint.L2 } }
     val setpointIsL3Trigger: Trigger by lazy { Trigger { currentSetpoint == Setpoint.L3 } }
