@@ -15,10 +15,12 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.util.WPILibVersion
+import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.WheelRadiusCharacterization
+import frc.robot.subsystems.Superstructure
 import frc.robot.subsystems.arm.Arm
 import frc.robot.subsystems.elevator.Elevator
 import frc.robot.subsystems.swerve.Drivebase
@@ -43,8 +45,7 @@ object Robot : LoggedRobot() {
     
     val drivebase: Drivebase = Drivebase()
     val vision: Vision = Vision(drivebase::addVisionMeasurement)
-    val elevator: Elevator = Elevator()
-    val arm: Arm = Arm()
+    val superstructure = Superstructure()
     
     val autos = Autos(drivebase)
     
@@ -109,15 +110,14 @@ object Robot : LoggedRobot() {
         
 //        operatorController.b().onTrue(elevator.getSendToHomeCmd())
         
-        operatorController.button(1).whileTrue(arm.getManualMoveCmd({ 3.0 }))
-        operatorController.button(2).whileTrue(arm.getManualMoveCmd({ -3.0 }))
-        
-        operatorController.povUp().onTrue(elevator.getMoveUpCmd())
-        operatorController.povDown().onTrue(elevator.getMoveDownCmd())
+        operatorController.povUp().onTrue(superstructure.getNextReefNodeCmd())
+        operatorController.povDown().onTrue(superstructure.getPreviousReefNodeCmd())
+        operatorController.button(1).onTrue(superstructure.getSendToHomeCmd())
     }
     
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
+        superstructure.periodic()
         MechanismVisualizer.updatePoses()
     }
     

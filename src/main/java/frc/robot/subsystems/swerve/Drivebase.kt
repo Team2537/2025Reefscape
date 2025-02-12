@@ -113,7 +113,7 @@ class Drivebase : SubsystemBase("drivebase") {
         kinematics,
         gyroInputs.yaw,
         wheelPositions.toTypedArray(),
-        Pose2d(),
+        Pose2d(Translation2d(3.11, 4.04), Rotation2d()),
         VecBuilder.fill(0.0, 0.0, 0.0),
         VecBuilder.fill(0.9, 0.9, 0.9),
     )

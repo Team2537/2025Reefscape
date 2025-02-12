@@ -49,6 +49,9 @@ interface ElevatorIO {
             table.put("rightAngularVelocity", rightAngularVelocity)
             table.put("rightStatorCurrent", rightStatorCurrent)
             table.put("rightEncoderPosition", rightEncoderPosition)
+            
+            table.put("carriageHeight", carriageHeight)
+            table.put("carriageVelocity", carriageVelocity)
         }
 
         /**
@@ -66,6 +69,9 @@ interface ElevatorIO {
             rightAngularVelocity.mut_replace(table.get("rightAngularVelocity", rightAngularVelocity))
             rightStatorCurrent.mut_replace(table.get("rightStatorCurrent", rightStatorCurrent))
             rightEncoderPosition.mut_replace(table.get("rightEncoderPosition", rightEncoderPosition))
+            
+            carriageHeight.mut_replace(table.get("carriageHeight", carriageHeight))
+            carriageVelocity.mut_replace(table.get("carriageVelocity", carriageVelocity))
         }
     }
     fun updateInputs(inputs: ElevatorInputs) {}
