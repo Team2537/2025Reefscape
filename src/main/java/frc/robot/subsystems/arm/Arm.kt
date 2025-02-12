@@ -11,7 +11,9 @@ import frc.robot.MechanismVisualizer
 import frc.robot.RobotType
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
+import lib.math.units.volts
 import org.littletonrobotics.junction.Logger
+import java.util.function.DoubleSupplier
 
 class Arm: SubsystemBase("arm") {
     val io: ArmIO = when(RobotType.mode){
@@ -31,6 +33,10 @@ class Arm: SubsystemBase("arm") {
     
     fun getSendToAngleCmd(angle: Angle): Command {
         return runOnce { io.setAngle(angle) }
+    }
+    
+    fun getManualMoveCmd(voltage: DoubleSupplier): Command {
+        return run { io.setVoltage(voltage.asDouble.volts) }.handleInterrupt { io.setAngle(inputs.motorAbsolutePosition) }
     }
     
     override fun periodic() {

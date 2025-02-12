@@ -109,10 +109,8 @@ object Robot : LoggedRobot() {
         
 //        operatorController.b().onTrue(elevator.getSendToHomeCmd())
         
-        operatorController.button(1).onTrue(arm.getSendToAngleCmd((-90.0).degrees))
-        operatorController.button(2).onTrue(arm.getSendToAngleCmd((-45.0).degrees))
-        operatorController.button(3).onTrue(arm.getSendToAngleCmd(0.0.degrees))
-        operatorController.button(4).onTrue(arm.getSendToAngleCmd(45.0.degrees))
+        operatorController.button(1).whileTrue(arm.getManualMoveCmd({ 3.0 }))
+        operatorController.button(2).whileTrue(arm.getManualMoveCmd({ -3.0 }))
         
         operatorController.povUp().onTrue(elevator.getMoveUpCmd())
         operatorController.povDown().onTrue(elevator.getMoveDownCmd())
