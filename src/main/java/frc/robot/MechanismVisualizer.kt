@@ -49,7 +49,7 @@ object MechanismVisualizer {
                 0.095880,
                 -0.044220,
                 0.197480 + carriageHeight
-            ), Rotation3d(0.0, angleRadians, 0.0)
+            ), Rotation3d(0.0, -angleRadians, 0.0)
         )
     }
     
