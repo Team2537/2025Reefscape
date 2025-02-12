@@ -6,6 +6,7 @@ import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.MechanismVisualizer
 import frc.robot.RobotType
 import lib.controllers.gains.FeedforwardGains
@@ -49,10 +50,12 @@ class Elevator : SubsystemBase("elevator") {
     
     private var currentSetpoint = Setpoint.HOME
     
-    fun getSendToNodeCmd(node: FieldConstants.Reef.Level): Command {
-        currentNodeHeight = node
-        return Commands.print("Sending to node $node")
-            .andThen(runOnce { io.setElevatorHeightTarget(node.height) })
+    val isHomingTrigger: Trigger by lazy { Trigger { currentSetpoint == Setpoint.HOME } }
+    val setpointIsL1Trigger: Trigger by lazy { Trigger { currentSetpoint == Setpoint.L1 } }
+    val setpointIsL2Trigger: Trigger by lazy { Trigger { currentSetpoint == Setpoint.L2 } }
+    val setpointIsL3Trigger: Trigger by lazy { Trigger { currentSetpoint == Setpoint.L3 } }
+    val setpointIsL4Trigger: Trigger by lazy { Trigger { currentSetpoint == Setpoint.L4 } }
+    
     fun getSendToNodeCmd(setpoint: Setpoint): Command {
         return runOnce {
             currentSetpoint = setpoint
