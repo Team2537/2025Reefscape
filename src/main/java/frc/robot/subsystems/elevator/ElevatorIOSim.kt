@@ -18,6 +18,7 @@ class ElevatorIOSim(
     private val gearbox: DCMotor = DCMotor.getKrakenX60Foc(2),
     private val gearing: Double,
     private val drumRadius: Distance,
+    private val maxHeight: Distance,
     private val pidGains: PIDGains,
     private val ffGains: FeedforwardGains,
     private val kG: Double,
@@ -30,7 +31,7 @@ class ElevatorIOSim(
         mass into Kilograms,
         drumRadius into Meters,
         0.0, // Minimum Height
-        Units.inchesToMeters(72.0), // Maximum height
+        maxHeight into Meters, // Maximum height
         true,
         0.0,
     )

@@ -5,6 +5,8 @@ import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.hal.HALUtil
 import edu.wpi.first.math.MathUtil
+import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.util.datalog.DataLog
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.WheelRadiusCharacterization
+import frc.robot.subsystems.elevator.Elevator
 import frc.robot.subsystems.swerve.Drivebase
 import frc.robot.subsystems.vision.Vision
 import frc.robot.subsystems.vision.VisionIO
@@ -34,12 +37,14 @@ object Robot : LoggedRobot() {
     val updateRateMs = 0.02
     
     val driverController = CommandXboxController(0)
-
+    val operatorController = CommandXboxController(1)
+    
     val drivebase: Drivebase = Drivebase()
     val vision: Vision = Vision(drivebase::addVisionMeasurement)
-
+    val elevator: Elevator = Elevator()
+    
     val autos = Autos(drivebase)
-
+    
     init {
         // Report the use of the Kotlin Language for "FRC Usage Report" statistics.
         // Please retain this line so that Kotlin's growing use by teams is seen by FRC/WPI.
@@ -53,17 +58,19 @@ object Robot : LoggedRobot() {
         Logger.recordMetadata("Type", RobotType.type.toString())
         Logger.recordMetadata("Serial Number", HALUtil.getSerialNumber())
         
-        when(RobotType.mode){
+        when (RobotType.mode) {
             RobotType.Mode.REAL -> {
                 Logger.addDataReceiver(NT4Publisher())
                 Logger.addDataReceiver(WPILOGWriter())
                 
                 PowerDistribution(1, PowerDistribution.ModuleType.kRev)
             }
+            
             RobotType.Mode.SIMULATION -> {
                 Logger.addDataReceiver(NT4Publisher())
                 Logger.addDataReceiver(WPILOGWriter())
             }
+            
             RobotType.Mode.REPLAY -> {
                 setUseTiming(false)
                 
@@ -81,48 +88,54 @@ object Robot : LoggedRobot() {
 
 //        driverController.a().whileTrue(drivebase.driveSysId())
     }
-
+    
     fun configureBindings() {
         drivebase.defaultCommand = drivebase.getDriveCmd(
-            { -(MathUtil.applyDeadband(driverController.leftY, 0.05))},
-            { -(MathUtil.applyDeadband(driverController.leftX, 0.05))},
-            { -(MathUtil.applyDeadband(driverController.rightX, 0.05))},
+            { -(MathUtil.applyDeadband(driverController.leftY, 0.05)) },
+            { -(MathUtil.applyDeadband(driverController.leftX, 0.05)) },
+            { -(MathUtil.applyDeadband(driverController.rightX, 0.05)) },
             !driverController.leftBumper(),
             { 1.0 },
             3
         )
-
+        
         driverController.rightBumper().onTrue(drivebase.resetHeading())
-
-        driverController.b().whileTrue(WheelRadiusCharacterization(drivebase, WheelRadiusCharacterization.Direction.CLOCKWISE))
-
+        
+        driverController.b()
+            .whileTrue(WheelRadiusCharacterization(drivebase, WheelRadiusCharacterization.Direction.CLOCKWISE))
+        
+        operatorController.b().onTrue(elevator.getSendToHomeCmd())
+        
+        operatorController.povUp().onTrue(elevator.getMoveUpCmd())
+        operatorController.povDown().onTrue(elevator.getMoveDownCmd())
     }
-
+    
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
+        MechanismVisualizer.updatePoses()
     }
-
+    
     override fun disabledInit() {}
-
+    
     override fun disabledPeriodic() {}
-
+    
     override fun autonomousInit() {
         autos.selectedRoutine.schedule()
     }
-
+    
     override fun autonomousPeriodic() {}
-
+    
     override fun teleopInit() {}
-
+    
     override fun teleopPeriodic() {}
-
+    
     override fun testInit() {
         CommandScheduler.getInstance().cancelAll()
     }
-
+    
     override fun testPeriodic() {}
-
+    
     override fun simulationInit() {}
-
+    
     override fun simulationPeriodic() {}
 }

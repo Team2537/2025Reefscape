@@ -28,7 +28,8 @@ internal class ElevatorTest {
             pidGains = PIDGains(),
             ffGains = FeedforwardGains(kV = 1.77),
             kG = 0.19,
-            mass = 15.0 measuredIn Pounds
+            mass = 15.0 measuredIn Pounds,
+            maxHeight = 51.0 measuredIn Inches
         )
 
         inputs = ElevatorIO.ElevatorInputs()
