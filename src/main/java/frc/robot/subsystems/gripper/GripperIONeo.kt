@@ -1,5 +1,6 @@
 package frc.robot.subsystems.gripper
 
+import com.reduxrobotics.sensors.canandcolor.Canandcolor
 import com.revrobotics.spark.SparkMax
 import com.revrobotics.spark.SparkLowLevel
 import com.revrobotics.spark.SparkBase
@@ -10,9 +11,9 @@ import edu.wpi.first.units.measure.*
 import frc.robot.subsystems.climb.ClimbIO
 import kotlin.math.PI
 
-
 class GripperIONeo (
     private val id: Int,
+    private val sensorID: Int,
     private val isInverted: Boolean,
     private val gearing: Double,
 ) : GripperIO {
@@ -27,6 +28,10 @@ class GripperIONeo (
         configure(coastConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
     }
 
+    private val canandcolor = Canandcolor(sensorID)
+
+    private val coralSensorThreshold : Double = 0.75
+
     override fun updateInputs(inputs: GripperIO.GripperInputs) {
         inputs.gripperPosition.mut_replace(Rotations.of(motor.encoder.position))
         inputs.gripperVelocity.mut_replace(
@@ -34,6 +39,8 @@ class GripperIONeo (
         )
         inputs.gripperAppliedVoltage.mut_replace(Volts.of(motor.appliedOutput * motor.busVoltage))
         inputs.gripperStatorCurrent.mut_replace(Amps.of(motor.outputCurrent))
+
+        inputs.isHoldingCoral = canandcolor.proximity > coralSensorThreshold
     }
 
     override fun setVoltage(voltage: Voltage) {
