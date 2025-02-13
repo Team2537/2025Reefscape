@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.MechanismVisualizer
 import frc.robot.RobotType
+import frc.robot.subsystems.Superstructure
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
 import lib.math.units.volts
@@ -33,6 +34,10 @@ class Arm: SubsystemBase("arm") {
     
     fun getSendToAngleCmd(angle: Angle): Command {
         return runOnce { io.setAngle(angle) }
+    }
+    
+    fun getSendToNodeCmd(setpoint: Superstructure.SuperstructureSetpoint): Command {
+        return runOnce { io.setAngle(setpoint.armAngle) }
     }
     
     fun getManualMoveCmd(voltage: DoubleSupplier): Command {

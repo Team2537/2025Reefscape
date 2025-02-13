@@ -43,7 +43,7 @@ class Superstructure {
             }),
             Commands.parallel(
                 Commands.defer({elevator.getSendToNodeCmd(setpoint)}, setOf(elevator)),
-                Commands.defer({arm.getSendToAngleCmd(setpoint.armAngle)}, setOf(arm))
+                Commands.defer({arm.getSendToNodeCmd(setpoint)}, setOf(arm))
             )
         )
     }
@@ -59,7 +59,7 @@ class Superstructure {
             }),
             Commands.parallel(
                 Commands.defer({elevator.getSendToNodeCmd(setpoint)}, setOf(elevator)),
-                Commands.defer({arm.getSendToAngleCmd(setpoint.armAngle)}, setOf(arm))
+                Commands.defer({arm.getSendToNodeCmd(setpoint)}, setOf(arm))
             )
         )
     }
@@ -68,7 +68,7 @@ class Superstructure {
         return Commands.parallel(
             runOnce({ setpoint = SuperstructureSetpoint.HOME }),
             elevator.getSendToNodeCmd(SuperstructureSetpoint.HOME),
-            arm.getSendToAngleCmd(SuperstructureSetpoint.HOME.armAngle)
+            arm.getSendToNodeCmd(SuperstructureSetpoint.HOME)
         )
     }
     
@@ -76,7 +76,7 @@ class Superstructure {
         return Commands.parallel(
             runOnce({ setpoint = SuperstructureSetpoint.SOURCE }),
             elevator.getSendToNodeCmd(SuperstructureSetpoint.SOURCE),
-            arm.getSendToAngleCmd(SuperstructureSetpoint.SOURCE.armAngle)
+            arm.getSendToNodeCmd(SuperstructureSetpoint.SOURCE)
         )
     }
     
