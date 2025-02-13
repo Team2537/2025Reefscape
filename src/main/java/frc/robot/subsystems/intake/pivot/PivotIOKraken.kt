@@ -2,7 +2,7 @@ package frc.robot.subsystems.intake.pivot
 
 import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.configs.TalonFXConfiguration
-import com.ctre.phoenix6.controls.PositionVoltage
+import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.InvertedValue
@@ -24,7 +24,10 @@ class PivotIOKraken(
     private val kD: Double,
     private val kS: Double,
     private val kV: Double,
-    private val kA: Double
+    private val kA: Double,
+    private val motionMagicAcceleration: Double, // rotations per second squared
+    private val motionMagicCruiseVelocity: Double, // rotations per second
+    private val motionMagicJerk: Double // rotations per second cubed
 ) : PivotIO {
 
     // Initialize Kraken motor with configuration
@@ -41,6 +44,11 @@ class PivotIOKraken(
         config.Slot0.kV = kV
         config.Slot0.kA = kA
         config.Slot0.kS = kS
+
+        // Configure motion magic parameters
+        config.MotionMagic.withMotionMagicAcceleration(motionMagicAcceleration)
+        config.MotionMagic.withMotionMagicCruiseVelocity(motionMagicCruiseVelocity)
+        config.MotionMagic.withMotionMagicJerk(motionMagicJerk)
 
         // Configure current limits
         config.CurrentLimits.StatorCurrentLimit = 80.0
@@ -66,7 +74,7 @@ class PivotIOKraken(
 
     // Control requests for voltage and position control
     private val voltageRequest = VoltageOut(0.0)
-    private val positionRequest = PositionVoltage(0.0)
+    private val positionRequest = MotionMagicVoltage(0.0)
 
     override fun updateInputs(inputs: PivotIO.PivotInputs) {
         // Refresh all status signals
@@ -93,10 +101,6 @@ class PivotIOKraken(
             positionRequest
                 .withPosition(angle into Rotations)
                 .withSlot(0)
-                // Add feedforward
-                .withFeedForward(kS * Math.signum(velocity.valueAsDouble) + 
-                               kV * velocity.valueAsDouble +
-                               kA * 0.0) // Acceleration term is 0 for now since we don't track it
         )
     }
 }
