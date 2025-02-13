@@ -42,6 +42,8 @@ object Robot : LoggedRobot() {
     
     val driverController = CommandXboxController(0)
     val operatorController = CommandXboxController(1)
+
+    val godController: CommandXboxController = CommandXboxController(5)
     
     val drivebase: Drivebase = Drivebase()
     val vision: Vision = Vision(drivebase::addVisionMeasurement)
@@ -104,15 +106,37 @@ object Robot : LoggedRobot() {
         )
         
         driverController.rightBumper().onTrue(drivebase.resetHeading())
-        
-        driverController.b()
-            .whileTrue(WheelRadiusCharacterization(drivebase, WheelRadiusCharacterization.Direction.CLOCKWISE))
-        
+
 //        operatorController.b().onTrue(elevator.getSendToHomeCmd())
-        
-        operatorController.povUp().onTrue(superstructure.getNextReefNodeCmd())
-        operatorController.povDown().onTrue(superstructure.getPreviousReefNodeCmd())
-        operatorController.button(1).onTrue(superstructure.getSendToHomeCmd())
+
+        operatorController.povRight().onTrue(superstructure.getScoreNodeCmd(
+            operatorController.leftTrigger().and(operatorController.rightTrigger()),
+            driverController.leftTrigger(),
+            godController.button(1),
+            Superstructure.SuperstructureSetpoint.L1
+        ))
+
+        operatorController.povDown().onTrue(superstructure.getScoreNodeCmd(
+            operatorController.leftTrigger().and(operatorController.rightTrigger()),
+            driverController.leftTrigger(),
+            godController.button(1),
+            Superstructure.SuperstructureSetpoint.L2
+        ))
+
+        operatorController.povLeft().onTrue(superstructure.getScoreNodeCmd(
+            operatorController.leftTrigger().and(operatorController.rightTrigger()),
+            driverController.leftTrigger(),
+            godController.button(1),
+            Superstructure.SuperstructureSetpoint.L3
+        ))
+
+        operatorController.povUp().onTrue(superstructure.getScoreNodeCmd(
+            operatorController.leftTrigger().and(operatorController.rightTrigger()),
+            driverController.leftTrigger(),
+            godController.button(1),
+            Superstructure.SuperstructureSetpoint.L4
+        ))
+
     }
     
     override fun robotPeriodic() {
