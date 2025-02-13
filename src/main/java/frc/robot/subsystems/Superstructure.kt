@@ -30,16 +30,15 @@ class Superstructure {
     
     private val setpointSupplier: Supplier<SuperstructureSetpoint> = Supplier { setpoint }
     
+    private val reefLevels = listOf(SuperstructureSetpoint.L1, SuperstructureSetpoint.L2, SuperstructureSetpoint.L3, SuperstructureSetpoint.L4)
+    
     fun getNextReefNodeCmd(): Command {
         return Commands.sequence(
             runOnce({
-                val levels =
-                    SuperstructureSetpoint.entries.filter { it.toString().contains(Regex("L[0-9]+")) }.sortedBy { it.elevatorHeight }
-                
                 setpoint = when (setpoint) {
                     SuperstructureSetpoint.L4 -> return@runOnce
-                    in levels -> levels[levels.indexOf(setpoint) + 1]
-                    else -> levels.first()
+                    in reefLevels -> reefLevels[reefLevels.indexOf(setpoint) + 1]
+                    else -> reefLevels.first()
                 }
             }),
             Commands.parallel(
@@ -52,13 +51,10 @@ class Superstructure {
     fun getPreviousReefNodeCmd(): Command {
         return Commands.sequence(
             runOnce({
-                val levels =
-                    SuperstructureSetpoint.entries.filter { it.toString().contains(Regex("L[0-9]+")) }.sortedBy { it.elevatorHeight }
-                
                 setpoint = when (setpoint) {
                     SuperstructureSetpoint.L1 -> return@runOnce
-                    in levels -> levels[levels.indexOf(setpoint) - 1]
-                    else -> levels.last()
+                    in reefLevels -> reefLevels[reefLevels.indexOf(setpoint) - 1]
+                    else -> reefLevels.last()
                 }
             }),
             Commands.parallel(
@@ -73,6 +69,14 @@ class Superstructure {
             runOnce({ setpoint = SuperstructureSetpoint.HOME }),
             elevator.getSendToNodeCmd(SuperstructureSetpoint.HOME),
             arm.getSendToAngleCmd(SuperstructureSetpoint.HOME.armAngle)
+        )
+    }
+    
+    fun getSendToSourceCmd(): Command {
+        return Commands.parallel(
+            runOnce({ setpoint = SuperstructureSetpoint.SOURCE }),
+            elevator.getSendToNodeCmd(SuperstructureSetpoint.SOURCE),
+            arm.getSendToAngleCmd(SuperstructureSetpoint.SOURCE.armAngle)
         )
     }
     
