@@ -2,20 +2,21 @@ package frc.robot.subsystems.swerve.module
 
 import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.configs.CANcoderConfiguration
+import com.ctre.phoenix6.configs.MotorOutputConfigs
 import com.ctre.phoenix6.configs.Slot0Configs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.configs.TalonFXSConfiguration
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage
+import com.ctre.phoenix6.controls.PositionVoltage
 import com.ctre.phoenix6.controls.TorqueCurrentFOC
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC
-import com.ctre.phoenix6.controls.VelocityVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.CANcoder
 import com.ctre.phoenix6.hardware.TalonFX
-import com.ctre.phoenix6.signals.InvertedValue
-import com.ctre.phoenix6.signals.NeutralModeValue
+import com.ctre.phoenix6.hardware.TalonFXS
+import com.ctre.phoenix6.signals.*
 import com.revrobotics.spark.ClosedLoopSlot
 import com.revrobotics.spark.SparkBase
-import com.revrobotics.spark.SparkLowLevel
-import com.revrobotics.spark.SparkMax
 import com.revrobotics.spark.config.SparkBaseConfig
 import com.revrobotics.spark.config.SparkMaxConfig
 import edu.wpi.first.math.geometry.Rotation2d
@@ -29,53 +30,52 @@ import lib.controllers.gains.PIDGains
 import lib.math.units.into
 import lib.math.units.measuredIn
 
-class ModuleIOTorqueCurrent(
+class ModuleIOHybridFXS(
     val driveID: Int,
     val driveGearing: Double,
     val driveInverted: Boolean,
     val driveFF: FeedforwardGains,
     val drivePID: PIDGains,
-    
+
     val turnID: Int,
     val turnGearing: Double,
     val turnInverted: Boolean,
     val turnFF: FeedforwardGains,
     val turnPID: PIDGains,
-    
+
     val encoderID: Int,
     val encoderOffset: Rotation2d,
-    
+
     val wheelRadius: Distance
 ) : ModuleIO {
-    
     private val driveMotor: TalonFX = TalonFX(driveID).apply {
         val config: TalonFXConfiguration = TalonFXConfiguration()
-        
+
         config.Feedback.SensorToMechanismRatio = driveGearing
-        
+
         config.Slot0.kP = drivePID.kP
         config.Slot0.kI = drivePID.kI
         config.Slot0.kD = drivePID.kD
         config.Slot0.kV = driveFF.kV
         config.Slot0.kA = driveFF.kA
         config.Slot0.kS = driveFF.kS
-        
+
         config.CurrentLimits.StatorCurrentLimit = 120.0
         config.CurrentLimits.SupplyCurrentLimit = 40.0
         config.CurrentLimits.StatorCurrentLimitEnable = true
         config.CurrentLimits.SupplyCurrentLimitEnable = true
         config.TorqueCurrent.withPeakForwardTorqueCurrent(120.0)
         config.TorqueCurrent.withPeakReverseTorqueCurrent(-120.0)
-        
+
         config.MotorOutput.Inverted =
-            if(driveInverted) InvertedValue.CounterClockwise_Positive
-            else InvertedValue.Clockwise_Positive
-        
+            if (driveInverted) InvertedValue.Clockwise_Positive
+            else InvertedValue.CounterClockwise_Positive
+
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake
-        
+
         configurator.apply(config)
     }
-    
+
     private val drivePosition = driveMotor.position.clone()
     private val driveVelocity = driveMotor.velocity.clone()
     private val driveSupplyVolts = driveMotor.supplyVoltage.clone()
@@ -83,47 +83,56 @@ class ModuleIOTorqueCurrent(
     private val driveStatorCurrent = driveMotor.statorCurrent.clone()
     private val driveSupplyCurrent = driveMotor.supplyCurrent.clone()
     private val driveTorqueCurrent = driveMotor.torqueCurrent.clone()
-    
-    private val turnMotor = SparkMax(turnID, SparkLowLevel.MotorType.kBrushless).apply {
-        val config = SparkMaxConfig().apply {
-            closedLoop.pid(
-                turnPID.kP,
-                turnPID.kI,
-                turnPID.kD,
-            )
-            
-            closedLoop.positionWrappingEnabled(true)
-            closedLoop.positionWrappingInputRange(0.0, 1.0)
-            
-            inverted(turnInverted)
-            encoder.positionConversionFactor(1/turnGearing)
-            encoder.velocityConversionFactor(60/turnGearing)
-            idleMode(SparkBaseConfig.IdleMode.kBrake)
-            smartCurrentLimit(30)
-        }
-        
-        configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
-    }
-    
-    private val absEncoder: CANcoder = CANcoder(encoderID).apply {
-        val config = CANcoderConfiguration()
-        
-        config.MagnetSensor.MagnetOffset = encoderOffset.rotations
-        
-        
+
+    private val turnMotor = TalonFXS(turnID).apply {
+        val config: TalonFXSConfiguration = TalonFXSConfiguration()
+
+        config.ExternalFeedback.RotorToSensorRatio = turnGearing
+        config.ExternalFeedback.FeedbackRemoteSensorID = encoderID
+        config.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.FusedCANcoder
+
+        config.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST
+        config.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled
+
+        config.ClosedLoopGeneral.ContinuousWrap = true
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake
+        config.MotorOutput.Inverted =
+            if (turnInverted) InvertedValue.Clockwise_Positive
+            else InvertedValue.CounterClockwise_Positive
+
+        config.Slot0.kP = turnPID.kP
+        config.Slot0.kI = turnPID.kI
+        config.Slot0.kD = turnPID.kD
+        config.Slot0.kV = turnFF.kV
+        config.Slot0.kA = turnFF.kA
+        config.Slot0.kS = turnFF.kS
+
         configurator.apply(config)
     }
-    
+
+    private val turnPosition = turnMotor.position.clone()
+    private val turnVelocity = turnMotor.velocity.clone()
+    private val turnAppliedVoltage = turnMotor.motorVoltage.clone()
+    private val turnSupplyCurrent = turnMotor.supplyCurrent.clone()
+    private val turnStatorCurrent = turnMotor.statorCurrent.clone()
+
+    private val absEncoder: CANcoder = CANcoder(encoderID).apply {
+        val config = CANcoderConfiguration()
+
+        config.MagnetSensor.MagnetOffset = encoderOffset.rotations
+
+
+        configurator.apply(config)
+    }
+
     val absoluteTurnPosition = absEncoder.absolutePosition.clone()
-    
+
     val openLoopDriveRequest: VoltageOut = VoltageOut(0.0)
     val openLoopTorqueRequest: TorqueCurrentFOC = TorqueCurrentFOC(0.0)
     val closedLoopDriveRequest: VelocityTorqueCurrentFOC = VelocityTorqueCurrentFOC(0.0)
-    
-    init {
-        turnMotor.encoder.setPosition(absoluteTurnPosition.valueAsDouble)
-    }
-    
+
+    val closedLoopTurnRequest: PositionVoltage = PositionVoltage(0.0)
+
     override fun updateInputs(inputs: ModuleIO.ModuleInputs) {
         inputs.isDriveMotorConnected = BaseStatusSignal.refreshAll(
             drivePosition,
@@ -134,13 +143,19 @@ class ModuleIOTorqueCurrent(
             driveSupplyCurrent,
             driveTorqueCurrent
         ).isOK
-        
-        inputs.isTurnMotorConnected = true
-        
+
+        inputs.isTurnMotorConnected = BaseStatusSignal.refreshAll(
+            turnPosition,
+            turnVelocity,
+            turnSupplyCurrent,
+            turnAppliedVoltage,
+            turnStatorCurrent
+        ).isOK
+
         inputs.isAbsoluteEncoderConnected = BaseStatusSignal.refreshAll(
             absoluteTurnPosition
         ).isOK
-        
+
         inputs.driveVelocity.mut_replace(
             (driveVelocity.value into RadiansPerSecond) * (wheelRadius into Meters),
             MetersPerSecond
@@ -152,56 +167,51 @@ class ModuleIOTorqueCurrent(
         )
 
         inputs.drivePositionAngular.mut_replace(drivePosition.value)
-        
+
         inputs.driveAppliedVoltage.mut_replace(
             driveMotorVolts.value
         )
-        
+
         inputs.driveStatorCurrent.mut_replace(
-            driveStatorCurrent.value)
-        
+            driveStatorCurrent.value
+        )
+
         inputs.driveSupplyCurrent.mut_replace(
-            driveSupplyCurrent.value)
-        
+            driveSupplyCurrent.value
+        )
+
         inputs.driveTorqueCurrent.mut_replace(
-            driveTorqueCurrent.value)
-        
-        inputs.turnPosition = Rotation2d.fromRotations(turnMotor.encoder.position)
-        
+            driveTorqueCurrent.value
+        )
+
+        inputs.turnPosition = Rotation2d.fromRotations(turnPosition.valueAsDouble)
+
         inputs.absoluteTurnPosition = Rotation2d.fromRotations(absoluteTurnPosition.valueAsDouble)
-        
-        inputs.turnVelocity.mut_replace(turnMotor.encoder.velocity, RotationsPerSecond)
-        
-        inputs.turnAppliedVoltage.mut_replace(turnMotor.appliedOutput * turnMotor.busVoltage, Volts)
-        
-        inputs.turnStatorCurrent.mut_replace(turnMotor.outputCurrent, Amps)
-        
-        
-        
-        
+
+        inputs.turnVelocity.mut_replace(turnVelocity.value)
+
+        inputs.turnAppliedVoltage.mut_replace(turnAppliedVoltage.value)
+
+        inputs.turnStatorCurrent.mut_replace(turnStatorCurrent.value)
+        inputs.turnSupplyCurrent.mut_replace(turnSupplyCurrent.value)
     }
-    
+
     override fun setDriveVoltage(volts: Voltage) {
         driveMotor.setControl(openLoopDriveRequest.withOutput(volts))
     }
-    
+
     override fun setTurnVoltage(volts: Voltage) {
         turnMotor.setVoltage(volts into Volts)
     }
-    
+
     override fun setTurnPosition(position: Rotation2d) {
-        turnMotor.closedLoopController.setReference(
-            position.rotations,
-            SparkBase.ControlType.kPosition,
-            ClosedLoopSlot.kSlot0,
-            turnFF.kS,
-        )
+        turnMotor.setControl(closedLoopTurnRequest.withPosition(position.rotations))
     }
-    
+
     override fun setDriveVelocity(velocity: LinearVelocity) {
         setDriveVelocity(velocity, Amps.zero())
     }
-    
+
     /**
      * Send a velocity setpoint to the drive motor
      *
@@ -215,52 +225,54 @@ class ModuleIOTorqueCurrent(
             ).withFeedForward(torqueCurrentFF),
         )
     }
-    
+
     override fun reset() {
         driveMotor.setPosition(0.0)
     }
-    
+
     override fun stop() {
         driveMotor.stopMotor()
         turnMotor.stopMotor()
     }
-    
+
     override fun setDriveBrake(enabled: Boolean) {
         val config = TalonFXConfiguration()
         driveMotor.configurator.refresh(config)
-        
-        config.MotorOutput.NeutralMode = if(enabled) NeutralModeValue.Brake else NeutralModeValue.Coast
+
+        config.MotorOutput.NeutralMode = if (enabled) NeutralModeValue.Brake else NeutralModeValue.Coast
     }
-    
+
     override fun setTurnBrake(enabled: Boolean) {
-        val config = SparkMaxConfig()
-        
-        config.idleMode(if(enabled) SparkBaseConfig.IdleMode.kBrake else SparkBaseConfig.IdleMode.kCoast)
-        
-        turnMotor.configure(
-            config,
-            SparkBase.ResetMode.kNoResetSafeParameters,
-            SparkBase.PersistMode.kPersistParameters
-        )
-        println("Setting brake to $enabled")
+        val config = MotorOutputConfigs()
+        turnMotor.configurator.refresh(config)
+        turnMotor.configurator.apply(config.withNeutralMode(if(enabled) NeutralModeValue.Brake else NeutralModeValue.Coast))
     }
-    
+
     override fun setDrivePID(gains: PIDGains) {
         val config = Slot0Configs()
         driveMotor.configurator.refresh(config)
         driveMotor
             .configurator
-            .apply(config
-                .withKP(gains.kP)
-                .withKI(gains.kI)
-                .withKD(gains.kD)
+            .apply(
+                config
+                    .withKP(gains.kP)
+                    .withKI(gains.kI)
+                    .withKD(gains.kD)
             )
     }
-    
+
     override fun setSteerPID(gains: PIDGains) {
-    
+        val config = Slot0Configs()
+        turnMotor.configurator.refresh(config)
+        turnMotor
+            .configurator
+            .apply(
+                config
+                    .withKP(gains.kP)
+                    .withKI(gains.kI)
+                    .withKD(gains.kD))
     }
-    
+
     override fun setDriveCurrent(current: Current) {
         driveMotor.setControl(openLoopTorqueRequest.withOutput(current))
     }

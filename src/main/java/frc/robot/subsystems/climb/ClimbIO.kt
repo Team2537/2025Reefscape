@@ -34,8 +34,8 @@ interface ClimbIO{
             statorCurrent.mut_replace(table.get("statorCurrent", statorCurrent))
         }
     }
-    fun updateInputs(inputs: ClimbArmInputs)
-    fun setVoltage(voltage: Voltage)
-    fun setBrakeMode(brakeEnabled: Boolean)
-    fun stop()
+    fun updateInputs(inputs: ClimbArmInputs) {}
+    fun setVoltage(voltage: Voltage) {}
+    fun setBrakeMode(brakeEnabled: Boolean) {}
+    fun stop() {}
 }

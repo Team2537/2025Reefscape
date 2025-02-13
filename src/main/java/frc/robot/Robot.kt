@@ -9,12 +9,17 @@ import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.util.datalog.DataLog
 import edu.wpi.first.wpilibj.DataLogManager
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.util.WPILibVersion
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import frc.robot.commands.Autos
+import frc.robot.commands.swerve.WheelRadiusCharacterization
 import frc.robot.subsystems.swerve.Drivebase
+import frc.robot.subsystems.vision.Vision
+import frc.robot.subsystems.vision.VisionIO
 import lib.commands.not
 import lib.math.geometry.FieldConstants
 import lib.math.units.into
@@ -26,9 +31,14 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader
 import org.littletonrobotics.junction.wpilog.WPILOGWriter
 
 object Robot : LoggedRobot() {
+    val updateRateMs = 0.02
+    
     val driverController = CommandXboxController(0)
 
     val drivebase: Drivebase = Drivebase()
+    val vision: Vision = Vision(drivebase::addVisionMeasurement)
+
+    val autos = Autos(drivebase)
 
     init {
         // Report the use of the Kotlin Language for "FRC Usage Report" statistics.
@@ -66,6 +76,8 @@ object Robot : LoggedRobot() {
         Logger.start()
         FieldConstants
         configureBindings()
+        
+        DriverStation.silenceJoystickConnectionWarning(true)
 
 //        driverController.a().whileTrue(drivebase.driveSysId())
     }
@@ -81,6 +93,9 @@ object Robot : LoggedRobot() {
         )
 
         driverController.rightBumper().onTrue(drivebase.resetHeading())
+
+        driverController.b().whileTrue(WheelRadiusCharacterization(drivebase, WheelRadiusCharacterization.Direction.CLOCKWISE))
+
     }
 
     override fun robotPeriodic() {
@@ -91,7 +106,9 @@ object Robot : LoggedRobot() {
 
     override fun disabledPeriodic() {}
 
-    override fun autonomousInit() {}
+    override fun autonomousInit() {
+        autos.selectedRoutine.schedule()
+    }
 
     override fun autonomousPeriodic() {}
 
