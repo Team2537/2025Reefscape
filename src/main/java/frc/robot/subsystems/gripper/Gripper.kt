@@ -1,0 +1,43 @@
+package frc.robot.subsystems.gripper
+
+import edu.wpi.first.math.system.plant.DCMotor
+import edu.wpi.first.units.Units.KilogramSquareMeters
+import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.Commands
+import edu.wpi.first.wpilibj2.command.SubsystemBase
+import edu.wpi.first.wpilibj2.command.button.Trigger
+import frc.robot.RobotType
+import lib.controllers.gains.FeedforwardGains
+import lib.controllers.gains.PIDGains
+import lib.math.units.volts
+import org.littletonrobotics.junction.Logger
+
+class Gripper: SubsystemBase("gripper") {
+    val io: GripperIO = when(RobotType.mode){
+        RobotType.Mode.SIMULATION -> GripperIOSim(
+            DCMotor.getNEO(1),
+            1.0,
+            KilogramSquareMeters.of(0.001199574)
+        )
+        else -> object : GripperIO {}
+    }
+    
+    val inputs: GripperIO.GripperInputs = GripperIO.GripperInputs()
+    
+    val isHoldingCoral = Trigger { inputs.isHoldingCoral }
+    
+    fun getIntakeCmd(): Command {
+        return runOnce { io.setVoltage((-2.0).volts) }
+            .andThen(Commands.waitUntil { inputs.isHoldingCoral })
+    }
+    
+    fun getEjectCmd(): Command {
+        return runOnce { io.setVoltage(9.0.volts) }
+            .andThen(Commands.waitUntil { !inputs.isHoldingCoral })
+    }
+    
+    override fun periodic() {
+        io.updateInputs(inputs)
+        Logger.processInputs("superstructure/$name", inputs)
+    }
+}

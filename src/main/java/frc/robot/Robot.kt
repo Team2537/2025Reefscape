@@ -6,6 +6,7 @@ import edu.wpi.first.hal.HAL
 import edu.wpi.first.hal.HALUtil
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.RadiansPerSecond
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj.TimedRobot
 import edu.wpi.first.wpilibj.util.WPILibVersion
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.WheelRadiusCharacterization
@@ -50,6 +52,8 @@ object Robot : LoggedRobot() {
     val superstructure = Superstructure()
     
     val autos = Autos(drivebase)
+    
+    
     
     init {
         // Report the use of the Kotlin Language for "FRC Usage Report" statistics.
@@ -112,31 +116,26 @@ object Robot : LoggedRobot() {
         operatorController.povRight().onTrue(superstructure.getScoreNodeCmd(
             operatorController.leftTrigger().and(operatorController.rightTrigger()),
             driverController.leftTrigger(),
-            godController.button(1),
             Superstructure.SuperstructureSetpoint.L1
         ))
 
         operatorController.povDown().onTrue(superstructure.getScoreNodeCmd(
             operatorController.leftTrigger().and(operatorController.rightTrigger()),
             driverController.leftTrigger(),
-            godController.button(1),
             Superstructure.SuperstructureSetpoint.L2
         ))
 
         operatorController.povLeft().onTrue(superstructure.getScoreNodeCmd(
             operatorController.leftTrigger().and(operatorController.rightTrigger()),
             driverController.leftTrigger(),
-            godController.button(1),
             Superstructure.SuperstructureSetpoint.L3
         ))
 
         operatorController.povUp().onTrue(superstructure.getScoreNodeCmd(
             operatorController.leftTrigger().and(operatorController.rightTrigger()),
             driverController.leftTrigger(),
-            godController.button(1),
             Superstructure.SuperstructureSetpoint.L4
         ))
-
     }
     
     override fun robotPeriodic() {

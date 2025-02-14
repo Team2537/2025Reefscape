@@ -3,34 +3,35 @@ package frc.robot.subsystems.gripper
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.units.Units.Amps
+import edu.wpi.first.units.Units.KilogramSquareMeters
 import edu.wpi.first.units.Units.Volts
+import edu.wpi.first.units.measure.MomentOfInertia
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.simulation.DCMotorSim
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
 import lib.math.units.into
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean
 
 class GripperIOSim(
     private val motor: DCMotor,
     private val gearing: Double,
-    private val pidGains: PIDGains,
-    private val ffGains: FeedforwardGains
+    private val moi: MomentOfInertia,
 ) : GripperIO {
     private val motorSim: DCMotorSim = DCMotorSim(
-        LinearSystemId.createDCMotorSystem(ffGains.kV, ffGains.kA),
+        LinearSystemId.createDCMotorSystem(motor, moi into KilogramSquareMeters, gearing),
         motor,
     )
+    
+    private val isHoldingCoral: LoggedNetworkBoolean = LoggedNetworkBoolean("/Tuning/gripper/isHoldingCoral", false)
 
-    init {
-        SmartDashboard.putBoolean("sim/gripper/isHoldingCoral", false)
-    }
 
     override fun updateInputs(inputs: GripperIO.GripperInputs) {
         motorSim.update(0.02)
 
-        inputs.isHoldingCoral = SmartDashboard.getBoolean("sim/gripper/isHoldingCoral", false)
-
+        inputs.isHoldingCoral = isHoldingCoral.get()
+        
         inputs.gripperPosition.mut_replace(motorSim.angularPosition)
         inputs.gripperVelocity.mut_replace(motorSim.angularVelocity)
         inputs.gripperAppliedVoltage.mut_replace(motorSim.inputVoltage, Volts)
