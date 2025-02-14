@@ -36,9 +36,11 @@ import lib.controllers.gains.PIDGains
 import lib.controllers.pathfollowing.ModuleForcesPathFollower
 import lib.controllers.pathfollowing.PathFollower
 import lib.controllers.pathfollowing.SimplePathFollower
+import lib.math.geometry.FieldConstants
 import lib.math.units.into
 import lib.math.units.measuredIn
 import org.littletonrobotics.junction.Logger
+import java.lang.reflect.Field
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
 import kotlin.jvm.optionals.getOrDefault
@@ -347,13 +349,36 @@ class Drivebase : SubsystemBase("drivebase") {
         
         Logger.recordOutput("$name/corners", *rotatedCorners.toTypedArray())
         
+        val hexagons = listOf(FieldConstants.Reef.reefHexagonRed, FieldConstants.Reef.reefHexagonBlue) // List of your hexagon objects
+        hexagons.forEach { hexagon ->
+            rotatedCorners.forEach { corner ->
+                if (hexagon.contains(corner)) {
+                    // If the corner is inside the hexagon, find the closest point on the hexagon's edge
+                    val closestPoint = hexagon.closestPoint(corner)
+                    
+                    // Calculate the vector from the corner to the closest point and normalize it
+                    val vectorToClosest = corner - closestPoint
+                    val directionToClosest = vectorToClosest.div(vectorToClosest.norm) // Normalize the vector
+                    
+                    // Adjust the square's position to ensure no part of it is inside the hexagon
+                    // Use the half-diagonal of the square for full clearance
+                    val halfDiagonal = hypot(width/2.0 into Meters, length/2.0 into Meters)
+                    val newTranslation = closestPoint + directionToClosest * halfDiagonal
+                    
+                    // Update the odometry to reset the pose to the new position
+                    resetOdometry(Pose2d(newTranslation, pose.rotation))
+                }
+                
+                
+            }
+        }
     }
 
     companion object Constants {
         // DONT FORGET TO CHANGE BACK!
         val maxSpeed = 12.4 measuredIn FeetPerSecond
         
-        val width = 29.0 measuredIn Inches
-        val length = 31.0 measuredIn Inches
+        val width = 36.0 measuredIn Inches
+        val length = 38.0 measuredIn Inches
     }
 }

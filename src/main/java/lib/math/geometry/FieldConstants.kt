@@ -56,11 +56,17 @@ object FieldConstants {
                 Meters.of(4.025877)
             )
         
+        val reefHexagonRadius = 37.69.inches
+        
+        
         /** Circle centered around the reef, expanding 20 inches past its edge */
         val reefZone: Ellipse2d = Ellipse2d(
             reefCenterBlue,
-            32.745545.inches + 20.inches,
+            reefHexagonRadius + 20.inches,
         )
+        
+        val reefHexagonBlue = Hexagon2d(reefCenterBlue, reefHexagonRadius, Rotation2d.fromDegrees(30.0))
+        val reefHexagonRed = reefHexagonBlue.flip()
         
         /**
          * Represents the left and right racks on each side of the reef
@@ -165,6 +171,8 @@ object FieldConstants {
         init {
             Logger.recordOutput("field/reef/reefCenterBlue", reefCenterBlue)
             Logger.recordOutput("field/reef/reefZone", *reefZone.cardinals.toTypedArray())
+            Logger.recordOutput("field/reef/reefHexagonBlue", *reefHexagonBlue.vertices.map { Pose2d(it, Rotation2d()) }.toTypedArray())
+            Logger.recordOutput("field/reef/reefHexagonRed", *reefHexagonRed.vertices.map { Pose2d(it, Rotation2d()) }.toTypedArray())
         }
     }
     
