@@ -334,9 +334,26 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.recordOutput("$name/wheelPositions", *wheelPositions.toTypedArray())
         Logger.recordOutput("$name/moduleForces", *moduleForces.toTypedArray())
     }
+    
+    override fun simulationPeriodic() {
+        val localOffsets = listOf(
+            Translation2d(length/2.0, width/2.0),
+            Translation2d(length/2.0, -width/2.0),
+            Translation2d(-length/2.0, width/2.0),
+            Translation2d(-length/2.0, -width/2.0)
+        )
+        
+        val rotatedCorners = localOffsets.map { it.rotateBy(pose.rotation) + pose.translation }
+        
+        Logger.recordOutput("$name/corners", *rotatedCorners.toTypedArray())
+        
+    }
 
     companion object Constants {
         // DONT FORGET TO CHANGE BACK!
         val maxSpeed = 12.4 measuredIn FeetPerSecond
+        
+        val width = 29.0 measuredIn Inches
+        val length = 31.0 measuredIn Inches
     }
 }
