@@ -15,7 +15,7 @@ import lib.math.units.into
  * Implementation of PivotIO for a Kraken motor controlling a pivot mechanism with hard stops.
  * The pivot moves between two physical limits and uses relative encoder position.
  */
-class PivotIOKraken(
+class IntakePivotIOKraken(
     private val motorID: Int,
     private val gearing: Double,
     private val isInverted: Boolean,
@@ -76,7 +76,7 @@ class PivotIOKraken(
     private val voltageRequest = VoltageOut(0.0)
     private val positionRequest = MotionMagicVoltage(0.0)
 
-    override fun updateInputs(inputs: PivotIO.PivotInputs) {
+    override fun updateInputs(inputs: IntakePivotIO.IntakePivotInputs) {
         // Refresh all status signals
         BaseStatusSignal.refreshAll(
             position,
