@@ -28,7 +28,7 @@ class PivotIOKraken(
     private val motionMagicAcceleration: Double, // rotations per second squared
     private val motionMagicCruiseVelocity: Double, // rotations per second
     private val motionMagicJerk: Double // rotations per second cubed
-) : PivotIO {
+) : IntakePivotIO {
 
     // Initialize Kraken motor with configuration
     private val motor = TalonFX(motorID).apply {
