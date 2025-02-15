@@ -5,6 +5,8 @@ object Constants {
         enum class Mode {
             SIM, REAL, REPLAY
         }
+
+        val mode: Mode = Mode.REAL
     }
 
     object ArmConstants {
