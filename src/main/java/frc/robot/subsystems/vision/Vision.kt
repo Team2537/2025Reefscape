@@ -30,25 +30,19 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
     
     val io: List<VisionIO> =
         when (RobotType.mode) {
-//            RobotType.Mode.REAL -> listOf(
-//                VisionIOPhotonVision("front_left_cam", robotToCameras[0]),
-//                VisionIOPhotonVision("front_right_cam", robotToCameras[1]),
-//            )
-//
-//            RobotType.Mode.SIMULATION -> listOf(
-//                VisionIOPhotonVisionSim(
-//                    "front_left_cam", robotToCameras[0], robotPoseSupplier
-//                ),
-//                VisionIOPhotonVisionSim(
-//                    "front_right_cam", robotToCameras[1], robotPoseSupplier
-//                ),
-//                VisionIOPhotonVisionSim(
-//                    "back_left_cam", robotToCameras[2], robotPoseSupplier
-//                ),
-//                VisionIOPhotonVisionSim(
-//                    "back_right_cam", robotToCameras[3], robotPoseSupplier
-//                )
-//            )
+            RobotType.Mode.REAL -> listOf(
+                VisionIOPhotonVision("front_left_cam", robotToCameras[0]),
+                VisionIOPhotonVision("front_right_cam", robotToCameras[1]),
+            )
+
+            RobotType.Mode.SIMULATION -> listOf(
+                VisionIOPhotonVisionSim(
+                    "front_left_cam", robotToCameras[0], robotPoseSupplier
+                ),
+                VisionIOPhotonVisionSim(
+                    "back_left_cam", robotToCameras[1], robotPoseSupplier
+                ),
+            )
             
             else -> listOf(
                 object : VisionIO {},
@@ -66,7 +60,7 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
         }
         
         Logger.recordOutput(
-            "cameraPoses",
+            "vision/cameraPoses",
             *robotToCameras.map { Pose3d(robotPoseSupplier.get()).transformBy(it) }.toTypedArray()
         )
         
@@ -143,21 +137,13 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
     companion object {
         val robotToCameras = listOf(
             Transform3d(
-                Translation3d(Inches.of(7.718757), Inches.of(9.015334), Inches.of(6.883276 + 1.5)),
+                Translation3d(Inches.of(12.875000), Inches.of(11.875000), Inches.of(6.883276 + 1.5)),
                 Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(30.0))
             ),
             Transform3d(
-                Translation3d(Inches.of(7.718757), Inches.of(-9.015334), Inches.of(6.883276 + 1.5)),
-                Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(-30.0))
-            ),
-            Transform3d(
-                Translation3d(Inches.of(-7.718757), Inches.of(9.015334), Inches.of(6.883276 + 1.5)),
+                Translation3d(Inches.of(-12.875), Inches.of(11.875000), Inches.of(6.883276 + 1.5)),
                 Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(-30.0 + 180))
             ),
-            Transform3d(
-                Translation3d(Inches.of(-7.718757), Inches.of(-9.015334), Inches.of(6.883276 + 1.5)),
-                Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(30.0 + 180))
-            )
         )
         
         // Basic filtering thresholds
