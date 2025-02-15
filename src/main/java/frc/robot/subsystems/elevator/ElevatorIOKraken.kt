@@ -12,6 +12,8 @@ import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.units.measure.LinearAcceleration
 import edu.wpi.first.units.measure.LinearVelocity
+import lib.controllers.gains.FeedforwardGains
+import lib.controllers.gains.PIDGains
 import lib.math.units.into
 
 class ElevatorIOKraken(
@@ -21,12 +23,8 @@ class ElevatorIOKraken(
     // the effective radius of the sprocket on the chain, 
     // used to determine the distance the elevator carriage travels per rotation of the motor
     private val drumRadius: Distance,
-    private val kP: Double,
-    private val kI: Double,
-    private val kD: Double,
-    private val kS: Double,
-    private val kV: Double,
-    private val kA: Double,
+    private val pidGains: PIDGains,
+    private val ffGains: FeedforwardGains,
     private val kG: Double,
     private val motionMagicAcceleration: LinearAcceleration, // meters per second squared
     private val motionMagicCruiseVelocity: LinearVelocity, // meters per second
@@ -45,12 +43,12 @@ class ElevatorIOKraken(
             config.Feedback.SensorToMechanismRatio = gearRatio
             
             // Configure PID and FF gains
-            config.Slot0.kP = kP
-            config.Slot0.kI = kI
-            config.Slot0.kD = kD
-            config.Slot0.kV = kV
-            config.Slot0.kA = kA
-            config.Slot0.kS = kS
+            config.Slot0.kP = pidGains.kP
+            config.Slot0.kI = pidGains.kI
+            config.Slot0.kD = pidGains.kD
+            config.Slot0.kV = ffGains.kV
+            config.Slot0.kA = ffGains.kA
+            config.Slot0.kS = ffGains.kS
             config.Slot0.kG = kG
             
             // Configure motion magic parameters
