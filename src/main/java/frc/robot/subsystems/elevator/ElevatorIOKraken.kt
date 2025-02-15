@@ -57,12 +57,12 @@ class ElevatorIOKraken(
             config.MotionMagic.withMotionMagicJerk(motionMagicJerk)
             
             // Configure current limits
-            config.CurrentLimits.StatorCurrentLimit = 120.0
+            config.CurrentLimits.StatorCurrentLimit = 40.0
             config.CurrentLimits.SupplyCurrentLimit = 40.0
             config.CurrentLimits.StatorCurrentLimitEnable = true
             config.CurrentLimits.SupplyCurrentLimitEnable = true
-            config.TorqueCurrent.withPeakForwardTorqueCurrent(120.0)
-            config.TorqueCurrent.withPeakReverseTorqueCurrent(-120.0)
+            config.TorqueCurrent.withPeakForwardTorqueCurrent(40.0)
+            config.TorqueCurrent.withPeakReverseTorqueCurrent(-40.0)
             
             // Configure motor direction
             config.MotorOutput.Inverted = 
