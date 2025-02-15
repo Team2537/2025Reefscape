@@ -10,6 +10,7 @@ import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.Vector
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
 import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
@@ -18,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.numbers.N3
+import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Angle
@@ -27,6 +29,8 @@ import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
+import frc.robot.Constants
+import frc.robot.Constants.robotMass
 import frc.robot.RobotType
 import frc.robot.subsystems.swerve.gyro.GyroIO
 import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2
@@ -38,6 +42,11 @@ import lib.controllers.pathfollowing.PathFollower
 import lib.controllers.pathfollowing.SimplePathFollower
 import lib.math.units.into
 import lib.math.units.measuredIn
+import org.ironmaple.simulation.SimulatedArena
+import org.ironmaple.simulation.drivesims.COTS
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig
 import org.littletonrobotics.junction.Logger
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
@@ -45,44 +54,8 @@ import kotlin.jvm.optionals.getOrDefault
 import kotlin.math.*
 
 class Drivebase : SubsystemBase("drivebase") {
-
-    /**
-     * The translations of the modules relative to the center of the robot.
-     *
-     * This array contains the translations of the modules relative to the center of the robot. The
-     * order of the modules is as follows:
-     * 0: Front Left
-     * 1: Front Right
-     * 2: Back Left
-     * 3: Back Right
-     *
-     * The translations are in meters.
-     */
-    val moduleTranslations: List<Translation2d> = when (RobotType.type) {
-        else -> listOf(
-            Translation2d(Inches.of(8.864613), Inches.of(8.864613)),
-            Translation2d(Inches.of(8.864613), Inches.of(-8.864613)),
-            Translation2d(Inches.of(-8.864613), Inches.of(8.864613)),
-            Translation2d(Inches.of(-8.864613), Inches.of(-8.864613))
-        )
-    }
-
-    /**
-     * The radius of the drivebase.
-     *
-     * This is the radius of the circle that the drivebase moves in. It is the distance from the center
-     * of the robot to the center of a module.
-     */
-    val drivebaseRadius: Distance = moduleTranslations.maxOf { it.norm } measuredIn Meters
-
-    /**
-     * The maximum angular velocity of the drivebase.
-     *
-     * This is the maximum angular velocity of the drivebase in radians per second.
-     */
-    val maxAngularVelocity: AngularVelocity =
-        (maxSpeed.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn RadiansPerSecond
-
+    
+    
     /**
      * The swerve modules on the robot.
      *
@@ -98,17 +71,17 @@ class Drivebase : SubsystemBase("drivebase") {
         SwerveModule(7, 8, 9, true, true, Rotation2d.fromRadians(-2.008), moduleTranslations[2]),
         SwerveModule(10, 11, 12, true, true, Rotation2d(-1.640), moduleTranslations[3])
     )
-
+    
     val gyro: GyroIO = when (RobotType.mode) {
-        RobotType.Mode.SIMULATION -> GyroIOSim(::chassisSpeeds)
+        RobotType.Mode.SIMULATION -> GyroIOMapleSim(drivetrainSim.gyroSimulation)
         RobotType.Mode.REAL -> GyroIOPigeon2(13)
         else -> object : GyroIO {}
     }
-
+    
     val gyroInputs: GyroIO.GyroInputs = GyroIO.GyroInputs()
-
+    
     val kinematics: SwerveDriveKinematics = SwerveDriveKinematics(*moduleTranslations.toTypedArray())
-
+    
     val odometry: SwerveDrivePoseEstimator = SwerveDrivePoseEstimator(
         kinematics,
         gyroInputs.yaw,
@@ -117,28 +90,28 @@ class Drivebase : SubsystemBase("drivebase") {
         VecBuilder.fill(0.0, 0.0, 0.0),
         VecBuilder.fill(0.9, 0.9, 0.9),
     )
-
+    
     val wheelPositions: List<SwerveModulePosition>
         get() = modules.map { it.position }
-
+    
     val wheelStates: List<SwerveModuleState>
         get() = modules.map { it.state }
-
+    
     val desiredStates: List<SwerveModuleState>
         get() = modules.map { it.desiredState }
     
     val moduleForces: List<SwerveModuleState>
         get() = modules.map { it.wheelForce }
-
+    
     val chassisSpeeds: ChassisSpeeds
         get() = kinematics.toChassisSpeeds(*wheelStates.toTypedArray())
-
+    
     val pose: Pose2d
         get() = Pose2d(odometry.estimatedPosition.translation, gyroInputs.yaw)
-
+    
     val wheelRadiusCharacterizationAngles: List<Angle>
         get() = modules.map { it.radiusCharacterizationAngle }
-
+    
     val driveSysIDVolts: SysIdRoutine = SysIdRoutine(
         SysIdRoutine.Config(
             null,
@@ -154,7 +127,7 @@ class Drivebase : SubsystemBase("drivebase") {
             this
         )
     )
-
+    
     val driveSysIDCurrent: SysIdRoutine = SysIdRoutine(
         SysIdRoutine.Config(
             null,
@@ -170,7 +143,7 @@ class Drivebase : SubsystemBase("drivebase") {
             this
         )
     )
-
+    
     val steerSysIdRoutine: SysIdRoutine =
         SysIdRoutine(
             SysIdRoutine.Config(
@@ -185,24 +158,24 @@ class Drivebase : SubsystemBase("drivebase") {
                 this
             )
         )
-
-
-
+    
+    
     val routineToApply = steerSysIdRoutine
-
+    
     val robotConfig: RobotConfig? = try {
         RobotConfig.fromGUISettings()
     } catch (e: Exception) {
         e.printStackTrace()
         null
     }
-
+    
+    
     init {
         AutoBuilder.configure(
             ::pose,
             ::resetOdometry,
             ::chassisSpeeds,
-            {speeds: ChassisSpeeds, feedforward: DriveFeedforwards -> applyChassisSpeeds(speeds)},
+            { speeds: ChassisSpeeds, feedforward: DriveFeedforwards -> applyChassisSpeeds(speeds) },
             PPHolonomicDriveController(
                 PIDConstants(3.0),
                 PIDConstants(3.0),
@@ -214,12 +187,12 @@ class Drivebase : SubsystemBase("drivebase") {
             this
         )
     }
-
+    
     fun applyChassisSpeeds(speeds: ChassisSpeeds, moduleForces: List<Vector<N2>>) {
         val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
-
+        
         val states = kinematics.toSwerveModuleStates(discretizedSpeeds)
-
+        
         modules.zip(states).forEachIndexed { index, (module, state) ->
             module.applyState(state, moduleForces[index])
         }
@@ -227,13 +200,13 @@ class Drivebase : SubsystemBase("drivebase") {
     
     fun applyChassisSpeeds(speeds: ChassisSpeeds) {
         val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
-
+        
         val states = kinematics.toSwerveModuleStates(discretizedSpeeds)
-
+        
         modules.zip(states).forEach { (module, state) -> module.applyState(state) }
         Logger.recordOutput("$name/discretizedChassisSpeeds", discretizedSpeeds)
     }
-
+    
     fun runWheelRadiusCharacterization(omegaSpeed: AngularVelocity) {
         applyChassisSpeeds(
             ChassisSpeeds(
@@ -241,14 +214,13 @@ class Drivebase : SubsystemBase("drivebase") {
             )
         )
     }
-
+    
     fun getStopCmd() = runOnce {
-        modules.zip(wheelStates).forEach {
-            (module: SwerveModule, state: SwerveModuleState) ->
+        modules.zip(wheelStates).forEach { (module: SwerveModule, state: SwerveModuleState) ->
             module.applyState(SwerveModuleState(0.0, state.angle))
         }
     }
-
+    
     fun getDriveCmd(
         forward: DoubleSupplier,
         strafe: DoubleSupplier,
@@ -262,11 +234,11 @@ class Drivebase : SubsystemBase("drivebase") {
             val magnitude = hypot(strafe.asDouble, forward.asDouble).pow(exponent)
             val direction = Rotation2d.fromRadians(atan2(forward.asDouble, strafe.asDouble))
             var rotationSpeed = rotation.asDouble
-
+            
             val forwardS = magnitude * direction.sin
             val strafeS = magnitude * direction.cos
-
-
+            
+            
             if (shouldFieldOrient.asBoolean) {
                 speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                     forwardS * (maxSpeed into MetersPerSecond),
@@ -281,20 +253,20 @@ class Drivebase : SubsystemBase("drivebase") {
                     rotationSpeed * (maxAngularVelocity into RadiansPerSecond)
                 )
             }
-
+            
             applyChassisSpeeds(speeds)
         }
     }
-
+    
     fun resetOdometry(newPose: Pose2d) {
         odometry.resetPose(newPose)
         gyro.setYaw(newPose.rotation)
     }
-
+    
     fun resetHeading(): Command {
         return Commands.runOnce({ gyro.setYaw(Rotation2d()) })
     }
-
+    
     fun driveSysId(): Command {
         return this.run {
             modules.map { it.applyState(SwerveModuleState()) }
@@ -314,7 +286,7 @@ class Drivebase : SubsystemBase("drivebase") {
     fun addVisionMeasurement(pose: Pose2d, timestamp: Double, stdDevs: Vector<N3>) {
         odometry.addVisionMeasurement(pose, timestamp, stdDevs)
     }
-
+    
     override fun periodic() {
         gyro.updateInputs(gyroInputs)
         modules.forEachIndexed { index, swerveModule ->
@@ -322,21 +294,76 @@ class Drivebase : SubsystemBase("drivebase") {
             Logger.processInputs("$name/modules/$index", swerveModule.inputs)
         }
         Logger.processInputs("$name/gyro", gyroInputs)
-
+        
         odometry.update(
             gyroInputs.yaw,
             wheelPositions.toTypedArray(),
         )
-
+        
         Logger.recordOutput("$name/pose", Pose2d.struct, pose)
         Logger.recordOutput("$name/wheelStates", *wheelStates.toTypedArray())
         Logger.recordOutput("$name/desiredStates", *desiredStates.toTypedArray())
         Logger.recordOutput("$name/wheelPositions", *wheelPositions.toTypedArray())
         Logger.recordOutput("$name/moduleForces", *moduleForces.toTypedArray())
     }
-
+    
+    override fun simulationPeriodic() {
+        SimulatedArena.getInstance().simulationPeriodic()
+        Logger.recordOutput("$name/maplesimPose", Pose2d.struct, drivetrainSim.simulatedDriveTrainPose)
+    }
+    
     companion object Constants {
-        // DONT FORGET TO CHANGE BACK!
+        
+        /**
+         * The translations of the modules relative to the center of the robot.
+         *
+         * This array contains the translations of the modules relative to the center of the robot. The
+         * order of the modules is as follows:
+         * 0: Front Left
+         * 1: Front Right
+         * 2: Back Left
+         * 3: Back Right
+         *
+         * The translations are in meters.
+         */
+        val moduleTranslations: List<Translation2d> = when (RobotType.type) {
+            else -> listOf(
+                Translation2d(Inches.of(8.864613), Inches.of(8.864613)),
+                Translation2d(Inches.of(8.864613), Inches.of(-8.864613)),
+                Translation2d(Inches.of(-8.864613), Inches.of(8.864613)),
+                Translation2d(Inches.of(-8.864613), Inches.of(-8.864613))
+            )
+        }
+        
+        
+        /**
+         * The radius of the drivebase.
+         *
+         * This is the radius of the circle that the drivebase moves in. It is the distance from the center
+         * of the robot to the center of a module.
+         */
+        val drivebaseRadius: Distance = moduleTranslations.maxOf { it.norm } measuredIn Meters
+        
         val maxSpeed = 12.4 measuredIn FeetPerSecond
+        
+        /**
+         * The maximum angular velocity of the drivebase.
+         *
+         * This is the maximum angular velocity of the drivebase in radians per second.
+         */
+        val maxAngularVelocity: AngularVelocity =
+            (maxSpeed.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn RadiansPerSecond
+        
+        private val maplesimConfig: DriveTrainSimulationConfig =
+            DriveTrainSimulationConfig.Default()
+                .withRobotMass(robotMass)
+                .withCustomModuleTranslations(moduleTranslations.toTypedArray())
+                .withGyro(COTS.ofPigeon2())
+                .withSwerveModule(SwerveModule.simConfig)
+        
+        val drivetrainSim = SwerveDriveSimulation(maplesimConfig, Pose2d(3.0, 3.0, Rotation2d())).also {
+            SimulatedArena.getInstance().addDriveTrainSimulation(it)
+        }
+        
     }
 }
