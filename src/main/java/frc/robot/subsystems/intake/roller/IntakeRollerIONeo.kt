@@ -5,17 +5,15 @@ import com.revrobotics.spark.SparkBase
 import com.revrobotics.spark.config.SparkMaxConfig
 import com.revrobotics.spark.config.SparkBaseConfig
 import edu.wpi.first.units.Units.*
-import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Voltage
-import kotlin.math.PI
 
 
-class RollerIONeo (
+class IntakeRollerIONeo (
     private val id: Int,
     private val isInverted: Boolean,
     private val gearing: Double
 
-) : RollerIO {
+) : IntakeRollerIO {
     private val coastConfig = SparkMaxConfig().apply {
         inverted(isInverted)
         encoder.positionConversionFactor(1.0 / gearing)
@@ -29,13 +27,12 @@ class RollerIONeo (
         configure(coastConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
     }
 
-    override fun updateInputs(inputs: RollerIO.RollerInputs) {
-        inputs.absoluteAngle.mut_replace(Rotations.of(motor.encoder.position))
-        inputs.angularVelocity.mut_replace(
-                RotationsPerSecond.of(motor.encoder.velocity / 60.0)
+    override fun updateInputs(inputs: IntakeRollerIO.IntakeRollerInputs) {
+        inputs.position.mut_replace(Rotations.of(motor.encoder.position))
+        inputs.velocity.mut_replace(
+                RPM.of(motor.encoder.velocity)
         )
-        inputs.supplyVoltage.mut_replace(Volts.of(motor.busVoltage))
-        inputs.motorVoltage.mut_replace(Volts.of(motor.appliedOutput * motor.busVoltage))
+        inputs.appliedVoltage.mut_replace(Volts.of(motor.appliedOutput * motor.busVoltage))
         inputs.statorCurrent.mut_replace(Amps.of(motor.outputCurrent))
     }
 
@@ -43,4 +40,15 @@ class RollerIONeo (
         motor.setVoltage(voltage.baseUnitMagnitude())
     }
 
+    override fun setBrakeMode(brake: Boolean) {
+        val config = SparkMaxConfig().apply {
+            if (brake) {
+                idleMode(SparkBaseConfig.IdleMode.kBrake)
+            } else {
+                idleMode(SparkBaseConfig.IdleMode.kCoast)
+            }
+        }
+
+        motor.configure(config, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters)
+    }
 }

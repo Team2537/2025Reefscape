@@ -30,4 +30,6 @@ interface IntakeRollerIO {
     fun updateInputs(inputs: IntakeRollerInputs) {}
     
     fun setVoltage(voltage: Voltage) {}
+
+    fun setBrakeMode(brake: Boolean) {}
 }
