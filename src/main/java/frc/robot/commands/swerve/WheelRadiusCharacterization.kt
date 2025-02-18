@@ -53,7 +53,7 @@ class WheelRadiusCharacterization(
         Logger.recordOutput("${drivebase.name}/radiusCharacterization/averageWheelPositionRad", averageWheelPositionRad)
         
 
-        val currentEffectiveWheelRadiusMeters = ((gyroYawAccumRads * (drivebase.drivebaseRadius into Meters)) / averageWheelPositionRad) * direction.i
+        val currentEffectiveWheelRadiusMeters = ((gyroYawAccumRads * (Drivebase.drivebaseRadius into Meters)) / averageWheelPositionRad) * direction.i
 
         Logger.recordOutput("${drivebase.name}/radiusCharacterization/wheelRadius", currentEffectiveWheelRadiusMeters)
 
