@@ -177,6 +177,10 @@ class Drivebase : SubsystemBase("drivebase") {
         val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
         
         val states = kinematics.toSwerveModuleStates(discretizedSpeeds)
+        SwerveDriveKinematics.desaturateWheelSpeeds(
+            states,
+            limits.maxLinVel,
+        )
         
         modules.zip(states).forEachIndexed { index, (module, state) ->
             module.applyState(state, moduleForces[index])
@@ -187,6 +191,10 @@ class Drivebase : SubsystemBase("drivebase") {
         val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
         
         val states = kinematics.toSwerveModuleStates(discretizedSpeeds)
+        SwerveDriveKinematics.desaturateWheelSpeeds(
+            states,
+            limits.maxLinVel,
+        )
         
         modules.zip(states).forEach { (module, state) -> module.applyState(state) }
         Logger.recordOutput("$name/discretizedChassisSpeeds", discretizedSpeeds)
