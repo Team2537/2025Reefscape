@@ -7,13 +7,6 @@ import edu.wpi.first.units.MomentOfInertiaUnit
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Voltage
 object Constants {
-    object RobotConstants {
-        enum class Mode {
-            SIM, REAL, REPLAY
-        }
-
-        val mode: Mode = Mode.REAL
-    }
 
     object ArmConstants {
     
