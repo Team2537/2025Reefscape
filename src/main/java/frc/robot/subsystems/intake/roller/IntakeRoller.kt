@@ -7,22 +7,23 @@ import frc.robot.subsystems.intake.roller.IntakeRollerIO.IntakeRollerInputs
 import org.littletonrobotics.junction.Logger
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.wpilibj2.command.Command
+import frc.robot.RobotType
 
 class IntakeRoller : SubsystemBase() {
-    private val io: IntakeRollerIO = when (Constants.RobotConstants.mode) {
-        Constants.RobotConstants.Mode.REAL -> IntakeRollerIONeo(
+    private val io: IntakeRollerIO = when (RobotType.mode) {
+        RobotType.Mode.REAL -> IntakeRollerIONeo(
             Constants.IntakeConstants.RollerConstants.MOTOR_ID,
             Constants.IntakeConstants.RollerConstants.IS_MOTOR_INVERTED,
             Constants.IntakeConstants.RollerConstants.GEARING
         )
 
-        Constants.RobotConstants.Mode.SIM -> IntakeRollerIOSim(
+        RobotType.Mode.SIMULATION -> IntakeRollerIOSim(
             DCMotor.getNEO(1),
             Constants.IntakeConstants.RollerConstants.GEARING,
             Constants.IntakeConstants.RollerConstants.MOI
         )
 
-        Constants.RobotConstants.Mode.REPLAY -> object : IntakeRollerIO {}
+        RobotType.Mode.REPLAY -> object : IntakeRollerIO {}
     }
     
     private val inputs: IntakeRollerInputs = IntakeRollerInputs()

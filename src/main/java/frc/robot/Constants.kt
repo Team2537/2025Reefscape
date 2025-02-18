@@ -6,13 +6,7 @@ import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.units.measure.AngularVelocity
 
 object Constants {
-    object RobotConstants {
-        enum class Mode {
-            SIM, REAL, REPLAY
-        }
 
-        val mode: Mode = Mode.REAL
-    }
 
     object ArmConstants {
     
