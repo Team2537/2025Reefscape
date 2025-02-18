@@ -1,14 +1,18 @@
 package frc.robot.subsystems.superstructure.elevator
 
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.units.Units.Pounds
+import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.MechanismVisualizer
 import frc.robot.RobotType
 import frc.robot.subsystems.superstructure.Superstructure
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
+import lib.math.units.epsilonEquals
 import lib.math.units.measuredIn
 import lib.math.units.volts
 import org.littletonrobotics.junction.Logger
@@ -33,10 +37,25 @@ class Elevator : SubsystemBase("elevator") {
     
     val inputs: ElevatorIO.ElevatorInputs = ElevatorIO.ElevatorInputs()
     
+    private val setpoint = inputs.carriageHeight.mutableCopy()
+    
+    val positionInTolerance: Trigger = Trigger {
+        inputs.carriageHeight.epsilonEquals(setpoint, Units.inchesToMeters(0.5))
+    }
+    
     fun getManualMoveCommand(voltageSupplier: DoubleSupplier): Command {
         return run { io.setElevatorVoltage(voltageSupplier.asDouble.volts) }.handleInterrupt {
             io.setElevatorHeightTarget(
                 inputs.carriageHeight
+            )
+        }
+    }
+    
+    fun getMoveToHeightCommand(height: Distance): Command {
+        return runOnce {
+            setpoint.mut_replace(height)
+            io.setElevatorHeightTarget(
+                height
             )
         }
     }
