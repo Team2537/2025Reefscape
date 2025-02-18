@@ -697,3 +697,7 @@ fun <U : Unit, M : Measure<U>> M.epsilonEquals(other: M, epsilon: Double): Boole
     return MathUtil.isNear(this.baseUnitMagnitude(), other.baseUnitMagnitude(), epsilon)
 }
 
+fun <U : Unit, M : Measure<U>> M.epsilonEquals(other: M, epsilon: M): Boolean {
+    return MathUtil.isNear(this.baseUnitMagnitude(), other.baseUnitMagnitude(), epsilon.baseUnitMagnitude())
+}
+
