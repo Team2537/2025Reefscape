@@ -39,7 +39,7 @@ class Superstructure {
     
     
     fun periodic() {
-        Logger.recordOutput("superstructure/setpoint", lastRequest)
+        Logger.recordOutput("superstructure/setpoint", SuperstructureGoal.SuperstructureState.struct, lastRequest)
         gamepieceSimulator.update()
     }
 }
