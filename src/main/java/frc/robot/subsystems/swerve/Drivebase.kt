@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.RobotType
+import frc.robot.subsystems.superstructure.SuperstructureGoal
 import frc.robot.subsystems.swerve.gyro.GyroIO
 import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2
 import frc.robot.subsystems.swerve.gyro.GyroIOSim
@@ -45,44 +46,6 @@ import kotlin.jvm.optionals.getOrDefault
 import kotlin.math.*
 
 class Drivebase : SubsystemBase("drivebase") {
-
-    /**
-     * The translations of the modules relative to the center of the robot.
-     *
-     * This array contains the translations of the modules relative to the center of the robot. The
-     * order of the modules is as follows:
-     * 0: Front Left
-     * 1: Front Right
-     * 2: Back Left
-     * 3: Back Right
-     *
-     * The translations are in meters.
-     */
-    val moduleTranslations: List<Translation2d> = when (RobotType.type) {
-        else -> listOf(
-            Translation2d(Inches.of(8.864613), Inches.of(8.864613)),
-            Translation2d(Inches.of(8.864613), Inches.of(-8.864613)),
-            Translation2d(Inches.of(-8.864613), Inches.of(8.864613)),
-            Translation2d(Inches.of(-8.864613), Inches.of(-8.864613))
-        )
-    }
-
-    /**
-     * The radius of the drivebase.
-     *
-     * This is the radius of the circle that the drivebase moves in. It is the distance from the center
-     * of the robot to the center of a module.
-     */
-    val drivebaseRadius: Distance = moduleTranslations.maxOf { it.norm } measuredIn Meters
-
-    /**
-     * The maximum angular velocity of the drivebase.
-     *
-     * This is the maximum angular velocity of the drivebase in radians per second.
-     */
-    val maxAngularVelocity: AngularVelocity =
-        (maxSpeed.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn RadiansPerSecond
-
     /**
      * The swerve modules on the robot.
      *
@@ -336,7 +299,52 @@ class Drivebase : SubsystemBase("drivebase") {
     }
 
     companion object Constants {
+        
+        /**
+         * The translations of the modules relative to the center of the robot.
+         *
+         * This array contains the translations of the modules relative to the center of the robot. The
+         * order of the modules is as follows:
+         * 0: Front Left
+         * 1: Front Right
+         * 2: Back Left
+         * 3: Back Right
+         *
+         * The translations are in meters.
+         */
+        val moduleTranslations: List<Translation2d> = when (RobotType.type) {
+            else -> listOf(
+                Translation2d(Inches.of(8.864613), Inches.of(8.864613)),
+                Translation2d(Inches.of(8.864613), Inches.of(-8.864613)),
+                Translation2d(Inches.of(-8.864613), Inches.of(8.864613)),
+                Translation2d(Inches.of(-8.864613), Inches.of(-8.864613))
+            )
+        }
+        
+        /**
+         * The radius of the drivebase.
+         *
+         * This is the radius of the circle that the drivebase moves in. It is the distance from the center
+         * of the robot to the center of a module.
+         */
+        val drivebaseRadius: Distance = moduleTranslations.maxOf { it.norm } measuredIn Meters
+        
+        /**
+         * The maximum angular velocity of the drivebase.
+         *
+         * This is the maximum angular velocity of the drivebase in radians per second.
+         */
+        
         // DONT FORGET TO CHANGE BACK!
         val maxSpeed = 12.4 measuredIn FeetPerSecond
+        
+        val maxAngularVelocity: AngularVelocity =
+            (maxSpeed.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn RadiansPerSecond
+        
+        var limits: SuperstructureGoal.DriveLimits = SuperstructureGoal.DriveLimits(
+            maxLinVel = maxSpeed,
+            maxAngVel = maxAngularVelocity,
+            maxAccel = MetersPerSecondPerSecond.of(1.0)
+        )
     }
 }
