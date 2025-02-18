@@ -45,8 +45,6 @@ class IntakeRoller : SubsystemBase() {
         return Commands.sequence(
             runOnce {
                 io.setBrakeMode(false)
-            },
-            run {
                 io.setVoltage(Constants.IntakeConstants.RollerConstants.ROLLER_VOLTAGE)
             },
             Commands.waitUntil {
