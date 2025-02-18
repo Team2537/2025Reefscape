@@ -34,10 +34,6 @@ class Arm: SubsystemBase("arm") {
         return runOnce { io.setAngle(angle) }
     }
     
-    fun getSendToNodeCmd(setpoint: Superstructure.SuperstructureSetpoint): Command {
-        return runOnce { io.setAngle(setpoint.armAngle) }
-    }
-    
     fun getManualMoveCmd(voltage: DoubleSupplier): Command {
         return run { io.setVoltage(voltage.asDouble.volts) }.handleInterrupt { io.setAngle(inputs.motorAbsolutePosition) }
     }

@@ -33,25 +33,12 @@ class Elevator : SubsystemBase("elevator") {
     
     val inputs: ElevatorIO.ElevatorInputs = ElevatorIO.ElevatorInputs()
     
-    
-    fun getSendToNodeCmd(setpoint: Superstructure.SuperstructureSetpoint): Command {
-        return runOnce {
-            io.setElevatorHeightTarget(setpoint.elevatorHeight)
-        }
-    }
-    
     fun getManualMoveCommand(voltageSupplier: DoubleSupplier): Command {
         return run { io.setElevatorVoltage(voltageSupplier.asDouble.volts) }.handleInterrupt {
             io.setElevatorHeightTarget(
                 inputs.carriageHeight
             )
         }
-    }
-    
-    
-    
-    fun getSendToHomeCmd(): Command {
-        return getSendToNodeCmd(Superstructure.SuperstructureSetpoint.HOME)
     }
     
     override fun periodic() {
