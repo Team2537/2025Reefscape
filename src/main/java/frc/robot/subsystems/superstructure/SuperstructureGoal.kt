@@ -49,32 +49,34 @@ object SuperstructureGoal {
         driveLimits = Drivebase.defaultLimits
     )
     
+    val SOURCE = SuperstructureState(
+        armAngle = Degrees.of(-135.0),
+        elevatorHeight = Meters.of(1.0),
+        driveLimits = Drivebase.defaultLimits
+    )
+    
     val L1 = SuperstructureState(
         armAngle = Radians.of(0.862),
         elevatorHeight = Meters.of(0.028),
         driveLimits = Drivebase.defaultLimits,
-        nextState = Optional.of(STOW)
     )
     
     val L2 = SuperstructureState(
         armAngle = Radians.of(0.862),
         elevatorHeight = Meters.of(0.238),
         driveLimits = Drivebase.defaultLimits,
-        nextState = Optional.of(STOW)
     )
     
     val L3 = SuperstructureState(
         armAngle = Radians.of(0.862),
         elevatorHeight = Meters.of(0.642),
         driveLimits = Drivebase.defaultLimits,
-        nextState = Optional.of(STOW)
     )
     
     val L4 = SuperstructureState(
         armAngle = Radians.of(0.862),
         elevatorHeight = Meters.of(1.289),
         driveLimits = Drivebase.defaultLimits,
-        nextState = Optional.of(STOW)
     )
     
     val L1_PREP = SuperstructureState(

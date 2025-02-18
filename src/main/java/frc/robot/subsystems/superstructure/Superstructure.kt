@@ -20,6 +20,7 @@ import lib.math.units.meters
 import lib.math.units.radians
 import org.littletonrobotics.junction.Logger
 import java.util.function.Supplier
+import kotlin.jvm.optionals.getOrElse
 
 class Superstructure {
     val elevator: Elevator = Elevator()
@@ -36,6 +37,74 @@ class Superstructure {
     
     
     private val readyToScore: Trigger = Trigger { SmartDashboard.getBoolean("shouldScore", false) }
+    
+    fun getScoreCommand(): Command {
+        return Commands.either(
+            Commands.sequence(
+                getForceStateCommand { lastRequest.nextState.get() },
+                elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
+                arm.getSendToAngleCmd(lastRequest.armAngle),
+                gripper.getEjectCmd(),
+                getStowCommand()
+            ),
+            Commands.idle()
+        ) { lastRequest.nextState.isPresent }
+    }
+    
+    fun getPrepL1Command(): Command {
+        return Commands.parallel(
+            getForceStateCommand { SuperstructureGoal.L1_PREP },
+            elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
+            arm.getSendToAngleCmd(lastRequest.armAngle),
+        )
+    }
+    
+    fun getPrepL2Command(): Command {
+        return Commands.parallel(
+            getForceStateCommand { SuperstructureGoal.L2_PREP },
+            elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
+            arm.getSendToAngleCmd(lastRequest.armAngle),
+        )
+    }
+    
+    fun getPrepL3Command(): Command {
+        return Commands.parallel(
+            getForceStateCommand { SuperstructureGoal.L3_PREP },
+            elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
+            arm.getSendToAngleCmd(lastRequest.armAngle),
+        )
+    }
+    
+    fun getPrepL4Command(): Command {
+        return Commands.parallel(
+            getForceStateCommand { SuperstructureGoal.L4 },
+            elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
+            arm.getSendToAngleCmd(lastRequest.armAngle),
+        )
+    }
+    
+    fun getStowCommand(): Command {
+        return Commands.parallel(
+            getForceStateCommand { SuperstructureGoal.STOW },
+            elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
+            arm.getSendToAngleCmd(lastRequest.armAngle),
+        )
+    }
+    
+    fun getSourceIntakeCommand(): Command {
+        return Commands.parallel(
+            getForceStateCommand { SuperstructureGoal.SOURCE },
+            elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
+            arm.getSendToAngleCmd(lastRequest.armAngle),
+        )
+    }
+    
+    private fun getForceStateCommand(stateSupplier: Supplier<SuperstructureGoal.SuperstructureState>): Command {
+        return runOnce({
+            lastRequest = stateSupplier.get()
+            drivebase.limits = lastRequest.driveLimits
+        })
+    }
     
     
     fun periodic() {
