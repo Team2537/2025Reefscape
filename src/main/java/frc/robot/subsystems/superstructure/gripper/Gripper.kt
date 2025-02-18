@@ -24,15 +24,17 @@ class Gripper: SubsystemBase("gripper") {
     
     val isHoldingCoral = Trigger { inputs.isHoldingCoral }
     
-    fun getIntakeCmd(): Command {
-        return runOnce { io.setVoltage((-2.0).volts) }
-            .andThen(Commands.waitUntil { inputs.isHoldingCoral })
-    }
+    fun getIntakeCmd(): Command = Commands.sequence(
+        runOnce { io.setVoltage((-3.0).volts) },
+        Commands.waitUntil { inputs.isHoldingCoral },
+        runOnce { io.setVoltage(0.0.volts) }
+    )
     
-    fun getEjectCmd(): Command {
-        return runOnce { io.setVoltage(9.0.volts) }
-            .andThen(Commands.waitUntil { !inputs.isHoldingCoral })
-    }
+    fun getEjectCmd(): Command = Commands.sequence(
+        runOnce { io.setVoltage(9.0.volts) },
+        Commands.waitUntil { !inputs.isHoldingCoral },
+        runOnce { io.setVoltage(0.0.volts) }
+    )
     
     override fun periodic() {
         io.updateInputs(inputs)
