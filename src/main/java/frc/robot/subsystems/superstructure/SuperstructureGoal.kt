@@ -119,7 +119,7 @@ object SuperstructureGoal {
         }
         
         override fun getSchema(): String {
-            return "double maxLinVel,double maxAngVel,double maxAccel"
+            return "double maxLinVel;double maxAngVel;double maxAccel"
         }
         
         override fun unpack(bb: ByteBuffer?): DriveLimits {
@@ -151,7 +151,7 @@ object SuperstructureGoal {
         }
         
         override fun getSchema(): String {
-            return "double armAngle,double elevatorHeight,DriveLimits driveLimits"
+            return "double armAngle;double elevatorHeight;DriveLimits driveLimits"
         }
         
         override fun pack(bb: ByteBuffer?, value: SuperstructureState?) {
