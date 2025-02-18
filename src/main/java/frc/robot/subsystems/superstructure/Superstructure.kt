@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
+import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.CoralSimulator
 import frc.robot.MechanismVisualizer
@@ -42,8 +43,10 @@ class Superstructure {
         return Commands.either(
             Commands.sequence(
                 getForceStateCommand { lastRequest.nextState.get() },
-                elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
-                arm.getSendToAngleCmd(lastRequest.armAngle),
+                Commands.parallel(
+                    elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                    arm.getSendToAngleCmd { lastRequest.armAngle },
+                ),
                 gripper.getEjectCmd(),
                 getStowCommand()
             ),
@@ -52,50 +55,64 @@ class Superstructure {
     }
     
     fun getPrepL1Command(): Command {
-        return Commands.parallel(
+        return Commands.sequence(
             getForceStateCommand { SuperstructureGoal.L1_PREP },
-            elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
-            arm.getSendToAngleCmd(lastRequest.armAngle),
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
         )
     }
     
     fun getPrepL2Command(): Command {
-        return Commands.parallel(
+        return Commands.sequence(
             getForceStateCommand { SuperstructureGoal.L2_PREP },
-            elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
-            arm.getSendToAngleCmd(lastRequest.armAngle),
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
         )
     }
     
     fun getPrepL3Command(): Command {
-        return Commands.parallel(
+        return Commands.sequence(
             getForceStateCommand { SuperstructureGoal.L3_PREP },
-            elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
-            arm.getSendToAngleCmd(lastRequest.armAngle),
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
         )
     }
     
     fun getPrepL4Command(): Command {
-        return Commands.parallel(
-            getForceStateCommand { SuperstructureGoal.L4 },
-            elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
-            arm.getSendToAngleCmd(lastRequest.armAngle),
+        return Commands.sequence(
+            getForceStateCommand { SuperstructureGoal.L4_PREP },
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
         )
     }
     
     fun getStowCommand(): Command {
-        return Commands.parallel(
+        return Commands.sequence(
             getForceStateCommand { SuperstructureGoal.STOW },
-            elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
-            arm.getSendToAngleCmd(lastRequest.armAngle),
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
         )
     }
     
     fun getSourceIntakeCommand(): Command {
-        return Commands.parallel(
+        return Commands.sequence(
             getForceStateCommand { SuperstructureGoal.SOURCE },
-            elevator.getMoveToHeightCommand(lastRequest.elevatorHeight),
-            arm.getSendToAngleCmd(lastRequest.armAngle),
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+            gripper.getIntakeCmd(),
+            getStowCommand()
         )
     }
     

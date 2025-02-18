@@ -17,6 +17,7 @@ import lib.math.units.measuredIn
 import lib.math.units.volts
 import org.littletonrobotics.junction.Logger
 import java.util.function.DoubleSupplier
+import java.util.function.Supplier
 
 class Elevator : SubsystemBase("elevator") {
     
@@ -51,8 +52,9 @@ class Elevator : SubsystemBase("elevator") {
         }
     }
     
-    fun getMoveToHeightCommand(height: Distance): Command {
+    fun getMoveToHeightCommand(height: Supplier<Distance>): Command {
         return runOnce {
+            val height = height.get()
             setpoint.mut_replace(height)
             io.setElevatorHeightTarget(
                 height

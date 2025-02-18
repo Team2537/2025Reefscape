@@ -17,6 +17,7 @@ import lib.math.units.epsilonEquals
 import lib.math.units.volts
 import org.littletonrobotics.junction.Logger
 import java.util.function.DoubleSupplier
+import java.util.function.Supplier
 
 class Arm: SubsystemBase("arm") {
     val io: ArmIO = when(RobotType.mode){
@@ -40,8 +41,9 @@ class Arm: SubsystemBase("arm") {
     }
     
     
-    fun getSendToAngleCmd(angle: Angle): Command {
+    fun getSendToAngleCmd(angle: Supplier<Angle>): Command {
         return runOnce {
+            val angle = angle.get()
             setpoint.mut_replace(angle)
             io.setAngle(angle)
         }
