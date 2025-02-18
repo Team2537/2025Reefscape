@@ -98,6 +98,7 @@ class Superstructure {
         return Commands.sequence(
             getForceStateCommand { SuperstructureGoal.STOW },
             Commands.parallel(
+                Commands.print("Stowing"),
                 elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
                 arm.getSendToAngleCmd { lastRequest.armAngle },
             ),
@@ -106,7 +107,13 @@ class Superstructure {
     
     fun getSourceIntakeCommand(): Command {
         return Commands.sequence(
-            getForceStateCommand { SuperstructureGoal.SOURCE },
+            getForceStateCommand { SuperstructureGoal.PRE_SOURCE },
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+            Commands.waitUntil(elevator.positionInTolerance.and(arm.positionInTolerance)),
+            getForceStateCommand({ SuperstructureGoal.SOURCE }),
             Commands.parallel(
                 elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
                 arm.getSendToAngleCmd { lastRequest.armAngle },

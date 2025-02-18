@@ -102,6 +102,8 @@ object Robot : LoggedRobot() {
         
         operatorController.x().onTrue(superstructure.getStowCommand())
         
+        operatorController.rightBumper().onTrue(superstructure.getSourceIntakeCommand())
+        
         operatorController.leftTrigger().onTrue(superstructure.getScoreCommand())
     }
     
