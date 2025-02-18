@@ -2,6 +2,7 @@
 
 package lib.math.units
 
+import edu.wpi.first.math.MathUtil
 import edu.wpi.first.units.*
 import edu.wpi.first.units.Unit
 import edu.wpi.first.units.Units.*
@@ -690,5 +691,9 @@ operator fun <U : Unit, M : Measure<U>> Long.times(m: M): M {
 operator fun <U : Unit, M : Measure<U>> Number.times(m: M): M {
     @Suppress("UNCHECKED_CAST")
     return m.times(this.toDouble()) as M
+}
+
+fun <U : Unit, M : Measure<U>> M.epsilonEquals(other: M, epsilon: Double): Boolean {
+    return MathUtil.isNear(this.baseUnitMagnitude(), other.baseUnitMagnitude(), epsilon)
 }
 
