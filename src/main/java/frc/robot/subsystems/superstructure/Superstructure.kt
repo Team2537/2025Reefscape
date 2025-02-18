@@ -17,6 +17,7 @@ import frc.robot.subsystems.superstructure.elevator.Elevator
 import frc.robot.subsystems.superstructure.gripper.Gripper
 import lib.commands.not
 import lib.math.units.degrees
+import lib.math.units.inches
 import lib.math.units.meters
 import lib.math.units.radians
 import org.littletonrobotics.junction.Logger
@@ -112,7 +113,9 @@ class Superstructure {
                 elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
                 arm.getSendToAngleCmd { lastRequest.armAngle },
             ),
-            Commands.waitUntil(elevator.positionInTolerance.and(arm.positionInTolerance)),
+            Commands.waitUntil(
+                elevator.getPositionInToleranceTrigger(6.0.inches)
+                    .and(arm.getAngleInToleranceTrigger(5.0.degrees))),
             getForceStateCommand({ SuperstructureGoal.SOURCE }),
             Commands.parallel(
                 elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
