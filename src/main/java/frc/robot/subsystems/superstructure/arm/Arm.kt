@@ -34,12 +34,17 @@ class Arm: SubsystemBase("arm") {
     
     val inputs: ArmIO.ArmInputs = ArmIO.ArmInputs()
     
+    private val toleranceTriggerMap = mutableMapOf<Angle, Trigger>()
+    
     val setpoint: MutAngle = inputs.motorRelativePosition.mutableCopy()
     
-    val positionInTolerance: Trigger = Trigger {
-        inputs.motorRelativePosition.epsilonEquals(setpoint, Units.degreesToRadians(5.0))
+    fun getAngleInToleranceTrigger(tolerance: Angle): Trigger {
+        return toleranceTriggerMap.getOrPut(tolerance) {
+            Trigger {
+                inputs.motorRelativePosition.epsilonEquals(setpoint, tolerance)
+            }
+        }
     }
-    
     
     fun getSendToAngleCmd(angle: Supplier<Angle>): Command {
         return runOnce {

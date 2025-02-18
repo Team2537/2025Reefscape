@@ -38,10 +38,16 @@ class Elevator : SubsystemBase("elevator") {
     
     val inputs: ElevatorIO.ElevatorInputs = ElevatorIO.ElevatorInputs()
     
+    private val toleranceTriggerMap = mutableMapOf<Distance, Trigger>()
+    
     private val setpoint = inputs.carriageHeight.mutableCopy()
     
-    val positionInTolerance: Trigger = Trigger {
-        inputs.carriageHeight.epsilonEquals(setpoint, Units.inchesToMeters(0.5))
+    fun getPositionInToleranceTrigger(tolerance: Distance): Trigger {
+        return toleranceTriggerMap.getOrPut(tolerance) {
+            Trigger {
+                inputs.carriageHeight.epsilonEquals(setpoint, tolerance)
+            }
+        }
     }
     
     fun getManualMoveCommand(voltageSupplier: DoubleSupplier): Command {
