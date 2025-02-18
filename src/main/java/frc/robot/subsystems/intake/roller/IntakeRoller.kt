@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.Logger
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.wpilibj2.command.Command
 import frc.robot.RobotType
+import edu.wpi.first.wpilibj2.command.Commands
 
 class IntakeRoller : SubsystemBase() {
     private val io: IntakeRollerIO = when (RobotType.mode) {
@@ -41,12 +42,20 @@ class IntakeRoller : SubsystemBase() {
     }
 
     fun getRollCommand(): Command {
-        return run {
-            io.setBrakeMode(false)
-
-            io.setVoltage(Constants.IntakeConstants.RollerConstants.ROLLER_VOLTAGE.`in`(Volts))
-        }.until {
-            inputs.velocity < Constants.IntakeConstants.RollerConstants.MINIMUM_ROLLER_VELOCITY.`in`(RadiansPerSecond)
-        }
+        return Commands.sequence(
+            runOnce {
+                io.setBrakeMode(false)
+            },
+            run {
+                io.setVoltage(Constants.IntakeConstants.RollerConstants.ROLLER_VOLTAGE)
+            },
+            Commands.waitUntil {
+                inputs.velocity < Constants.IntakeConstants.RollerConstants.MINIMUM_ROLLER_VELOCITY
+            },
+            runOnce {
+                io.setVoltage(Volts.zero())
+                io.setBrakeMode(true)
+            }
+        )
     }
 }
