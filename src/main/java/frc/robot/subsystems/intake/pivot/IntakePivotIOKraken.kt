@@ -7,8 +7,11 @@ import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
+import edu.wpi.first.units.AngularAccelerationUnit
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.*
+import lib.controllers.gains.FeedforwardGains
+import lib.controllers.gains.PIDGains
 import lib.math.units.into
 
 /**
@@ -19,15 +22,12 @@ class IntakePivotIOKraken(
     private val motorID: Int,
     private val gearing: Double,
     private val isInverted: Boolean,
-    private val kP: Double,
-    private val kI: Double,
-    private val kD: Double,
-    private val kS: Double,
-    private val kV: Double,
-    private val kA: Double,
-    private val motionMagicAcceleration: Double, // rotations per second squared
-    private val motionMagicCruiseVelocity: Double, // rotations per second
-    private val motionMagicJerk: Double // rotations per second cubed
+    private val pidGains: PIDGains,
+    private val ffGains: FeedforwardGains,
+    private val kG: Double,
+    private val motionMagicAcceleration: AngularAcceleration,
+    private val motionMagicCruiseVelocity: AngularVelocity,
+    private val motionMagicJerk: Velocity<AngularAccelerationUnit> = RotationsPerSecondPerSecond.per(Second).of(0.0),
 ) : IntakePivotIO {
 
     // Initialize Kraken motor with configuration
@@ -38,12 +38,13 @@ class IntakePivotIOKraken(
         config.Feedback.SensorToMechanismRatio = gearing
 
         // Configure PID gains
-        config.Slot0.kP = kP
-        config.Slot0.kI = kI
-        config.Slot0.kD = kD
-        config.Slot0.kV = kV
-        config.Slot0.kA = kA
-        config.Slot0.kS = kS
+        config.Slot0.kP = pidGains.kP
+        config.Slot0.kI = pidGains.kI
+        config.Slot0.kD = pidGains.kD
+        config.Slot0.kV = ffGains.kV
+        config.Slot0.kA = ffGains.kA
+        config.Slot0.kS = ffGains.kS
+        config.Slot0.kG = kG
 
         // Configure motion magic parameters
         config.MotionMagic.withMotionMagicAcceleration(motionMagicAcceleration)
