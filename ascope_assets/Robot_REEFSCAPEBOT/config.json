@@ -55,5 +55,18 @@
        0.0, 0.0, 0.0
       ]
     }
+  ],
+  "cameras": [
+    {
+      "name": "Front Left",
+      "rotations": [
+        { "axis": "x", "degrees": 0.0 },
+        { "axis": "y", "degrees": 0.0 },
+        { "axis": "z", "degrees": 0.0 }
+      ],
+      "position": [0.0, 0.0, 0.0],
+      "resolution": [640, 480],
+      "fov": 70
+    }
   ]
 }

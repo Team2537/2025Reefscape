@@ -143,21 +143,21 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
     companion object {
         val robotToCameras = listOf(
             Transform3d(
-                Translation3d(Inches.of(7.718757), Inches.of(9.015334), Inches.of(6.883276 + 1.5)),
-                Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(30.0))
+                Translation3d(Inches.of(12.875), Inches.of(-11.875), Inches.of(6.883276 + 1.5)),
+                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(25.0))
             ),
             Transform3d(
-                Translation3d(Inches.of(7.718757), Inches.of(-9.015334), Inches.of(6.883276 + 1.5)),
-                Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(-30.0))
+                Translation3d(Inches.of(9.75), Inches.of(2.015), Inches.of(16.665)),
+                Rotation3d(0.0, Units.degreesToRadians(20.0), Units.degreesToRadians(-20.0))
             ),
             Transform3d(
-                Translation3d(Inches.of(-7.718757), Inches.of(9.015334), Inches.of(6.883276 + 1.5)),
-                Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(-30.0 + 180))
+                Translation3d(Inches.of(-12.875), Inches.of(-11.875), Inches.of(6.883276 + 1.5)),
+                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(180.0 - 15.0))
             ),
             Transform3d(
-                Translation3d(Inches.of(-7.718757), Inches.of(-9.015334), Inches.of(6.883276 + 1.5)),
-                Rotation3d(0.0, Units.degreesToRadians(-28.125), Units.degreesToRadians(30.0 + 180))
-            )
+                Translation3d(Inches.of(-12.875), Inches.of(11.875), Inches.of(6.883276 + 1.5)),
+                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(15.0 + 180.0))
+            ),
         )
         
         // Basic filtering thresholds
