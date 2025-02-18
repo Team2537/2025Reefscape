@@ -94,6 +94,15 @@ object Robot : LoggedRobot() {
         )
         
         driverController.rightBumper().onTrue(drivebase.resetHeading())
+        
+        operatorController.povDown().onTrue(superstructure.getPrepL1Command())
+        operatorController.povUp().onTrue(superstructure.getPrepL2Command())
+        operatorController.a().onTrue(superstructure.getPrepL3Command())
+        operatorController.y().onTrue(superstructure.getPrepL4Command())
+        
+        operatorController.x().onTrue(superstructure.getStowCommand())
+        
+        operatorController.leftTrigger().onTrue(superstructure.getScoreCommand())
     }
     
     override fun robotPeriodic() {
