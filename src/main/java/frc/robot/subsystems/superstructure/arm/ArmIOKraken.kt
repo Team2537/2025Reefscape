@@ -1,4 +1,4 @@
-package frc.robot.subsystems.arm
+package frc.robot.subsystems.superstructure.arm
 
 import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.configs.TalonFXConfiguration

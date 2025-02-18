@@ -1,24 +1,18 @@
-package frc.robot.subsystems.elevator
+package frc.robot.subsystems.superstructure.elevator
 
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.units.Units.Pounds
-import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj2.command.Command
-import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.MechanismVisualizer
 import frc.robot.RobotType
-import frc.robot.subsystems.Superstructure
+import frc.robot.subsystems.superstructure.Superstructure
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
-import lib.math.geometry.FieldConstants
-import lib.math.units.inches
 import lib.math.units.measuredIn
 import lib.math.units.volts
 import org.littletonrobotics.junction.Logger
 import java.util.function.DoubleSupplier
-import kotlin.math.max
 
 class Elevator : SubsystemBase("elevator") {
     

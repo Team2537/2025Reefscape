@@ -1,14 +1,11 @@
-package frc.robot.subsystems.gripper
+package frc.robot.subsystems.superstructure.gripper
 
-import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.MutAngle
 import edu.wpi.first.units.measure.MutAngularVelocity
 import edu.wpi.first.units.measure.MutVoltage
-import edu.wpi.first.units.measure.MutDistance
 import edu.wpi.first.units.measure.Voltage
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
-import com.reduxrobotics.sensors.canandcolor.ColorData
 
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.MutCurrent

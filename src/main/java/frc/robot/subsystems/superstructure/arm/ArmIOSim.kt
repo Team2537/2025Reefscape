@@ -1,4 +1,4 @@
-package frc.robot.subsystems.arm
+package frc.robot.subsystems.superstructure.arm
 
 import edu.wpi.first.math.controller.ArmFeedforward
 import edu.wpi.first.math.controller.PIDController

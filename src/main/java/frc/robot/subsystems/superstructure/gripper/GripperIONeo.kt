@@ -1,4 +1,4 @@
-package frc.robot.subsystems.gripper
+package frc.robot.subsystems.superstructure.gripper
 
 import com.reduxrobotics.sensors.canandcolor.Canandcolor
 import com.revrobotics.spark.SparkMax
@@ -8,8 +8,6 @@ import com.revrobotics.spark.config.SparkMaxConfig
 import com.revrobotics.spark.config.SparkBaseConfig
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.*
-import frc.robot.subsystems.climb.ClimbIO
-import kotlin.math.PI
 
 class GripperIONeo (
     private val id: Int,

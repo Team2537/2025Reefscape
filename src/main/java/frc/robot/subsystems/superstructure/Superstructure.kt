@@ -1,4 +1,4 @@
-package frc.robot.subsystems
+package frc.robot.subsystems.superstructure
 
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.units.measure.Angle
@@ -11,15 +11,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.CoralSimulator
 import frc.robot.MechanismVisualizer
 import frc.robot.Robot.drivebase
-import frc.robot.subsystems.arm.Arm
-import frc.robot.subsystems.elevator.Elevator
-import frc.robot.subsystems.gripper.Gripper
+import frc.robot.subsystems.superstructure.arm.Arm
+import frc.robot.subsystems.superstructure.elevator.Elevator
+import frc.robot.subsystems.superstructure.gripper.Gripper
 import lib.commands.not
 import lib.math.units.degrees
 import lib.math.units.meters
 import lib.math.units.radians
 import org.littletonrobotics.junction.Logger
-import java.util.function.BooleanSupplier
 import java.util.function.Supplier
 
 class Superstructure {

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.gripper
+package frc.robot.subsystems.superstructure.gripper
 
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units.KilogramSquareMeters
@@ -7,8 +7,6 @@ import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.RobotType
-import lib.controllers.gains.FeedforwardGains
-import lib.controllers.gains.PIDGains
 import lib.math.units.volts
 import org.littletonrobotics.junction.Logger
 

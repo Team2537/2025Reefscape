@@ -1,4 +1,4 @@
-package frc.robot.subsystems.elevator
+package frc.robot.subsystems.superstructure.elevator
 
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.MetersPerSecond
@@ -9,7 +9,6 @@ import edu.wpi.first.units.Units.Amps
 import edu.wpi.first.units.measure.*
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
-import com.reduxrobotics.sensors.canandcolor.ColorData
 
 
 // elevator has two motors, both on the same shaft. They are krakens and both have relative encoders. 
