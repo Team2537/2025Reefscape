@@ -16,6 +16,7 @@ import edu.wpi.first.units.measure.LinearAcceleration
 import edu.wpi.first.units.measure.LinearVelocity
 import edu.wpi.first.util.struct.Struct
 import edu.wpi.first.util.struct.StructSerializable
+import frc.robot.subsystems.swerve.DriveLimits
 import frc.robot.subsystems.swerve.Drivebase
 import lib.math.units.into
 import java.nio.ByteBuffer
@@ -30,16 +31,6 @@ object SuperstructureGoal {
     ) : StructSerializable {
         companion object {
             val struct = SuperstructureStateStruct()
-        }
-    }
-    
-    data class DriveLimits(
-        val maxLinVel: LinearVelocity,
-        val maxAngVel: AngularVelocity,
-        val maxAccel: LinearAcceleration
-    ) : StructSerializable {
-        companion object {
-            val struct = DriveLimitStruct()
         }
     }
     
@@ -112,38 +103,6 @@ object SuperstructureGoal {
         driveLimits = Drivebase.defaultLimits,
         nextState = Optional.of(L4)
     )
-    
-    class DriveLimitStruct : Struct<DriveLimits> {
-        override fun getTypeName(): String {
-            return "DriveLimits"
-        }
-        
-        override fun getTypeClass(): Class<DriveLimits> {
-            return DriveLimits::class.java
-        }
-        
-        override fun getSize(): Int {
-            return Double.SIZE_BYTES * 3
-        }
-        
-        override fun getSchema(): String {
-            return "double maxLinVel;double maxAngVel;double maxAccel"
-        }
-        
-        override fun unpack(bb: ByteBuffer?): DriveLimits {
-            return DriveLimits(
-                MetersPerSecond.of(bb!!.getDouble()),
-                RadiansPerSecond.of(bb.getDouble()),
-                MetersPerSecondPerSecond.of(bb.getDouble())
-            )
-        }
-        
-        override fun pack(bb: ByteBuffer?, value: DriveLimits?) {
-            bb!!.putDouble(value!!.maxLinVel into MetersPerSecond)
-            bb.putDouble(value.maxAngVel into RadiansPerSecond)
-            bb.putDouble(value.maxAccel into MetersPerSecondPerSecond)
-        }
-    }
     
     class SuperstructureStateStruct : Struct<SuperstructureState> {
         override fun getTypeClass(): Class<SuperstructureState> {
