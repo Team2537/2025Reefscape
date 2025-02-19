@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.units.Units.*
 import frc.robot.RobotType
 import edu.wpi.first.wpilibj2.command.Commands
+import lib.math.units.into
 
 class Climb : SubsystemBase() {
     private val io: ClimbIO = when (RobotType.mode) {
@@ -54,19 +55,18 @@ class Climb : SubsystemBase() {
                 val currentAngle = inputs.absoluteAngle.plus(Constants.ClimbConstants.ABSOLUTE_OFFSET)
                 
                 // Apply voltage based on whether we need to move up or down
-                if (currentAngle in Degrees > targetAngle in Degrees) {
-                    io.setVoltage(Volts.of(-Constants.ClimbConstants.EXTEND_VOLTAGE in Volts)) // Move up
-                } else if (currentAngle in Degrees < targetAngle in Degrees) {
+                if (currentAngle > targetAngle) {
+                    io.setVoltage(-Constants.ClimbConstants.EXTEND_VOLTAGE) // Move up
+                } else if (currentAngle < targetAngle) {
                     io.setVoltage(Constants.ClimbConstants.EXTEND_VOLTAGE) // Move down
                 } else {
                     io.stop()
                 }
-            },
-            Commands.waitUntil {
+            }.until( {
                 // End command when we're close enough to target angle
-                kotlin.math.abs(inputs.absoluteAngle in Degrees - 
-                    Constants.ClimbConstants.EXTENDED_ANGLE in Degrees) < Constants.ClimbConstants.EXTEND_ANGLE_TOLERANCE in Degrees
-            },
+                kotlin.math.abs((inputs.absoluteAngle into Degrees) - 
+                    (Constants.ClimbConstants.EXTENDED_ANGLE into Degrees)) < (Constants.ClimbConstants.EXTEND_ANGLE_TOLERANCE into Degrees)
+            } ),
             runOnce {
                 io.stop()
                 io.setBrakeMode(true)
@@ -82,12 +82,12 @@ class Climb : SubsystemBase() {
                 io.setBrakeMode(false)
             },
             run {
-                io.setVoltage(Volts.of(-Constants.ClimbConstants.RETRACT_VOLTAGE in Volts))
+                io.setVoltage(-Constants.ClimbConstants.RETRACT_VOLTAGE)
             },
             Commands.waitUntil {
                 // End command when we detect a hard stop (high current and near-zero velocity)
-                val currentSpike = inputs.statorCurrent in Amps > Constants.ClimbConstants.CURRENT_SPIKE_THRESHOLD in Amps
-                val velocityNearZero = kotlin.math.abs(inputs.angularVelocity in RotationsPerSecond) < Constants.ClimbConstants.VELOCITY_ZERO_THRESHOLD in RotationsPerSecond
+                val currentSpike = inputs.statorCurrent > Constants.ClimbConstants.CURRENT_SPIKE_THRESHOLD
+                val velocityNearZero = kotlin.math.abs(inputs.angularVelocity into RotationsPerSecond) < Constants.ClimbConstants.VELOCITY_ZERO_THRESHOLD into RotationsPerSecond
                 currentSpike && velocityNearZero
             },
             runOnce {
