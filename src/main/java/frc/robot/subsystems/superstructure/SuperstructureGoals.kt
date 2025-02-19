@@ -1,19 +1,11 @@
 package frc.robot.subsystems.superstructure
 
-import edu.wpi.first.units.Units
 import edu.wpi.first.units.Units.Degrees
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.units.Units.Meters
-import edu.wpi.first.units.Units.MetersPerSecond
-import edu.wpi.first.units.Units.MetersPerSecondPerSecond
-import edu.wpi.first.units.Units.Radian
 import edu.wpi.first.units.Units.Radians
-import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.units.measure.Angle
-import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Distance
-import edu.wpi.first.units.measure.LinearAcceleration
-import edu.wpi.first.units.measure.LinearVelocity
 import edu.wpi.first.util.struct.Struct
 import edu.wpi.first.util.struct.StructSerializable
 import frc.robot.subsystems.swerve.DriveLimits
@@ -22,18 +14,7 @@ import lib.math.units.into
 import java.nio.ByteBuffer
 import java.util.Optional
 
-object SuperstructureGoal {
-    data class SuperstructureState(
-        val armAngle: Angle,
-        val elevatorHeight: Distance,
-        val driveLimits: DriveLimits,
-        val nextState: Optional<SuperstructureState> = Optional.empty()
-    ) : StructSerializable {
-        companion object {
-            val struct = SuperstructureStateStruct()
-        }
-    }
-    
+object SuperstructureGoals {
     val STOW = SuperstructureState(
         armAngle = Degrees.of(90.0),
         elevatorHeight = Inches.of(2.75),

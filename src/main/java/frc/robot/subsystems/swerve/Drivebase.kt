@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.RobotType
-import frc.robot.subsystems.superstructure.SuperstructureGoal
+import frc.robot.subsystems.superstructure.SuperstructureGoals
 import frc.robot.subsystems.swerve.gyro.GyroIO
 import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2
 import frc.robot.subsystems.swerve.gyro.GyroIOSim
@@ -342,7 +342,7 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.recordOutput("$name/desiredStates", *desiredStates.toTypedArray())
         Logger.recordOutput("$name/wheelPositions", *wheelPositions.toTypedArray())
         Logger.recordOutput("$name/moduleForces", *moduleForces.toTypedArray())
-        Logger.recordOutput("$name/limits", SuperstructureGoal.DriveLimits.struct, limits)
+        Logger.recordOutput("$name/limits", SuperstructureGoals.DriveLimits.struct, limits)
     }
     
     companion object Constants {
@@ -388,7 +388,7 @@ class Drivebase : SubsystemBase("drivebase") {
         val maxAttainableAngularVelocity: AngularVelocity =
             (maxAttainableLinearVelocity.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn RadiansPerSecond
         
-        val defaultLimits: SuperstructureGoal.DriveLimits = SuperstructureGoal.DriveLimits(
+        val defaultLimits: SuperstructureGoals.DriveLimits = SuperstructureGoals.DriveLimits(
             maxLinVel = maxAttainableLinearVelocity,
             maxAngVel = maxAttainableAngularVelocity,
             maxAccel = MetersPerSecondPerSecond.of(1.0)
