@@ -7,6 +7,9 @@ import edu.wpi.first.units.MomentOfInertiaUnit
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.units.measure.AngularVelocity
+import edu.wpi.first.units.measure.AngularAcceleration
+import lib.controllers.gains.FeedforwardGains
+import lib.controllers.gains.PIDGains
 
 object Constants {
 
@@ -46,7 +49,34 @@ object Constants {
 
     object IntakeConstants {
         object PivotConstants {
+            val MOTOR_ID: Int = 0 // TODO: Set actual motor ID
+            val IS_MOTOR_INVERTED: Boolean = false
+            val GEARING: Double = 1.0 // TODO: Set actual gearing ratio
+            val MOI: MomentOfInertia = KilogramSquareMeters.of(0.0) // TODO: Set actual moment of inertia
+            
+            // PID and Feedforward gains
+            val PID_GAINS = PIDGains(
+                kP = 0.0, // TODO: Tune PID gains
+                kI = 0.0,
+                kD = 0.0
+            )
+            
+            val FF_GAINS = FeedforwardGains(
+                kS = 0.0, // TODO: Tune feedforward gains
+                kV = 0.0,
+                kA = 0.0
+            )
+            
+            val KG = 0.0 // TODO: Tune gravity compensation
+            
+            // Motion Magic Parameters
+            val MOTION_MAGIC_ACCELERATION: AngularAcceleration = RotationsPerSecondPerSecond.of(2.0) // TODO: Tune motion magic parameters
+            val MOTION_MAGIC_CRUISE_VELOCITY: AngularVelocity = RotationsPerSecond.of(2.0)
 
+            val DOWN_ANGLE: Angle = Degrees.of(45.0)
+
+            // starting position of the intake arm
+            val UP_ANGLE: Angle = Degrees.of(90.0)
         }
 
         object RollerConstants {

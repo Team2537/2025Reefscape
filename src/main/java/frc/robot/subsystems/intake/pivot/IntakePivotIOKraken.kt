@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.*
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
 import lib.math.units.into
+import frc.robot.Constants
 
 /**
  * Implementation of PivotIO for a Kraken motor controlling a pivot mechanism with hard stops.
@@ -29,7 +30,6 @@ class IntakePivotIOKraken(
     private val motionMagicCruiseVelocity: AngularVelocity,
     private val motionMagicJerk: Velocity<AngularAccelerationUnit> = RotationsPerSecondPerSecond.per(Second).of(0.0),
 ) : IntakePivotIO {
-
     // Initialize Kraken motor with configuration
     private val motor = TalonFX(motorID).apply {
         val config = TalonFXConfiguration()
@@ -65,6 +65,9 @@ class IntakePivotIOKraken(
         config.MotorOutput.withNeutralMode(NeutralModeValue.Brake)
 
         configurator.apply(config)
+
+        // set the initial position of the motor to the up angle
+        motor.setPosition(Constants.IntakeConstants.PivotConstants.UP_ANGLE into Rotations)
     }
 
     // Create status signal objects for monitoring motor state
