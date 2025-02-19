@@ -84,36 +84,4 @@ object SuperstructureGoals {
         driveLimits = Drivebase.defaultLimits,
         nextState = Optional.of(L4)
     )
-    
-    class SuperstructureStateStruct : Struct<SuperstructureState> {
-        override fun getTypeClass(): Class<SuperstructureState> {
-            return SuperstructureState::class.java
-        }
-        
-        override fun getTypeName(): String {
-            return "SuperstructureState"
-        }
-        
-        override fun getSize(): Int {
-            return Double.SIZE_BYTES * 2 + DriveLimits.struct.size
-        }
-        
-        override fun getSchema(): String {
-            return "double armAngle;double elevatorHeight;DriveLimits driveLimits"
-        }
-        
-        override fun pack(bb: ByteBuffer?, value: SuperstructureState?) {
-            bb!!.putDouble(value!!.armAngle into Radians)
-            bb.putDouble(value.elevatorHeight into Meters)
-            DriveLimits.struct.pack(bb, value.driveLimits)
-        }
-        
-        override fun unpack(bb: ByteBuffer?): SuperstructureState {
-            return SuperstructureState(
-                Radians.of(bb!!.getDouble()),
-                Meters.of(bb.getDouble()),
-                DriveLimits.struct.unpack(bb)
-            )
-        }
-    }
 }
