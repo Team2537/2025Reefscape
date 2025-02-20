@@ -131,8 +131,7 @@ class IntakePivot : SubsystemBase() {
      * Mutating the given measure will not affect the returned command.
      *
      * @param position The position this command sends the arm to.
-     * @return A command that sends a specific amount of voltage to the pivot
-     * motor(s).
+     * @return A command that moves the arm to a specific angle.
      */
     fun getSetPositionCommand(position: Angle): Command {
         return Commands.runOnce ({io.setTargetAngle(position.copy())}, this)
