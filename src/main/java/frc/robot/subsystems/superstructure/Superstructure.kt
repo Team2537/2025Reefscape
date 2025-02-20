@@ -22,7 +22,7 @@ class Superstructure {
     val arm: Arm = Arm()
     val gripper: Gripper = Gripper()
     
-    private var lastRequest: SuperstructureGoals.SuperstructureState = SuperstructureGoals.STOW
+    private var lastRequest: SuperstructureState = SuperstructureGoals.STOW
     
     val gamepieceSimulator = CoralSimulator(
         { MechanismVisualizer.mechanismPoses[2] },
@@ -119,7 +119,7 @@ class Superstructure {
         )
     }
     
-    private fun getForceStateCommand(stateSupplier: Supplier<SuperstructureGoals.SuperstructureState>): Command {
+    private fun getForceStateCommand(stateSupplier: Supplier<SuperstructureState>): Command {
         return runOnce({
             lastRequest = stateSupplier.get()
             drivebase.limits = lastRequest.driveLimits
@@ -128,7 +128,7 @@ class Superstructure {
     
     
     fun periodic() {
-        Logger.recordOutput("superstructure/setpoint", SuperstructureGoals.SuperstructureState.struct, lastRequest)
+        Logger.recordOutput("superstructure/setpoint", SuperstructureState.struct, lastRequest)
         gamepieceSimulator.update()
     }
 }
