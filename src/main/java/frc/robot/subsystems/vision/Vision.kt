@@ -155,8 +155,8 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
                 Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(180.0 - 15.0))
             ),
             Transform3d(
-                Translation3d(Inches.of(-12.875), Inches.of(11.875), Inches.of(6.883276 + 1.5)),
-                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(15.0 + 180.0))
+                Translation3d(Inches.of(-9.75), Inches.of(2.015), Inches.of(6.883276 + 1.5)),
+                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians( 180 - 15.0))
             ),
         )
         
