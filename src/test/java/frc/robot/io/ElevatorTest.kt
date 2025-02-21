@@ -2,15 +2,12 @@ package frc.robot.io
 
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.units.Units.*
-import edu.wpi.first.units.measure.Voltage
-import frc.robot.subsystems.elevator.ElevatorIO
-import frc.robot.subsystems.elevator.ElevatorIOSim
+import frc.robot.subsystems.superstructure.elevator.ElevatorIO
+import frc.robot.subsystems.superstructure.elevator.ElevatorIOSim
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
 import lib.math.units.inches
-import lib.math.units.into
 import lib.math.units.measuredIn
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -28,7 +25,8 @@ internal class ElevatorTest {
             pidGains = PIDGains(),
             ffGains = FeedforwardGains(kV = 1.77),
             kG = 0.19,
-            mass = 15.0 measuredIn Pounds
+            mass = 15.0 measuredIn Pounds,
+            maxHeight = 51.0 measuredIn Inches
         )
 
         inputs = ElevatorIO.ElevatorInputs()

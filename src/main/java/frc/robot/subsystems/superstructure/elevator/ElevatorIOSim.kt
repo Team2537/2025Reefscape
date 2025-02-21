@@ -1,9 +1,8 @@
-package frc.robot.subsystems.elevator
+package frc.robot.subsystems.superstructure.elevator
 
 import edu.wpi.first.math.controller.ElevatorFeedforward
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.system.plant.DCMotor
-import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Mass
@@ -18,6 +17,7 @@ class ElevatorIOSim(
     private val gearbox: DCMotor = DCMotor.getKrakenX60Foc(2),
     private val gearing: Double,
     private val drumRadius: Distance,
+    private val maxHeight: Distance,
     private val pidGains: PIDGains,
     private val ffGains: FeedforwardGains,
     private val kG: Double,
@@ -30,7 +30,7 @@ class ElevatorIOSim(
         mass into Kilograms,
         drumRadius into Meters,
         0.0, // Minimum Height
-        Units.inchesToMeters(72.0), // Maximum height
+        maxHeight into Meters, // Maximum height
         true,
         0.0,
     )

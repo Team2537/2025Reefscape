@@ -1,4 +1,4 @@
-package frc.robot.subsystems.elevator
+package frc.robot.subsystems.superstructure.elevator
 
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.MetersPerSecond
@@ -9,7 +9,6 @@ import edu.wpi.first.units.Units.Amps
 import edu.wpi.first.units.measure.*
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
-import com.reduxrobotics.sensors.canandcolor.ColorData
 
 
 // elevator has two motors, both on the same shaft. They are krakens and both have relative encoders. 
@@ -49,6 +48,9 @@ interface ElevatorIO {
             table.put("rightAngularVelocity", rightAngularVelocity)
             table.put("rightStatorCurrent", rightStatorCurrent)
             table.put("rightEncoderPosition", rightEncoderPosition)
+            
+            table.put("carriageHeight", carriageHeight)
+            table.put("carriageVelocity", carriageVelocity)
         }
 
         /**
@@ -66,6 +68,9 @@ interface ElevatorIO {
             rightAngularVelocity.mut_replace(table.get("rightAngularVelocity", rightAngularVelocity))
             rightStatorCurrent.mut_replace(table.get("rightStatorCurrent", rightStatorCurrent))
             rightEncoderPosition.mut_replace(table.get("rightEncoderPosition", rightEncoderPosition))
+            
+            carriageHeight.mut_replace(table.get("carriageHeight", carriageHeight))
+            carriageVelocity.mut_replace(table.get("carriageVelocity", carriageVelocity))
         }
     }
     fun updateInputs(inputs: ElevatorInputs) {}

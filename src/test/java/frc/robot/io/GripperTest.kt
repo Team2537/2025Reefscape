@@ -4,8 +4,8 @@ import edu.wpi.first.hal.HAL
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units.RotationsPerSecond
 import edu.wpi.first.units.Units.Volts
-import frc.robot.subsystems.gripper.GripperIO
-import frc.robot.subsystems.gripper.GripperIOSim
+import frc.robot.subsystems.superstructure.gripper.GripperIO
+import frc.robot.subsystems.superstructure.gripper.GripperIOSim
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
 import lib.math.units.into

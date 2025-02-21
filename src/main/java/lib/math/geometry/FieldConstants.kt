@@ -37,7 +37,7 @@ object FieldConstants {
     
     /** Center of the field */
     val fieldCenter = Pose2d(fieldLength / 2.0, fieldWidth / 2.0, Rotation2d())
-
+    
     val tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape)
     
     // Access the reef and processor constants to initialize them
@@ -139,7 +139,7 @@ object FieldConstants {
         data class Node(val pose: Pose3d, val side: Side, val level: Level, val reefFace: ReefFace)
         
         /** List of all nodes on the reef */
-        private val nodes: List<Node> = Level.values().flatMap { level ->
+        val nodes: List<Node> = Level.values().flatMap { level ->
             ReefFace.values().flatMap { reefFace ->
                 Side.values().map { side ->
                     Node(calcNodePose(level, reefFace, side), side, level, reefFace)
@@ -165,6 +165,7 @@ object FieldConstants {
         init {
             Logger.recordOutput("field/reef/reefCenterBlue", reefCenterBlue)
             Logger.recordOutput("field/reef/reefZone", *reefZone.cardinals.toTypedArray())
+            Logger.recordOutput("field/reef/nodes", *nodes.map { it.pose }.toTypedArray())
         }
     }
     
@@ -225,7 +226,7 @@ object FieldConstants {
         
         val cageZone: Rectangle2d = Rectangle2d(
             cage2,
-            ((3*12) + 10.0).inches,
+            ((3 * 12) + 10.0).inches,
             ((12 * 12) + 2.5).inches
         )
         

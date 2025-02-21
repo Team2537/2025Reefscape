@@ -1,4 +1,4 @@
-package frc.robot.subsystems.elevator
+package frc.robot.subsystems.superstructure.elevator
 
 import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.configs.TalonFXConfiguration
@@ -14,7 +14,6 @@ import edu.wpi.first.units.measure.LinearAcceleration
 import edu.wpi.first.units.measure.LinearVelocity
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
-import lib.math.units.into
 
 class ElevatorIOKraken(
     private val leftMotorId: Int,

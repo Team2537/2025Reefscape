@@ -1,0 +1,134 @@
+package frc.robot.subsystems.superstructure
+
+import edu.wpi.first.units.Units.Inches
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.Commands
+import edu.wpi.first.wpilibj2.command.Commands.runOnce
+import edu.wpi.first.wpilibj2.command.button.Trigger
+import frc.robot.CoralSimulator
+import frc.robot.MechanismVisualizer
+import frc.robot.Robot.drivebase
+import frc.robot.subsystems.superstructure.arm.Arm
+import frc.robot.subsystems.superstructure.elevator.Elevator
+import frc.robot.subsystems.superstructure.gripper.Gripper
+import lib.math.units.degrees
+import lib.math.units.inches
+import org.littletonrobotics.junction.Logger
+import java.util.function.Supplier
+
+class Superstructure {
+    val elevator: Elevator = Elevator()
+    val arm: Arm = Arm()
+    val gripper: Gripper = Gripper()
+    
+    private var lastRequest: SuperstructureState = SuperstructureGoals.STOW
+    
+    val gamepieceSimulator = CoralSimulator(
+        { MechanismVisualizer.mechanismPoses[2] },
+        drivebase::pose,
+        Inches.of(24.0)
+    )
+    
+    
+    private val readyToScore: Trigger = Trigger { SmartDashboard.getBoolean("shouldScore", false) }
+    
+    fun getScoreCommand(): Command {
+        return Commands.either(
+            Commands.sequence(
+                getForceStateCommand { lastRequest.nextState.get() },
+                Commands.parallel(
+                    elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                    arm.getSendToAngleCmd { lastRequest.armAngle },
+                ),
+                gripper.getEjectCmd(),
+                getStowCommand()
+            ),
+            Commands.idle()
+        ) { lastRequest.nextState.isPresent }
+    }
+    
+    fun getPrepL1Command(): Command {
+        return Commands.sequence(
+            getForceStateCommand { SuperstructureGoals.L1_PREP },
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+        )
+    }
+    
+    fun getPrepL2Command(): Command {
+        return Commands.sequence(
+            getForceStateCommand { SuperstructureGoals.L2_PREP },
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+        )
+    }
+    
+    fun getPrepL3Command(): Command {
+        return Commands.sequence(
+            getForceStateCommand { SuperstructureGoals.L3_PREP },
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+        )
+    }
+    
+    fun getPrepL4Command(): Command {
+        return Commands.sequence(
+            getForceStateCommand { SuperstructureGoals.L4_PREP },
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+        )
+    }
+    
+    fun getStowCommand(): Command {
+        return Commands.sequence(
+            getForceStateCommand { SuperstructureGoals.STOW },
+            Commands.parallel(
+                Commands.print("Stowing"),
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+        )
+    }
+    
+    fun getSourceIntakeCommand(): Command {
+        return Commands.sequence(
+            getForceStateCommand { SuperstructureGoals.PRE_SOURCE },
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+            Commands.waitUntil(
+                elevator.getPositionInToleranceTrigger(6.0.inches)
+                    .and(arm.getAngleInToleranceTrigger(5.0.degrees))),
+            getForceStateCommand({ SuperstructureGoals.SOURCE }),
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+            gripper.getIntakeCmd(),
+            getStowCommand()
+        )
+    }
+    
+    private fun getForceStateCommand(stateSupplier: Supplier<SuperstructureState>): Command {
+        return runOnce({
+            lastRequest = stateSupplier.get()
+            drivebase.limits = lastRequest.driveLimits
+        })
+    }
+    
+    
+    fun periodic() {
+        Logger.recordOutput("superstructure/setpoint", SuperstructureState.struct, lastRequest)
+        gamepieceSimulator.update()
+    }
+}
