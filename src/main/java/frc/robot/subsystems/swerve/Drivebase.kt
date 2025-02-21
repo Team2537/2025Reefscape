@@ -361,10 +361,10 @@ class Drivebase : SubsystemBase("drivebase") {
          */
         val moduleTranslations: List<Translation2d> = when (RobotType.type) {
             else -> listOf(
-                Translation2d(Inches.of(8.864613), Inches.of(8.864613)),
-                Translation2d(Inches.of(8.864613), Inches.of(-8.864613)),
-                Translation2d(Inches.of(-8.864613), Inches.of(8.864613)),
-                Translation2d(Inches.of(-8.864613), Inches.of(-8.864613))
+                Translation2d(Inches.of(12.875), Inches.of(11.875)),
+                Translation2d(Inches.of(12.875), Inches.of(-11.875)),
+                Translation2d(Inches.of(-12.875), Inches.of(11.875)),
+                Translation2d(Inches.of(-12.875), Inches.of(-11.875))
             )
         }
         
@@ -388,7 +388,7 @@ class Drivebase : SubsystemBase("drivebase") {
         val maxAttainableAngularVelocity: AngularVelocity =
             (maxAttainableLinearVelocity.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn RadiansPerSecond
         
-        val defaultLimits: SuperstructureGoals.DriveLimits = SuperstructureGoals.DriveLimits(
+        val defaultLimits: DriveLimits = DriveLimits(
             maxLinVel = maxAttainableLinearVelocity,
             maxAngVel = maxAttainableAngularVelocity,
             maxAccel = MetersPerSecondPerSecond.of(1.0)
