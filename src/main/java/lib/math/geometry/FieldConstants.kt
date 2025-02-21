@@ -70,6 +70,10 @@ object FieldConstants {
             RIGHT
         }
         
+        enum class Branch {
+            A, B, C, D, E, F, G, H, I, J, K, L
+        }
+        
         /**
          * Represents the different levels of the reef
          *
