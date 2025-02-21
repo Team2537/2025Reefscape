@@ -21,6 +21,9 @@ import frc.robot.RobotType
 import frc.robot.subsystems.intake.pivot.IntakePivotIO.IntakePivotInputs
 import org.littletonrobotics.junction.Logger
 
+/**
+ * The pivot subsystem handles the pivoting of the intake arm.
+ */
 class IntakePivot : SubsystemBase() {
     private val io: IntakePivotIO = when (RobotType.mode) {
         RobotType.Mode.REAL -> IntakePivotIOKraken(
@@ -46,7 +49,13 @@ class IntakePivot : SubsystemBase() {
         RobotType.Mode.REPLAY -> object : IntakePivotIO {}
     }
 
-    private val inputs: IntakePivotInputs = IntakePivotInputs()
+    /**
+     * The set of input data that is read from sensors, encoders, etc.
+     * related to the pivot mechanism for the arm.
+     *
+     * @see IntakePivotInputs
+     */
+    val inputs: IntakePivotInputs = IntakePivotInputs()
 
     override fun periodic() {
         io.updateInputs(inputs)
