@@ -34,18 +34,15 @@ class Superstructure {
     private val readyToScore: Trigger = Trigger { SmartDashboard.getBoolean("shouldScore", false) }
     
     fun getScoreCommand(): Command {
-        return Commands.either(
-            Commands.sequence(
-                getForceStateCommand { lastRequest.nextState.get() },
-                Commands.parallel(
-                    elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
-                    arm.getSendToAngleCmd { lastRequest.armAngle },
-                ),
-                gripper.getEjectCmd(),
-                getStowCommand()
+        return Commands.sequence(
+            getForceStateCommand { lastRequest.nextState.get() },
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
             ),
-            Commands.idle()
-        ) { lastRequest.nextState.isPresent }
+            gripper.getEjectCmd(),
+            getStowCommand()
+        ).onlyIf { lastRequest.nextState.isPresent }
     }
     
     fun getPrepL1Command(): Command {
@@ -108,7 +105,8 @@ class Superstructure {
             ),
             Commands.waitUntil(
                 elevator.getPositionInToleranceTrigger(6.0.inches)
-                    .and(arm.getAngleInToleranceTrigger(5.0.degrees))),
+                    .and(arm.getAngleInToleranceTrigger(5.0.degrees))
+            ),
             getForceStateCommand({ SuperstructureGoals.SOURCE }),
             Commands.parallel(
                 elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
