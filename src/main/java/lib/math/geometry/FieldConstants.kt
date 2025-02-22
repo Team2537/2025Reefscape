@@ -87,7 +87,8 @@ object FieldConstants {
             L1(46.0.centi.meters, 35.0, 30.679296.inches),
             L2(31.218618.inches, 35.0, 30.679296.inches),
             L3(47.088688.inches, 35.0, 30.679296.inches),
-            L4(71.994600.inches, 90.0, 30.738196.inches)
+            L4(71.994600.inches, 90.0, 30.738196.inches),
+            FLOOR(0.0.inches, 0.0, 30.738196.inches + 23.25.inches)
         }
         
         /**
@@ -125,6 +126,10 @@ object FieldConstants {
                 (sideDelta.cos * (translation2d.x - reefCenterBlue.x)) - (sideDelta.sin * (translation2d.y - reefCenterBlue.y)) + reefCenterBlue.x,
                 (sideDelta.sin * (translation2d.x - reefCenterBlue.x)) + (sideDelta.cos * (translation2d.y - reefCenterBlue.y)) + reefCenterBlue.y
             )
+            
+            if(level == Level.FLOOR) {
+                println(translation2d)
+            }
             
             return Pose3d(
                 Translation3d(translation2d.x, translation2d.y, level.height into Meters),

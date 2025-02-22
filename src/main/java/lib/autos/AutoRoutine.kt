@@ -28,6 +28,7 @@ class AutoRoutine(
                         Reef.Level.L2 -> superstructure.getPrepL2Command()
                         Reef.Level.L3 -> superstructure.getPrepL3Command()
                         Reef.Level.L4 -> superstructure.getPrepL4Command()
+                        Reef.Level.FLOOR -> TODO()
                     },
                 ),
                 superstructure.getScoreCommand(),

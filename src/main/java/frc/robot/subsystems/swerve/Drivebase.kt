@@ -342,7 +342,7 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.recordOutput("$name/desiredStates", *desiredStates.toTypedArray())
         Logger.recordOutput("$name/wheelPositions", *wheelPositions.toTypedArray())
         Logger.recordOutput("$name/moduleForces", *moduleForces.toTypedArray())
-        Logger.recordOutput("$name/limits", SuperstructureGoals.DriveLimits.struct, limits)
+        Logger.recordOutput("$name/limits", DriveLimits.struct, limits)
     }
     
     companion object Constants {
