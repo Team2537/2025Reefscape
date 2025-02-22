@@ -25,6 +25,8 @@ class AutoRoutine(
     fun build(): Command {
         val sequence = SequentialCommandGroup()
 
+
+
         sequence.addCommands(
             Commands.defer(
                 {
@@ -57,8 +59,17 @@ class AutoRoutine(
                     },
                 ),
                 superstructure.getScoreCommand(),
-                AutoBuilder.followPath(getPathToSource(branch))
             )
+
+            if(index != actions.size - 1) {
+                sequence.addCommands(
+                    Commands.parallel(
+                        AutoBuilder.followPath(getPathToSource(branch)),
+                        superstructure.getStowCommand(),
+                    ),
+                    superstructure.getSourceIntakeCommand()
+                )
+            }
         }
 
         return sequence

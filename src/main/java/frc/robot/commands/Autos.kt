@@ -25,9 +25,10 @@ class Autos(
 
     val ABC_Routine: AutoRoutine = AutoRoutine(
         listOf(
-            Triple(FieldConstants.Reef.Branch.A, FieldConstants.Reef.Level.L1, true),
+            Triple(FieldConstants.Reef.Branch.A, FieldConstants.Reef.Level.L4, true),
             Triple(FieldConstants.Reef.Branch.B, FieldConstants.Reef.Level.L2, true),
-            Triple(FieldConstants.Reef.Branch.C, FieldConstants.Reef.Level.L3, false)
+            Triple(FieldConstants.Reef.Branch.C, FieldConstants.Reef.Level.L3, false),
+            Triple(FieldConstants.Reef.Branch.A, FieldConstants.Reef.Level.L3, false),
         ),
         drivebase,
         superstructure
