@@ -35,7 +35,7 @@ object Robot : LoggedRobot() {
     val vision: Vision = Vision(drivebase::addVisionMeasurement)
     val superstructure = Superstructure()
     
-    val autos = Autos(drivebase)
+    val autos = Autos(drivebase, superstructure)
     
     
     
