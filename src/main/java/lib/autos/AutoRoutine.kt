@@ -25,26 +25,9 @@ class AutoRoutine(
     fun build(): Command {
         val sequence = SequentialCommandGroup()
 
+        val startPose = getPathToBranch(actions.first().first, actions.first().third).startingHolonomicPose.getOrDefault(Pose2d())
 
-
-        sequence.addCommands(
-            Commands.defer(
-                {
-                    runOnce({
-                        var pose = getPathToBranch(actions.first().first, actions.first().third).startingHolonomicPose.getOrDefault(
-                            Pose2d()
-                        )
-
-                        if (AutoBuilder.shouldFlip()) {
-                            pose = pose.flipped()
-                        }
-
-                        drivebase.resetOdometry(pose)
-                    })
-                },
-                setOf()
-            ),
-        )
+        sequence.addCommands(AutoBuilder.resetOdom(startPose))
 
         actions.forEachIndexed { index, (branch, level, isTop) ->
             sequence.addCommands(
