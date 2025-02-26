@@ -27,7 +27,7 @@ object MechanismVisualizer {
     private var carriageHeight = 0.0
     
     fun setElevatorHeight(height: Distance) {
-        val heightMeters = (height into Meters).coerceIn(0.0, Elevator.maxHeight into Meters)
+        val heightMeters = (height into Meters).coerceIn(0.0, Constants.ElevatorConstants.maxHeight into Meters)
         carriageHeight = heightMeters
         
         mechanismPoses[0] = Pose3d(

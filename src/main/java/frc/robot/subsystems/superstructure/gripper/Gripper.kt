@@ -18,6 +18,12 @@ class Gripper: SubsystemBase("gripper") {
             1.0,
             KilogramSquareMeters.of(0.001199574)
         )
+        RobotType.Mode.REAL -> GripperIONeo(
+            id = 31,
+            sensorID = 0,
+            isInverted = false,
+            gearing = 4.0
+        )
         else -> object : GripperIO {}
     }
     
@@ -40,7 +46,7 @@ class Gripper: SubsystemBase("gripper") {
         Commands.either(
             Commands.waitUntil { !inputs.isHoldingCoral },
             Commands.waitSeconds(0.75),
-            { RobotBase.isReal() }
+            { false }
         ),
         runOnce { io.setVoltage(0.0.volts) }
     )
