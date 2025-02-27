@@ -342,7 +342,7 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.recordOutput("$name/desiredStates", *desiredStates.toTypedArray())
         Logger.recordOutput("$name/wheelPositions", *wheelPositions.toTypedArray())
         Logger.recordOutput("$name/moduleForces", *moduleForces.toTypedArray())
-        Logger.recordOutput("$name/limits", SuperstructureGoals.DriveLimits.struct, limits)
+        Logger.recordOutput("$name/limits", DriveLimits.struct, limits)
     }
     
     companion object Constants {
@@ -388,7 +388,7 @@ class Drivebase : SubsystemBase("drivebase") {
         val maxAttainableAngularVelocity: AngularVelocity =
             (maxAttainableLinearVelocity.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn RadiansPerSecond
         
-        val defaultLimits: SuperstructureGoals.DriveLimits = SuperstructureGoals.DriveLimits(
+        val defaultLimits: DriveLimits = DriveLimits(
             maxLinVel = maxAttainableLinearVelocity,
             maxAngVel = maxAttainableAngularVelocity,
             maxAccel = MetersPerSecondPerSecond.of(1.0)
