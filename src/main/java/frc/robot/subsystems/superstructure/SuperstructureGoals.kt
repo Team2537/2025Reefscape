@@ -1,9 +1,6 @@
 package frc.robot.subsystems.superstructure
 
-import edu.wpi.first.units.Units.Degrees
-import edu.wpi.first.units.Units.Inches
-import edu.wpi.first.units.Units.Meters
-import edu.wpi.first.units.Units.Radians
+import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.util.struct.Struct
@@ -15,6 +12,9 @@ import java.nio.ByteBuffer
 import java.util.Optional
 
 object SuperstructureGoals {
+    val stowAngle = Degrees.of(90.0)
+    val scoreAngle = Degrees.of(65.0)
+
     val STOW = SuperstructureState(
         armAngle = Degrees.of(90.0),
         elevatorHeight = Inches.of(2.75),
@@ -34,26 +34,26 @@ object SuperstructureGoals {
     )
     
     val L1 = SuperstructureState(
-        armAngle = Radians.of(0.862),
-        elevatorHeight = Meters.of(0.028),
+        armAngle = scoreAngle,
+        elevatorHeight = Inches.of(1.15),
         driveLimits = Drivebase.defaultLimits,
     )
     
     val L2 = SuperstructureState(
-        armAngle = Radians.of(0.862),
-        elevatorHeight = Meters.of(0.238),
+        armAngle = scoreAngle,
+        elevatorHeight = Inch.of(6.0),
         driveLimits = Drivebase.defaultLimits,
     )
     
     val L3 = SuperstructureState(
-        armAngle = Radians.of(0.862),
-        elevatorHeight = Meters.of(0.642),
+        armAngle = scoreAngle,
+        elevatorHeight = Inch.of(22.0),
         driveLimits = Drivebase.defaultLimits,
     )
     
     val L4 = SuperstructureState(
-        armAngle = Radians.of(0.862),
-        elevatorHeight = Meters.of(1.289),
+        armAngle = scoreAngle,
+        elevatorHeight = Inches.of(47.0),
         driveLimits = Drivebase.defaultLimits,
     )
     

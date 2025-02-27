@@ -1,5 +1,6 @@
 package frc.robot
 
+import com.reduxrobotics.canand.CanandEventLoop
 import edu.wpi.first.hal.FRCNetComm.tInstances
 import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
@@ -74,6 +75,8 @@ object Robot : LoggedRobot() {
         }
 
         Logger.start()
+
+        CanandEventLoop.getInstance()
         FieldConstants
 //        configureBindings()
 
