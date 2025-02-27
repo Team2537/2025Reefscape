@@ -2,6 +2,7 @@ package frc.robot.subsystems.superstructure.gripper
 
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units.KilogramSquareMeters
+import edu.wpi.first.units.Units.Volts
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
@@ -34,19 +35,20 @@ class Gripper: SubsystemBase("gripper") {
     fun getIntakeCmd(): Command = Commands.sequence(
         runOnce { io.setVoltage((-3.0).volts) },
         Commands.either(
-            Commands.waitUntil { !inputs.isHoldingCoral },
+            Commands.waitUntil { inputs.isHoldingCoral },
             Commands.waitSeconds(0.75),
             { RobotBase.isReal() }
         ),
-        runOnce { io.setVoltage(0.0.volts) }
-    )
+        Commands.waitSeconds(0.05),
+        runOnce { io.setVoltage(Volts.zero()) }
+    ).handleInterrupt { io.setVoltage(Volts.zero())}
     
     fun getEjectCmd(): Command = Commands.sequence(
         runOnce { io.setVoltage(9.0.volts) },
         Commands.either(
             Commands.waitUntil { !inputs.isHoldingCoral },
             Commands.waitSeconds(0.75),
-            { false }
+            { RobotBase.isReal() }
         ),
         runOnce { io.setVoltage(0.0.volts) }
     )

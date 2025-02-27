@@ -26,9 +26,9 @@ class GripperIONeo (
         configure(coastConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
     }
 
-//    private val canandcolor = Canandcolor(sensorID)
+    private val canandcolor = Canandcolor(sensorID)
 
-    private val coralSensorThreshold : Double = 0.75
+    private val coralSensorThreshold : Double = 0.25
 
     override fun updateInputs(inputs: GripperIO.GripperInputs) {
         inputs.gripperPosition.mut_replace(Rotations.of(motor.encoder.position))
@@ -38,7 +38,7 @@ class GripperIONeo (
         inputs.gripperAppliedVoltage.mut_replace(Volts.of(motor.appliedOutput * motor.busVoltage))
         inputs.gripperStatorCurrent.mut_replace(Amps.of(motor.outputCurrent))
 
-//        inputs.isHoldingCoral = canandcolor.proximity > coralSensorThreshold
+        inputs.isHoldingCoral = canandcolor.proximity < coralSensorThreshold
     }
 
     override fun setVoltage(voltage: Voltage) {

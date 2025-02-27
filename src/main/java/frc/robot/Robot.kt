@@ -82,11 +82,13 @@ object Robot : LoggedRobot() {
 
         DriverStation.silenceJoystickConnectionWarning(true)
 
-        driverController.povUp().onTrue(superstructure.getPrepL3Command())
-        driverController.povDown().onTrue(superstructure.getPrepL2Command())
+        driverController.povDown().onTrue(superstructure.getPrepL1Command())
+        driverController.povUp().onTrue(superstructure.getPrepL2Command())
+        driverController.a().onTrue(superstructure.getPrepL3Command())
+        driverController.y().onTrue(superstructure.getPrepL4Command())
 
-        driverController.a().onTrue(superstructure.getStowCommand())
-        driverController.b().onTrue(superstructure.getSourceIntakeCommand())
+        driverController.leftBumper().and(driverController.rightBumper())
+            .onTrue(superstructure.getSourceIntakeCommand())
 
         driverController.leftTrigger().onTrue(superstructure.getScoreCommand())
     }

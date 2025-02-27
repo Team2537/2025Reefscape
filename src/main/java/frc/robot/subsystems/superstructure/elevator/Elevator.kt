@@ -44,7 +44,7 @@ class Elevator : SubsystemBase("elevator") {
             ffGains = FeedforwardGains(kS = 0.082337, kV = 0.015551),
             kG = 0.44098,
             motionMagicCruiseVelocity = MetersPerSecond.of(2.5),
-            motionMagicAcceleration = MetersPerSecondPerSecond.of(20.0),
+            motionMagicAcceleration = MetersPerSecondPerSecond.of(50.0),
             motionMagicJerk = 0.0
         )
         
