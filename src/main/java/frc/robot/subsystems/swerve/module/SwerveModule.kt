@@ -64,24 +64,24 @@ class SwerveModule(
             turnGearing,
             wheelRadius
         )
-//        RobotType.Mode.REAL -> ModuleIOHybridFXS(
-//            driveID,
-//            driveGearing, // 8.14:1 drive gearing
-//            invertDrive,
-//            driveTorqueGains.feedforward,
-//            driveTorqueGains.pid,
-//            turnID,
-//            turnGearing, // 150:7 turn gearing
-//            turnInverted = invertTurn,
-//            FeedforwardGains(kS = 0.14403),
-//            PIDGains(
-//                kP = 50.0,
-//                kD = 0.5
-//            ),
-//            encoderID,
-//            encoderOffset,
-//            wheelRadius
-//        )
+        RobotType.Mode.REAL -> ModuleIOHybridFXS(
+            driveID,
+            driveGearing, // 8.14:1 drive gearing
+            invertDrive,
+            driveTorqueGains.feedforward,
+            driveTorqueGains.pid,
+            turnID,
+            turnGearing, // 150:7 turn gearing
+            turnInverted = invertTurn,
+            FeedforwardGains(kS = 0.14403),
+            PIDGains(
+                kP = 50.0,
+                kD = 0.5
+            ),
+            encoderID,
+            encoderOffset,
+            wheelRadius
+        )
         else -> object : ModuleIO {}
     }
     
@@ -184,7 +184,7 @@ class SwerveModule(
     private companion object {
         val wheelRadius = 1.91 measuredIn Inches
         val turnGearing: Double = 150.0/7.0
-        val driveGearing: Double = 6.14
+        val driveGearing: Double = 6.75
 
         val driveTorqueGains: ControllerGains = ControllerGains(
             PIDGains(

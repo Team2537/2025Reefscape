@@ -114,7 +114,6 @@ class Superstructure {
         return Commands.sequence(
             getForceStateCommand { SuperstructureGoals.STOW },
             Commands.parallel(
-                Commands.print("Stowing"),
                 elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
                 arm.getSendToAngleCmd { lastRequest.armAngle },
             ),
@@ -138,7 +137,6 @@ class Superstructure {
                 arm.getSendToAngleCmd { lastRequest.armAngle },
             ),
             gripper.getIntakeCmd(),
-            getStowCommand()
         )
     }
 

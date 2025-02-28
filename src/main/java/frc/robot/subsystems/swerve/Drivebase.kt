@@ -8,6 +8,7 @@ import com.pathplanner.lib.util.DriveFeedforwards
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.Vector
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
+import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
@@ -50,15 +51,15 @@ class Drivebase : SubsystemBase("drivebase") {
      * 3: Back Right
      */
     val modules: Array<SwerveModule> = arrayOf(
-        SwerveModule(1, 2, 3, true, true, Rotation2d.fromRadians(2.490), moduleTranslations[0]),
-        SwerveModule(4, 5, 6, true, true, Rotation2d.fromRadians(1.2), moduleTranslations[1]),
-        SwerveModule(7, 8, 9, true, true, Rotation2d.fromRadians(-2.008), moduleTranslations[2]),
-        SwerveModule(10, 11, 12, true, true, Rotation2d(-1.640), moduleTranslations[3])
+        SwerveModule(1, 2, 2, true, true, Rotation2d.fromRadians(1.540), moduleTranslations[0]),
+        SwerveModule(3, 4, 4, true, true, Rotation2d.fromRadians(2.530), moduleTranslations[1]),
+        SwerveModule(5, 6, 6, true, true, Rotation2d.fromRadians(0.739), moduleTranslations[2]),
+        SwerveModule(7, 8, 8, true, true, Rotation2d.fromRadians(2.132), moduleTranslations[3])
     )
     
     val gyro: GyroIO = when (RobotType.mode) {
         RobotType.Mode.SIMULATION -> GyroIOSim(::chassisSpeeds)
-//        RobotType.Mode.REAL -> GyroIOPigeon2(13)
+        RobotType.Mode.REAL -> GyroIOPigeon2(9)
         else -> object : GyroIO {}
     }
     
@@ -147,6 +148,10 @@ class Drivebase : SubsystemBase("drivebase") {
     val routineToApply = steerSysIdRoutine
     
     var limits = defaultLimits
+        set(value) {
+            accelLimiter = SlewRateLimiter(value.maxAccel into MetersPerSecondPerSecond)
+            field = value
+        }
     
     val robotConfig: RobotConfig? = try {
         RobotConfig.fromGUISettings()
@@ -154,6 +159,8 @@ class Drivebase : SubsystemBase("drivebase") {
         e.printStackTrace()
         null
     }
+
+    var accelLimiter = SlewRateLimiter(limits.maxAccel into MetersPerSecondPerSecond)
     
     init {
         AutoBuilder.configure(
@@ -189,8 +196,10 @@ class Drivebase : SubsystemBase("drivebase") {
     
     fun applyChassisSpeeds(speeds: ChassisSpeeds) {
         val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
-        
-        val states = kinematics.toSwerveModuleStates(discretizedSpeeds)
+
+//        val limitedSpeeds = applyLimits(discretizedSpeeds)
+        val limitedSpeeds = discretizedSpeeds
+        val states = kinematics.toSwerveModuleStates(limitedSpeeds)
         SwerveDriveKinematics.desaturateWheelSpeeds(
             states,
             limits.maxLinVel,
@@ -211,17 +220,9 @@ class Drivebase : SubsystemBase("drivebase") {
             0.0,
             limits.maxLinVel into MetersPerSecond
         )
-        
-        val desiredAccel = (desiredVelocityMagnitude - currentVelocityMagnitude) / 0.02 // Acceleration in m/s²
-        
-        
-        val limitedAccel = desiredAccel.coerceIn(
-            -limits.maxAccel into MetersPerSecondPerSecond,
-            limits.maxAccel into MetersPerSecondPerSecond
-        )
-        
+
         // Calculate the new velocity magnitude with limited acceleration
-        val newVelocityMagnitude = currentVelocityMagnitude + limitedAccel * 0.02 // New velocity in m/s
+        val newVelocityMagnitude = accelLimiter.calculate(currentVelocityMagnitude)
         
         // Scale the desired velocity vector to the new magnitude
         val scaleFactor = if (desiredVelocityMagnitude != 0.0) {
@@ -232,8 +233,8 @@ class Drivebase : SubsystemBase("drivebase") {
         
         val adjustedVx = speed.vxMetersPerSecond * scaleFactor
         val adjustedVy = speed.vyMetersPerSecond * scaleFactor
-        
-        return ChassisSpeeds(
+
+        val adjustedSoeeds =ChassisSpeeds(
             adjustedVx,
             adjustedVy,
             speed.omegaRadiansPerSecond.coerceIn(
@@ -241,6 +242,13 @@ class Drivebase : SubsystemBase("drivebase") {
                 limits.maxAngVel into RadiansPerSecond
             )
         )
+
+        Logger.recordOutput("$name/limits/currentVelocityMagnitude", currentVelocityMagnitude)
+        Logger.recordOutput("$name/limits/desiredVelocityMagnitude", desiredVelocityMagnitude)
+        Logger.recordOutput("$name/limits/newVelocityMagnitude", newVelocityMagnitude)
+        Logger.recordOutput("$name/limits/scaleFactor", scaleFactor)
+
+        return adjustedSoeeds
     }
     
     
@@ -361,10 +369,10 @@ class Drivebase : SubsystemBase("drivebase") {
          */
         val moduleTranslations: List<Translation2d> = when (RobotType.type) {
             else -> listOf(
-                Translation2d(Inches.of(8.864613), Inches.of(8.864613)),
-                Translation2d(Inches.of(8.864613), Inches.of(-8.864613)),
-                Translation2d(Inches.of(-8.864613), Inches.of(8.864613)),
-                Translation2d(Inches.of(-8.864613), Inches.of(-8.864613))
+                Translation2d(Inches.of(12.875), Inches.of(11.875)),
+                Translation2d(Inches.of(12.875), Inches.of(-11.875)),
+                Translation2d(Inches.of(-12.875), Inches.of(11.875)),
+                Translation2d(Inches.of(-12.875), Inches.of(-11.875))
             )
         }
         
@@ -389,9 +397,9 @@ class Drivebase : SubsystemBase("drivebase") {
             (maxAttainableLinearVelocity.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn RadiansPerSecond
         
         val defaultLimits: DriveLimits = DriveLimits(
-            maxLinVel = maxAttainableLinearVelocity,
+            maxLinVel = maxAttainableLinearVelocity / 2.0,
             maxAngVel = maxAttainableAngularVelocity,
-            maxAccel = MetersPerSecondPerSecond.of(1.0)
+            maxAccel = MetersPerSecondPerSecond.of(0.5)
         )
     }
 }
