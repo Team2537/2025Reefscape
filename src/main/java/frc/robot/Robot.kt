@@ -26,7 +26,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter
 import kotlin.math.pow
 
 object Robot : LoggedRobot() {
-    val updateRateMs = 0.02
+    val updateRateSec = 0.02
     
     val driverController = CommandXboxController(0)
     val operatorController = CommandXboxController(1)
