@@ -2,9 +2,10 @@ package frc.robot.subsystems.superstructure.elevator
 
 import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.configs.TalonFXConfiguration
-import com.ctre.phoenix6.controls.MotionMagicVoltage
-import com.ctre.phoenix6.controls.VoltageOut
+import com.ctre.phoenix6.controls.*
 import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.mechanisms.DifferentialMechanism
+import com.ctre.phoenix6.signals.GravityTypeValue
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.units.Units.*
@@ -35,7 +36,7 @@ class ElevatorIOKraken(
 
     // helper function to configure the motor
     private fun configureMotor(motorId: Int, isInverted: Boolean): TalonFX {
-        return TalonFX(motorId).apply {
+        return TalonFX(motorId, "canivore").apply {
             val config = TalonFXConfiguration()
             
             // Configure feedback
@@ -49,6 +50,7 @@ class ElevatorIOKraken(
             config.Slot0.kA = ffGains.kA
             config.Slot0.kS = ffGains.kS
             config.Slot0.kG = kG
+            config.Slot0.GravityType = GravityTypeValue.Elevator_Static
             
             // Configure motion magic parameters
             config.MotionMagic.withMotionMagicAcceleration(motionMagicAcceleration.baseUnitMagnitude())
@@ -72,6 +74,8 @@ class ElevatorIOKraken(
             config.MotorOutput.NeutralMode = NeutralModeValue.Brake
             
             configurator.apply(config)
+
+            setPosition(0.0)
         }
     }
 
@@ -92,8 +96,9 @@ class ElevatorIOKraken(
     private val rightStatorCurrent = rightMotor.statorCurrent.clone()
 
     // Control requests
-    private val voltageRequest = VoltageOut(0.0)
-    private val motionMagicRequest = MotionMagicVoltage(0.0)
+    private val voltageRequest = VoltageOut(0.0).withEnableFOC(true)
+    private val motionMagicRequest = MotionMagicVoltage(0.0).withEnableFOC(true)
+    private val followRequest = Follower(leftMotorId, true)
 
     override fun updateInputs(inputs: ElevatorIO.ElevatorInputs) {
         // Refresh all status signals
@@ -133,17 +138,9 @@ class ElevatorIOKraken(
     override fun setElevatorHeightTarget(height: Distance) {
         val rotationsToMeters = drumRadius.baseUnitMagnitude() * 2.0 * Math.PI
         val targetRotations = height.baseUnitMagnitude() / rotationsToMeters
-        
-        leftMotor.setControl(
-            motionMagicRequest
-                .withPosition(targetRotations)
-                .withSlot(0)
-        )
-        rightMotor.setControl(
-            motionMagicRequest
-                .withPosition(targetRotations)
-                .withSlot(0)
-        )
+
+        leftMotor.setControl(motionMagicRequest.withPosition(targetRotations))
+        rightMotor.setControl(followRequest)
     }
 
     override fun stop() {
@@ -153,6 +150,6 @@ class ElevatorIOKraken(
 
     override fun setElevatorVoltage(volts: Voltage) {
         leftMotor.setControl(voltageRequest.withOutput(volts.baseUnitMagnitude()))
-        rightMotor.setControl(voltageRequest.withOutput(volts.baseUnitMagnitude()))
+        rightMotor.setControl(followRequest)
     }
 }

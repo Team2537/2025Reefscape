@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.Slot0Configs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.configs.TalonFXSConfiguration
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage
+import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.PositionVoltage
 import com.ctre.phoenix6.controls.TorqueCurrentFOC
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC
@@ -48,7 +49,7 @@ class ModuleIOHybridFXS(
 
     val wheelRadius: Distance
 ) : ModuleIO {
-    private val driveMotor: TalonFX = TalonFX(driveID).apply {
+    private val driveMotor: TalonFX = TalonFX(driveID, "canivore").apply {
         val config: TalonFXConfiguration = TalonFXConfiguration()
 
         config.Feedback.SensorToMechanismRatio = driveGearing
@@ -84,7 +85,7 @@ class ModuleIOHybridFXS(
     private val driveSupplyCurrent = driveMotor.supplyCurrent.clone()
     private val driveTorqueCurrent = driveMotor.torqueCurrent.clone()
 
-    private val turnMotor = TalonFXS(turnID).apply {
+    private val turnMotor = TalonFXS(turnID, "canivore").apply {
         val config: TalonFXSConfiguration = TalonFXSConfiguration()
 
         config.ExternalFeedback.RotorToSensorRatio = turnGearing
@@ -107,6 +108,9 @@ class ModuleIOHybridFXS(
         config.Slot0.kA = turnFF.kA
         config.Slot0.kS = turnFF.kS
 
+        config.MotionMagic.withMotionMagicCruiseVelocity(RPM.of(260.0))
+        config.MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(500.0))
+
         configurator.apply(config)
     }
 
@@ -116,7 +120,7 @@ class ModuleIOHybridFXS(
     private val turnSupplyCurrent = turnMotor.supplyCurrent.clone()
     private val turnStatorCurrent = turnMotor.statorCurrent.clone()
 
-    private val absEncoder: CANcoder = CANcoder(encoderID).apply {
+    private val absEncoder: CANcoder = CANcoder(encoderID, "canivore").apply {
         val config = CANcoderConfiguration()
 
         config.MagnetSensor.MagnetOffset = encoderOffset.rotations
@@ -130,8 +134,7 @@ class ModuleIOHybridFXS(
     val openLoopDriveRequest: VoltageOut = VoltageOut(0.0)
     val openLoopTorqueRequest: TorqueCurrentFOC = TorqueCurrentFOC(0.0)
     val closedLoopDriveRequest: VelocityTorqueCurrentFOC = VelocityTorqueCurrentFOC(0.0)
-
-    val closedLoopTurnRequest: PositionVoltage = PositionVoltage(0.0)
+    val closedLoopTurnRequest: MotionMagicVoltage = MotionMagicVoltage(0.0)
 
     override fun updateInputs(inputs: ModuleIO.ModuleInputs) {
         inputs.isDriveMotorConnected = BaseStatusSignal.refreshAll(

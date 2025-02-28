@@ -184,7 +184,7 @@ class SwerveModule(
     private companion object {
         val wheelRadius = 1.91 measuredIn Inches
         val turnGearing: Double = 150.0/7.0
-        val driveGearing: Double = 6.14
+        val driveGearing: Double = 6.75
 
         val driveTorqueGains: ControllerGains = ControllerGains(
             PIDGains(

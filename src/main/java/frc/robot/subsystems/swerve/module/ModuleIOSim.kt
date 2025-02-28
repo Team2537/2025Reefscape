@@ -67,8 +67,8 @@ class ModuleIOSim(
      * @param inputs The inputs to update
      */
     override fun updateInputs(inputs: ModuleIO.ModuleInputs) {
-        driveMotor.update(Robot.updateRateMs)
-        turnMotor.update(Robot.updateRateMs)
+        driveMotor.update(Robot.updateRateSec)
+        turnMotor.update(Robot.updateRateSec)
         
         inputs.isDriveMotorConnected = true
         inputs.isTurnMotorConnected = true

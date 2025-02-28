@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.signals.GravityTypeValue
 import com.ctre.phoenix6.signals.InvertedValue
 import edu.wpi.first.units.AngularAccelerationUnit
 import edu.wpi.first.units.Units.*
@@ -35,6 +36,9 @@ class ArmIOKraken(
         config.Slot0.kV = ffGains.kV
         config.Slot0.kA = ffGains.kA
         config.Slot0.kS = ffGains.kS
+        config.Slot0.kG = kG
+
+        config.Slot0.GravityType = GravityTypeValue.Arm_Cosine
 
         config.Feedback.SensorToMechanismRatio = gearing
 
@@ -46,6 +50,10 @@ class ArmIOKraken(
         config.MotionMagic.withMotionMagicCruiseVelocity(velocityLimit)
         config.MotionMagic.withMotionMagicAcceleration(accelerationLimit)
         config.MotionMagic.withMotionMagicJerk(jerkLimit)
+
+        configurator.apply(config)
+
+        setPosition(Degrees.of(90.0))
     }
 
     private val position = motor.position.clone()

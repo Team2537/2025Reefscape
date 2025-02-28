@@ -1,5 +1,6 @@
 package frc.robot
 
+import com.reduxrobotics.canand.CanandEventLoop
 import edu.wpi.first.hal.FRCNetComm.tInstances
 import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
@@ -22,9 +23,10 @@ import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.NT4Publisher
 import org.littletonrobotics.junction.wpilog.WPILOGReader
 import org.littletonrobotics.junction.wpilog.WPILOGWriter
+import kotlin.math.pow
 
 object Robot : LoggedRobot() {
-    val updateRateMs = 0.02
+    val updateRateSec = 0.02
     
     val driverController = CommandXboxController(0)
     val operatorController = CommandXboxController(1)
@@ -75,6 +77,8 @@ object Robot : LoggedRobot() {
         }
         
         Logger.start()
+
+        CanandEventLoop.getInstance()
         FieldConstants
         configureBindings()
         
@@ -87,7 +91,7 @@ object Robot : LoggedRobot() {
         drivebase.defaultCommand = drivebase.getDriveCmd(
             { -(MathUtil.applyDeadband(driverController.leftY, 0.05)) },
             { -(MathUtil.applyDeadband(driverController.leftX, 0.05)) },
-            { -(MathUtil.applyDeadband(driverController.rightX, 0.05)) },
+            { -(MathUtil.applyDeadband(driverController.rightX, 0.05).pow(3)) },
             !driverController.leftBumper(),
             { 1.0 },
             3
@@ -104,7 +108,7 @@ object Robot : LoggedRobot() {
         
         operatorController.rightBumper().onTrue(superstructure.getSourceIntakeCommand())
         
-        operatorController.leftTrigger().onTrue(superstructure.getScoreCommand())
+        driverController.leftTrigger().onTrue(superstructure.getScoreCommand())
     }
     
     override fun robotPeriodic() {

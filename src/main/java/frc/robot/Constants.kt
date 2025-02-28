@@ -7,11 +7,14 @@ import edu.wpi.first.units.MomentOfInertiaUnit
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.units.measure.AngularVelocity
+import lib.math.units.measuredIn
 
 object Constants {
 
     object ArmConstants {
-    
+        const val MOTOR_ID = 22
+        const val IS_MOTOR_INVERTED = true
+        const val GEARING = 40.0
     }
 
     object ClimbConstants {
@@ -37,7 +40,7 @@ object Constants {
     }
 
     object ElevatorConstants {
-
+        val maxHeight = 1.302 measuredIn Meters
     }
 
     object GripperConstants {
