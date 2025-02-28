@@ -5,7 +5,6 @@ import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.util.struct.Struct
 import edu.wpi.first.util.struct.StructSerializable
-import frc.robot.subsystems.swerve.DriveLimits
 import frc.robot.subsystems.swerve.Drivebase
 import lib.math.units.into
 import java.nio.ByteBuffer

@@ -4,7 +4,10 @@ import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.config.PIDConstants
 import com.pathplanner.lib.config.RobotConfig
 import com.pathplanner.lib.controllers.PPHolonomicDriveController
+import com.pathplanner.lib.path.PathConstraints
 import com.pathplanner.lib.util.DriveFeedforwards
+import com.pathplanner.lib.util.swerve.SwerveSetpoint
+import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.Vector
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
@@ -26,6 +29,7 @@ import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
+import frc.robot.Robot
 import frc.robot.RobotType
 import frc.robot.subsystems.superstructure.SuperstructureGoals
 import frc.robot.subsystems.swerve.gyro.GyroIO
@@ -34,6 +38,8 @@ import frc.robot.subsystems.swerve.gyro.GyroIOSim
 import frc.robot.subsystems.swerve.module.SwerveModule
 import lib.math.units.into
 import lib.math.units.measuredIn
+import lib.math.units.milli
+import lib.math.units.seconds
 import org.littletonrobotics.junction.Logger
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
@@ -148,10 +154,6 @@ class Drivebase : SubsystemBase("drivebase") {
     val routineToApply = steerSysIdRoutine
     
     var limits = defaultLimits
-        set(value) {
-            accelLimiter = SlewRateLimiter(value.maxAccel into MetersPerSecondPerSecond)
-            field = value
-        }
     
     val robotConfig: RobotConfig? = try {
         RobotConfig.fromGUISettings()
@@ -159,8 +161,10 @@ class Drivebase : SubsystemBase("drivebase") {
         e.printStackTrace()
         null
     }
-
-    var accelLimiter = SlewRateLimiter(limits.maxAccel into MetersPerSecondPerSecond)
+    
+    val setpointGenerator = SwerveSetpointGenerator(robotConfig, RPM.of(560.0))
+    
+    var lastSetpoint = SwerveSetpoint(chassisSpeeds, wheelStates.toTypedArray(), DriveFeedforwards.zeros(modules.size))
     
     init {
         AutoBuilder.configure(
@@ -181,74 +185,19 @@ class Drivebase : SubsystemBase("drivebase") {
     }
     
     fun applyChassisSpeeds(speeds: ChassisSpeeds, moduleForces: List<Vector<N2>>) {
-        val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
+        lastSetpoint =
+            setpointGenerator.generateSetpoint(lastSetpoint, speeds, limits, Robot.updateRateMs.milli.seconds)
         
-        val states = kinematics.toSwerveModuleStates(discretizedSpeeds)
-        SwerveDriveKinematics.desaturateWheelSpeeds(
-            states,
-            limits.maxLinVel,
-        )
-        
-        modules.zip(states).forEachIndexed { index, (module, state) ->
+        modules.zip(lastSetpoint.moduleStates).forEachIndexed { index, (module, state) ->
             module.applyState(state, moduleForces[index])
         }
     }
     
     fun applyChassisSpeeds(speeds: ChassisSpeeds) {
-        val discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
-
-//        val limitedSpeeds = applyLimits(discretizedSpeeds)
-        val limitedSpeeds = discretizedSpeeds
-        val states = kinematics.toSwerveModuleStates(limitedSpeeds)
-        SwerveDriveKinematics.desaturateWheelSpeeds(
-            states,
-            limits.maxLinVel,
-        )
+        lastSetpoint =
+            setpointGenerator.generateSetpoint(lastSetpoint, speeds, limits, Robot.updateRateMs.milli.seconds)
         
-        modules.zip(states).forEach { (module, state) -> module.applyState(state) }
-        Logger.recordOutput("$name/discretizedChassisSpeeds", discretizedSpeeds)
-    }
-    
-    private fun applyLimits(speed: ChassisSpeeds): ChassisSpeeds {
-        val currentSpeeds = chassisSpeeds
-        
-        // Current velocity magnitude
-        val currentVelocityMagnitude = hypot(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond)
-        
-        // Desired velocity magnitude
-        val desiredVelocityMagnitude = hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond).coerceIn(
-            0.0,
-            limits.maxLinVel into MetersPerSecond
-        )
-
-        // Calculate the new velocity magnitude with limited acceleration
-        val newVelocityMagnitude = accelLimiter.calculate(currentVelocityMagnitude)
-        
-        // Scale the desired velocity vector to the new magnitude
-        val scaleFactor = if (desiredVelocityMagnitude != 0.0) {
-            newVelocityMagnitude / desiredVelocityMagnitude
-        } else {
-            0.0
-        }
-        
-        val adjustedVx = speed.vxMetersPerSecond * scaleFactor
-        val adjustedVy = speed.vyMetersPerSecond * scaleFactor
-
-        val adjustedSoeeds =ChassisSpeeds(
-            adjustedVx,
-            adjustedVy,
-            speed.omegaRadiansPerSecond.coerceIn(
-                -limits.maxAngVel into RadiansPerSecond,
-                limits.maxAngVel into RadiansPerSecond
-            )
-        )
-
-        Logger.recordOutput("$name/limits/currentVelocityMagnitude", currentVelocityMagnitude)
-        Logger.recordOutput("$name/limits/desiredVelocityMagnitude", desiredVelocityMagnitude)
-        Logger.recordOutput("$name/limits/newVelocityMagnitude", newVelocityMagnitude)
-        Logger.recordOutput("$name/limits/scaleFactor", scaleFactor)
-
-        return adjustedSoeeds
+        modules.zip(lastSetpoint.moduleStates).forEach { (module, state) -> module.applyState(state) }
     }
     
     
@@ -350,7 +299,7 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.recordOutput("$name/desiredStates", *desiredStates.toTypedArray())
         Logger.recordOutput("$name/wheelPositions", *wheelPositions.toTypedArray())
         Logger.recordOutput("$name/moduleForces", *moduleForces.toTypedArray())
-        Logger.recordOutput("$name/limits", DriveLimits.struct, limits)
+        Logger.recordOutput("$name/limits", limits)
     }
     
     companion object Constants {
@@ -396,10 +345,11 @@ class Drivebase : SubsystemBase("drivebase") {
         val maxAttainableAngularVelocity: AngularVelocity =
             (maxAttainableLinearVelocity.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn RadiansPerSecond
         
-        val defaultLimits: DriveLimits = DriveLimits(
-            maxLinVel = maxAttainableLinearVelocity / 2.0,
-            maxAngVel = maxAttainableAngularVelocity,
-            maxAccel = MetersPerSecondPerSecond.of(0.5)
+        val defaultLimits = PathConstraints(
+            maxAttainableLinearVelocity,
+            MetersPerSecondPerSecond.of(0.5),
+            maxAttainableAngularVelocity,
+            RadiansPerSecondPerSecond.of(0.5)
         )
     }
 }
