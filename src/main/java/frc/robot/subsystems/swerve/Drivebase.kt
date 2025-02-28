@@ -11,7 +11,6 @@ import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.Vector
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
-import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
@@ -31,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Robot
 import frc.robot.RobotType
-import frc.robot.subsystems.superstructure.SuperstructureGoals
 import frc.robot.subsystems.swerve.gyro.GyroIO
 import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2
 import frc.robot.subsystems.swerve.gyro.GyroIOSim
@@ -186,7 +184,7 @@ class Drivebase : SubsystemBase("drivebase") {
     
     fun applyChassisSpeeds(speeds: ChassisSpeeds, moduleForces: List<Vector<N2>>) {
         lastSetpoint =
-            setpointGenerator.generateSetpoint(lastSetpoint, speeds, limits, Robot.updateRateMs.milli.seconds)
+            setpointGenerator.generateSetpoint(lastSetpoint, speeds, limits, Robot.updateRateSec)
         
         modules.zip(lastSetpoint.moduleStates).forEachIndexed { index, (module, state) ->
             module.applyState(state, moduleForces[index])
@@ -195,7 +193,7 @@ class Drivebase : SubsystemBase("drivebase") {
     
     fun applyChassisSpeeds(speeds: ChassisSpeeds) {
         lastSetpoint =
-            setpointGenerator.generateSetpoint(lastSetpoint, speeds, limits, Robot.updateRateMs.milli.seconds)
+            setpointGenerator.generateSetpoint(lastSetpoint, speeds, limits, Robot.updateRateSec)
         
         modules.zip(lastSetpoint.moduleStates).forEach { (module, state) -> module.applyState(state) }
     }
@@ -347,9 +345,9 @@ class Drivebase : SubsystemBase("drivebase") {
         
         val defaultLimits = PathConstraints(
             maxAttainableLinearVelocity,
-            MetersPerSecondPerSecond.of(0.5),
+            MetersPerSecondPerSecond.of(11.5),
             maxAttainableAngularVelocity,
-            RadiansPerSecondPerSecond.of(0.5)
+            RadiansPerSecondPerSecond.of(2.0)
         )
     }
 }
