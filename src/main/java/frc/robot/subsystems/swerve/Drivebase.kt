@@ -360,6 +360,20 @@ class Drivebase : SubsystemBase("drivebase") {
             DegreesPerSecondPerSecond.of(2500.0)
         )
 
+        val extendedLimits = PathConstraints(
+            maxAttainableLinearVelocity / 2.0,
+            MetersPerSecondPerSecond.of(5.5),
+            maxAttainableAngularVelocity,
+            DegreesPerSecondPerSecond.of(2500.0)
+        )
+
+        val intakeLimits = PathConstraints(
+            maxAttainableLinearVelocity / 3.0,
+            MetersPerSecondPerSecond.of(5.5),
+            maxAttainableAngularVelocity,
+            DegreesPerSecondPerSecond.of(2500.0)
+        )
+
         val bluePerspective = Rotation2d.fromDegrees(0.0)
         val redPerspective = Rotation2d.fromDegrees(180.0)
     }
