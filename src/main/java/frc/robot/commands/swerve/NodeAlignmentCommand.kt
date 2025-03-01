@@ -13,6 +13,8 @@ import frc.robot.subsystems.swerve.Drivebase
 import lib.math.geometry.FieldConstants
 import lib.math.geometry.flipped
 import lib.math.units.into
+import org.littletonrobotics.junction.Logger
+import kotlin.math.PI
 
 class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Reef.Side): Command() {
 
@@ -22,11 +24,13 @@ class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Re
 
     val xPid = PIDController(5.0, 0.0, 0.05)
     val yPid = PIDController(5.0, 0.0, 0.05)
-    val anglePid = PIDController(3.0, 0.0, 0.05)
+    val anglePid = PIDController(3.0, 0.0, 0.05).apply { enableContinuousInput(0.0, 2 * PI) }
 
     var endPose: Pose2d? = null
 
     override fun initialize() {
+        endPose = null
+
         val currentPose = if(AutoBuilder.shouldFlip()) { drivebase.pose.flipped() } else { drivebase.pose }
 
         val closestPose = currentPose.nearest(FieldConstants.Reef.floorAlignmentPoses)
@@ -43,7 +47,9 @@ class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Re
 
         if(AutoBuilder.shouldFlip()) { targetPose = targetPose.flipped() }
 
-        endPose = targetPose
+        if(targetPose.translation.getDistance(drivebase.pose.translation) < 1.0) {
+            endPose = targetPose
+        }
 
         xPid.reset()
         yPid.reset()
