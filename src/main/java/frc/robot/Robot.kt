@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.util.WPILibVersion
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.commands.Autos
+import frc.robot.commands.swerve.NodeAlignmentCommand
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.swerve.Drivebase
 import frc.robot.subsystems.vision.Vision
@@ -33,11 +34,11 @@ object Robot : LoggedRobot() {
 
     val godController: CommandXboxController = CommandXboxController(5)
     
-    val drivebase: Drivebase = Drivebase()
-    val vision: Vision = Vision(drivebase::addVisionMeasurement)
-    val superstructure = Superstructure()
+    val drivebase: Drivebase
+    val vision: Vision
+    val superstructure: Superstructure
     
-    val autos = Autos(drivebase, superstructure)
+    val autos: Autos
     
     
     
@@ -80,6 +81,14 @@ object Robot : LoggedRobot() {
 
         CanandEventLoop.getInstance()
         FieldConstants
+
+        drivebase = Drivebase()
+        vision = Vision(drivebase::addVisionMeasurement)
+        superstructure = Superstructure()
+
+        autos = Autos(drivebase, superstructure)
+
+
         configureBindings()
         
         DriverStation.silenceJoystickConnectionWarning(true)
@@ -98,7 +107,15 @@ object Robot : LoggedRobot() {
         )
         
         driverController.rightBumper().onTrue(drivebase.resetHeading())
-        
+
+        driverController.povLeft().onTrue(
+            NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.LEFT)
+        )
+
+        driverController.povRight().onTrue(
+            NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.RIGHT)
+        )
+
         operatorController.povDown().onTrue(superstructure.getPrepL1Command())
         operatorController.povUp().onTrue(superstructure.getPrepL2Command())
         operatorController.a().onTrue(superstructure.getPrepL3Command())
