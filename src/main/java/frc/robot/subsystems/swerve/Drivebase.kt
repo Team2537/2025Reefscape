@@ -166,6 +166,9 @@ class Drivebase : SubsystemBase("drivebase") {
 
     var lastSetpoint = SwerveSetpoint(chassisSpeeds, wheelStates.toTypedArray(), DriveFeedforwards.zeros(modules.size))
 
+    var hasAppliedOperatorPerspective = false
+    var operatorPerspective: Rotation2d = bluePerspective
+
     init {
         AutoBuilder.configure(
             ::pose,
@@ -238,7 +241,7 @@ class Drivebase : SubsystemBase("drivebase") {
                     forwardS * (maxAttainableLinearVelocity into MetersPerSecond),
                     strafeS * (maxAttainableLinearVelocity into MetersPerSecond),
                     rotationSpeed * (maxAttainableAngularVelocity into RadiansPerSecond),
-                    pose.rotation
+                    pose.rotation + operatorPerspective
                 )
             } else {
                 speeds = ChassisSpeeds(
@@ -299,6 +302,12 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.recordOutput("$name/wheelPositions", *wheelPositions.toTypedArray())
         Logger.recordOutput("$name/moduleForces", *moduleForces.toTypedArray())
         Logger.recordOutput("$name/limits", limits)
+        Logger.recordOutput("$name/operatorPerspective", Rotation2d.struct, operatorPerspective)
+
+        if(!hasAppliedOperatorPerspective || Robot.isDisabled ) {
+            operatorPerspective = if(AutoBuilder.shouldFlip()) redPerspective else bluePerspective
+            hasAppliedOperatorPerspective = true
+        }
     }
 
     companion object Constants {
@@ -350,5 +359,8 @@ class Drivebase : SubsystemBase("drivebase") {
             maxAttainableAngularVelocity,
             DegreesPerSecondPerSecond.of(2500.0)
         )
+
+        val bluePerspective = Rotation2d.fromDegrees(0.0)
+        val redPerspective = Rotation2d.fromDegrees(180.0)
     }
 }
