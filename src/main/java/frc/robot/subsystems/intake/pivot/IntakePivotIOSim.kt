@@ -72,7 +72,7 @@ class IntakePivotIOSim(
     companion object {
         val armLength = Inches.of(20.0)
         val maxAngle = Degrees.of(90.0)
-        val minAngle = Degrees.of(45.0)
+        val minAngle = Degrees.of(0.0)
         val startAngle = Degrees.of(90.0)
     }
 }

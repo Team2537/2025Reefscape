@@ -6,6 +6,7 @@ import edu.wpi.first.math.system.plant.DCMotor
 import frc.robot.subsystems.intake.roller.IntakeRollerIO.IntakeRollerInputs
 import org.littletonrobotics.junction.Logger
 import edu.wpi.first.units.Units.*
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import frc.robot.RobotType
 import edu.wpi.first.wpilibj2.command.Commands
@@ -26,10 +27,10 @@ class IntakeRoller : SubsystemBase() {
 
         RobotType.Mode.REPLAY -> object : IntakeRollerIO {}
     }
-    
+
     private val inputs: IntakeRollerInputs = IntakeRollerInputs()
 
-    init{
+    init {
         io.setBrakeMode(true)
     }
 
@@ -41,19 +42,44 @@ class IntakeRoller : SubsystemBase() {
         // TODO: add logging for outputs
     }
 
-    fun getRollCommand(): Command {
+    fun getSuckCommand(): Command {
         return Commands.sequence(
             runOnce {
                 io.setBrakeMode(false)
-                io.setVoltage(Constants.IntakeConstants.RollerConstants.ROLLER_VOLTAGE)
+                io.setVoltage(Constants.IntakeConstants.RollerConstants.SUCK_VOLTAGE)
             },
-            Commands.waitUntil {
-                inputs.velocity < Constants.IntakeConstants.RollerConstants.MINIMUM_ROLLER_VELOCITY
-            },
+            Commands.either(
+                Commands.waitUntil {
+                    inputs.velocity < Constants.IntakeConstants.RollerConstants.MINIMUM_ROLLER_VELOCITY
+                },
+                Commands.waitSeconds(0.5),
+                { RobotBase.isReal() }
+            ),
+            getStopCommand()
+        ).handleInterrupt {
+            io.setVoltage(Volts.zero())
+            io.setBrakeMode(true)
+        }
+    }
+
+    fun getSpitCommand(): Command {
+        return Commands.sequence(
             runOnce {
-                io.setVoltage(Volts.zero())
-                io.setBrakeMode(true)
-            }
-        )
+                io.setBrakeMode(false)
+                io.setVoltage(Constants.IntakeConstants.RollerConstants.SPIT_VOLTAGE)
+            },
+            Commands.waitSeconds(0.5),
+            getStopCommand()
+        ).handleInterrupt {
+            io.setVoltage(Volts.zero())
+            io.setBrakeMode(true)
+        }
+    }
+
+    fun getStopCommand(): Command {
+        return runOnce {
+            io.setVoltage(Volts.zero())
+            io.setBrakeMode(true)
+        }
     }
 }

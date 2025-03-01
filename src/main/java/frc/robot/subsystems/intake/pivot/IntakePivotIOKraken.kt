@@ -67,7 +67,7 @@ class IntakePivotIOKraken(
         configurator.apply(config)
 
         // set the initial position of the motor to the up angle
-        motor.setPosition(Constants.IntakeConstants.PivotConstants.UP_ANGLE into Rotations)
+        setPosition(Constants.IntakeConstants.PivotConstants.UP_ANGLE into Rotations)
     }
 
     // Create status signal objects for monitoring motor state

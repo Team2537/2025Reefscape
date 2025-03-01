@@ -19,6 +19,8 @@ import frc.robot.Constants.IntakeConstants.PivotConstants.PID_GAINS
 import frc.robot.Constants.IntakeConstants.PivotConstants.UP_ANGLE
 import frc.robot.RobotType
 import frc.robot.subsystems.intake.pivot.IntakePivotIO.IntakePivotInputs
+import lib.controllers.gains.PIDGains
+import lib.math.units.epsilonEquals
 import org.littletonrobotics.junction.Logger
 
 /**
@@ -41,7 +43,7 @@ class IntakePivot : SubsystemBase() {
             DCMotor.getKrakenX60Foc(1),
             GEARING,
             MOI,
-            PID_GAINS,
+            PIDGains(kP = 10.0),
             FF_GAINS,
             KG
         )
@@ -103,7 +105,7 @@ class IntakePivot : SubsystemBase() {
      * motor(s).
      */
     fun getSetVoltageCommand(voltage: () -> Voltage): Command {
-        return Commands.run ({io.setVoltage(voltage())}, this)
+        return Commands.run({ io.setVoltage(voltage()) }, this)
     }
 
     /**
@@ -117,7 +119,7 @@ class IntakePivot : SubsystemBase() {
      * motor(s).
      */
     fun getSetVoltageCommand(voltage: Voltage): Command {
-        return Commands.runOnce ({io.setVoltage(voltage.copy())}, this)
+        return Commands.runOnce({ io.setVoltage(voltage.copy()) }, this)
     }
 
     /**
@@ -130,7 +132,7 @@ class IntakePivot : SubsystemBase() {
      * @return A command that moves the arm to a specific angle.
      */
     fun getSetPositionCommand(position: () -> Angle): Command {
-        return Commands.run ({io.setTargetAngle(position())}, this)
+        return Commands.run({ io.setTargetAngle(position()) }, this)
     }
 
     /**
@@ -143,6 +145,7 @@ class IntakePivot : SubsystemBase() {
      * @return A command that moves the arm to a specific angle.
      */
     fun getSetPositionCommand(position: Angle): Command {
-        return Commands.runOnce ({io.setTargetAngle(position.copy())}, this)
+        return Commands.runOnce({ io.setTargetAngle(position.copy()) }, this)
+            .andThen(Commands.waitUntil { inputs.position.epsilonEquals(position, 1e-5) })
     }
 }

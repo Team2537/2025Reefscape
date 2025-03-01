@@ -10,9 +10,11 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.util.WPILibVersion
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.NodeAlignmentCommand
+import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.swerve.Drivebase
 import frc.robot.subsystems.vision.Vision
@@ -37,6 +39,7 @@ object Robot : LoggedRobot() {
     val drivebase: Drivebase
     val vision: Vision
     val superstructure: Superstructure
+    val intake: Intake
     
     val autos: Autos
     
@@ -85,6 +88,7 @@ object Robot : LoggedRobot() {
         drivebase = Drivebase()
         vision = Vision(drivebase::addVisionMeasurement)
         superstructure = Superstructure()
+        intake = Intake()
 
         autos = Autos(drivebase, superstructure)
 
@@ -122,6 +126,14 @@ object Robot : LoggedRobot() {
         operatorController.y().onTrue(superstructure.getPrepL4Command())
         
         operatorController.x().onTrue(superstructure.getStowCommand())
+
+        operatorController.leftTrigger().onTrue(
+            Commands.either(
+                intake.getIntakeCommand(),
+                intake.getEjectCommand(),
+                !intake.isHoldingAlgaeTrig
+            )
+        )
         
         operatorController.rightBumper().onTrue(superstructure.getSourceIntakeCommand())
         
@@ -131,6 +143,7 @@ object Robot : LoggedRobot() {
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
         superstructure.periodic()
+        intake.periodic()
         MechanismVisualizer.updatePoses()
     }
     

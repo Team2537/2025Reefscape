@@ -3,7 +3,6 @@ package frc.robot
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.MomentOfInertia
 import edu.wpi.first.units.measure.Distance
-import edu.wpi.first.units.MomentOfInertiaUnit
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.units.measure.AngularVelocity
@@ -55,11 +54,11 @@ object Constants {
             val MOTOR_ID: Int = 0 // TODO: Set actual motor ID
             val IS_MOTOR_INVERTED: Boolean = false
             val GEARING: Double = 1.0 // TODO: Set actual gearing ratio
-            val MOI: MomentOfInertia = KilogramSquareMeters.of(0.0) // TODO: Set actual moment of inertia
+            val MOI: MomentOfInertia = KilogramSquareMeters.of(0.001171) // TODO: Set actual moment of inertia
 
             // PID and Feedforward gains
             val PID_GAINS = PIDGains(
-                kP = 0.0, // TODO: Tune PID gains
+                kP = 10.0, // TODO: Tune PID gains
                 kI = 0.0,
                 kD = 0.0
             )
@@ -83,11 +82,12 @@ object Constants {
         }
 
         object RollerConstants {
+            val SPIT_VOLTAGE: Voltage = Volts.of(-6.0)
             val MOTOR_ID: Int = 0 // TODO: Set actual motor ID
             val IS_MOTOR_INVERTED: Boolean = false
             val GEARING: Double = 1.0 // TODO: Set actual gearing ratio
-            val MOI: MomentOfInertia = KilogramSquareMeters.of(0.0) // TODO: Set actual moment of inertia
-            val ROLLER_VOLTAGE: Voltage = Volts.of(12.0) // TODO: Set actual voltage
+            val MOI: MomentOfInertia = KilogramSquareMeters.of(0.0000401) // TODO: Set actual moment of inertia
+            val SUCK_VOLTAGE: Voltage = Volts.of(12.0) // TODO: Set actual voltage
             val MINIMUM_ROLLER_VELOCITY: AngularVelocity = RotationsPerSecond.of(5.0) // TODO: Set actual minimum velocity
         }
     }
