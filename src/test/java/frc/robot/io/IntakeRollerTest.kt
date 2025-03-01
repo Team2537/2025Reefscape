@@ -3,12 +3,8 @@ package frc.robot.io
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units.*
-import frc.robot.subsystems.elevator.ElevatorIO
-import frc.robot.subsystems.elevator.ElevatorIOSim
 import frc.robot.subsystems.intake.roller.IntakeRollerIO
 import frc.robot.subsystems.intake.roller.IntakeRollerIOSim
-import lib.controllers.gains.FeedforwardGains
-import lib.controllers.gains.PIDGains
 import lib.math.units.measuredIn
 import lib.math.units.radiansPerSecond
 import org.junit.jupiter.api.BeforeEach

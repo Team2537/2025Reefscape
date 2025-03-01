@@ -34,7 +34,7 @@ class ClimbIOSim(
 
     override fun updateInputs(inputs: ClimbIO.ClimbArmInputs) {
 
-        armSim.update(Robot.updateRateMs)
+        armSim.update(Robot.updateRateSec)
 
         inputs.motorVoltage.mut_replace(appliedVoltage)
         inputs.supplyVoltage.mut_replace(Volts.of(12.0))

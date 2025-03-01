@@ -1,0 +1,17 @@
+{
+  "NTProvider": {
+    "types": {
+      "/AdvantageKit/RealOutputs/Alerts": "Alerts",
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Alerts": "Alerts",
+      "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
+      "/SmartDashboard/auto": "String Chooser"
+    }
+  },
+  "NetworkTables Info": {
+    "Connections": {
+      "open": true
+    },
+    "visible": true
+  }
+}

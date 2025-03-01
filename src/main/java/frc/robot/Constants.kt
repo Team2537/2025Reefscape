@@ -10,11 +10,14 @@ import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.AngularAcceleration
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
+import lib.math.units.measuredIn
 
 object Constants {
 
     object ArmConstants {
-    
+        const val MOTOR_ID = 22
+        const val IS_MOTOR_INVERTED = true
+        const val GEARING = 40.0
     }
 
     object ClimbConstants {
@@ -40,7 +43,7 @@ object Constants {
     }
 
     object ElevatorConstants {
-
+        val maxHeight = 1.302 measuredIn Meters
     }
 
     object GripperConstants {
@@ -53,22 +56,22 @@ object Constants {
             val IS_MOTOR_INVERTED: Boolean = false
             val GEARING: Double = 1.0 // TODO: Set actual gearing ratio
             val MOI: MomentOfInertia = KilogramSquareMeters.of(0.0) // TODO: Set actual moment of inertia
-            
+
             // PID and Feedforward gains
             val PID_GAINS = PIDGains(
                 kP = 0.0, // TODO: Tune PID gains
                 kI = 0.0,
                 kD = 0.0
             )
-            
+
             val FF_GAINS = FeedforwardGains(
                 kS = 0.0, // TODO: Tune feedforward gains
                 kV = 0.0,
                 kA = 0.0
             )
-            
+
             val KG = 0.0 // TODO: Tune gravity compensation
-            
+
             // Motion Magic Parameters
             val MOTION_MAGIC_ACCELERATION: AngularAcceleration = RotationsPerSecondPerSecond.of(2.0) // TODO: Tune motion magic parameters
             val MOTION_MAGIC_CRUISE_VELOCITY: AngularVelocity = RotationsPerSecond.of(2.0)

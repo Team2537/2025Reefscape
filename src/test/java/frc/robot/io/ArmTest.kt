@@ -3,15 +3,12 @@ package frc.robot.io
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units.*
-import frc.robot.subsystems.arm.ArmIO
-import frc.robot.subsystems.arm.ArmIOSim
-import frc.robot.subsystems.elevator.ElevatorIO
-import frc.robot.subsystems.elevator.ElevatorIOSim
+import frc.robot.subsystems.superstructure.arm.ArmIO
+import frc.robot.subsystems.superstructure.arm.ArmIOSim
 import lib.controllers.gains.FeedforwardGains
 import lib.controllers.gains.PIDGains
 import lib.math.units.degrees
 import lib.math.units.into
-import lib.math.units.measuredIn
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
