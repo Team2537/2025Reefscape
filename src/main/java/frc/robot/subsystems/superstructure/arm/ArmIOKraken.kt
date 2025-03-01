@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.GravityTypeValue
 import com.ctre.phoenix6.signals.InvertedValue
+import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.units.AngularAccelerationUnit
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.*
@@ -29,6 +30,8 @@ class ArmIOKraken(
 
         config.MotorOutput.Inverted =
             if (inverted) InvertedValue.Clockwise_Positive else InvertedValue.CounterClockwise_Positive
+
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake
 
         config.Slot0.kP = pidGains.kP
         config.Slot0.kI = pidGains.kI
