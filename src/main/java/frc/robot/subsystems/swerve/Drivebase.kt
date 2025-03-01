@@ -36,8 +36,6 @@ import frc.robot.subsystems.swerve.gyro.GyroIOSim
 import frc.robot.subsystems.swerve.module.SwerveModule
 import lib.math.units.into
 import lib.math.units.measuredIn
-import lib.math.units.milli
-import lib.math.units.seconds
 import org.littletonrobotics.junction.Logger
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
@@ -96,7 +94,7 @@ class Drivebase : SubsystemBase("drivebase") {
         get() = kinematics.toChassisSpeeds(*wheelStates.toTypedArray())
     
     val pose: Pose2d
-        get() = Pose2d(odometry.estimatedPosition.translation, gyroInputs.yaw)
+        get() = odometry.estimatedPosition
     
     val wheelRadiusCharacterizationAngles: List<Angle>
         get() = modules.map { it.radiusCharacterizationAngle }
@@ -171,8 +169,8 @@ class Drivebase : SubsystemBase("drivebase") {
             ::chassisSpeeds,
             { speeds: ChassisSpeeds, feedforward: DriveFeedforwards -> applyChassisSpeeds(speeds) },
             PPHolonomicDriveController(
-                PIDConstants(3.0),
-                PIDConstants(3.0),
+                PIDConstants(10.0),
+                PIDConstants(1.0),
             ),
             robotConfig,
             {
@@ -252,7 +250,6 @@ class Drivebase : SubsystemBase("drivebase") {
     
     fun resetOdometry(newPose: Pose2d) {
         odometry.resetPose(newPose)
-        gyro.setYaw(newPose.rotation)
     }
     
     fun resetHeading(): Command {
