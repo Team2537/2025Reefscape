@@ -25,32 +25,38 @@ class AutoRoutine(
     fun build(): Command {
         val sequence = SequentialCommandGroup()
 
-        val startPose = getPathToBranch(actions.first().first, actions.first().third).startingHolonomicPose.getOrDefault(Pose2d())
+        val startPath = getPathFromStart(actions.first().first)
 
-        sequence.addCommands(AutoBuilder.resetOdom(startPose))
+        sequence.addCommands(
+            superstructure.getStowCommand(),
+            AutoBuilder.resetOdom(startPath.startingHolonomicPose.getOrDefault(Pose2d())),
+            drivebase.followPath(startPath),
+        )
 
         actions.forEachIndexed { index, (branch, level, isTop) ->
             sequence.addCommands(
                 Commands.parallel(
-                    AutoBuilder.followPath(getPathToBranch(branch, isTop)),
-                    when (level) {
-                        Reef.Level.L1 -> superstructure.getPrepL1Command()
-                        Reef.Level.L2 -> superstructure.getPrepL2Command()
-                        Reef.Level.L3 -> superstructure.getPrepL3Command()
-                        Reef.Level.L4 -> superstructure.getPrepL4Command()
-                        Reef.Level.FLOOR -> TODO()
-                    },
+                    drivebase.followPath(getPathToBranch(branch, isTop)).onlyIf({index != 0}),
+//                    when (level) {
+//                        Reef.Level.L1 -> superstructure.getPrepL1Command()
+//                        Reef.Level.L2 -> superstructure.getPrepL2Command()
+//                        Reef.Level.L3 -> superstructure.getPrepL3Command()
+//                        Reef.Level.L4 -> superstructure.getPrepL4Command()
+//                        Reef.Level.FLOOR -> TODO()
+//                    },
                 ),
-                superstructure.getScoreCommand(),
+                Commands.waitSeconds(0.75)
+//                superstructure.getScoreCommand(),
             )
 
             if(index != actions.size - 1) {
                 sequence.addCommands(
                     Commands.parallel(
-                        AutoBuilder.followPath(getPathToSource(branch)),
-                        superstructure.getStowCommand(),
+                        drivebase.followPath(getPathToSource(branch)),
+//                        superstructure.getStowCommand(),
                     ),
-                    superstructure.getSourceIntakeCommand()
+//                    superstructure.getSourceIntakeCommand()
+                    Commands.waitSeconds(0.75)
                 )
             }
         }
@@ -79,5 +85,22 @@ class AutoRoutine(
 
         return PathPlannerPath.fromChoreoTrajectory("${startBranch.name.lowercase()}_${if (topSource) "ts" else "bs"}")
 
+    }
+
+    fun getPathFromStart(branch: Reef.Branch): PathPlannerPath {
+        val topBranches = listOf(
+            Reef.Branch.A,
+            Reef.Branch.L,
+            Reef.Branch.K,
+            Reef.Branch.J,
+            Reef.Branch.I,
+            Reef.Branch.H
+        )
+
+        return if (topBranches.contains(branch)) {
+            PathPlannerPath.fromChoreoTrajectory("top_start_${branch.name.lowercase()}")
+        } else {
+            PathPlannerPath.fromChoreoTrajectory("bottom_start_${branch.name.lowercase()}")
+        }
     }
 }

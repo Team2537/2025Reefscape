@@ -5,6 +5,7 @@ import com.pathplanner.lib.config.PIDConstants
 import com.pathplanner.lib.config.RobotConfig
 import com.pathplanner.lib.controllers.PPHolonomicDriveController
 import com.pathplanner.lib.path.PathConstraints
+import com.pathplanner.lib.path.PathPlannerPath
 import com.pathplanner.lib.util.DriveFeedforwards
 import com.pathplanner.lib.util.swerve.SwerveSetpoint
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator
@@ -78,7 +79,7 @@ class Drivebase : SubsystemBase("drivebase") {
         gyroInputs.yaw,
         wheelPositions.toTypedArray(),
         Pose2d(Translation2d(3.11, 4.04), Rotation2d()),
-        VecBuilder.fill(0.0, 0.0, 0.0),
+        VecBuilder.fill(0.1, 0.1, 0.1),
         VecBuilder.fill(0.9, 0.9, 0.9),
     )
 
@@ -176,7 +177,7 @@ class Drivebase : SubsystemBase("drivebase") {
             ::chassisSpeeds,
             { speeds: ChassisSpeeds, feedforward: DriveFeedforwards -> applyChassisSpeeds(speeds) },
             PPHolonomicDriveController(
-                PIDConstants(10.0),
+                PIDConstants(5.0),
                 PIDConstants(1.0),
             ),
             robotConfig,
@@ -216,6 +217,11 @@ class Drivebase : SubsystemBase("drivebase") {
         modules.zip(wheelStates).forEach { (module: SwerveModule, state: SwerveModuleState) ->
             module.applyState(SwerveModuleState(0.0, state.angle))
         }
+    }
+
+    fun followPath(path: PathPlannerPath): Command {
+
+        return AutoBuilder.followPath(path).alongWith(Commands.runOnce({ Logger.recordOutput("$name/autoPath", *path.pathPoses.toTypedArray()) }))
     }
 
     fun getDriveCmd(

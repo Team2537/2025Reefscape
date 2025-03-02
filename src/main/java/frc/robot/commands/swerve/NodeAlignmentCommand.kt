@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import frc.robot.subsystems.swerve.Drivebase
 import lib.math.geometry.FieldConstants
 import lib.math.geometry.flipped
+import lib.math.units.inches
 import lib.math.units.into
 import org.littletonrobotics.junction.Logger
 import kotlin.math.PI
@@ -24,7 +25,7 @@ class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Re
 
     val xPid = PIDController(5.0, 0.0, 0.05)
     val yPid = PIDController(5.0, 0.0, 0.05)
-    val anglePid = PIDController(3.0, 0.0, 0.05).apply { enableContinuousInput(0.0, 2 * PI) }
+    val anglePid = PIDController(1.0, 0.0, 0.05).apply { enableContinuousInput(0.0, 2 * PI) }
 
     var endPose: Pose2d? = null
 
@@ -36,9 +37,9 @@ class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Re
         val closestPose = currentPose.nearest(FieldConstants.Reef.floorAlignmentPoses)
 
         val sideOffsetDistance = if(side == FieldConstants.Reef.Side.LEFT) {
-            FieldConstants.Reef.sideOffset / 2.0
+            (FieldConstants.Reef.sideOffset / 2.0) + 6.0.inches
         } else {
-            FieldConstants.Reef.sideOffset / -2.0
+            (FieldConstants.Reef.sideOffset / -2.0) + 7.0.inches
         }
 
         val sideOffset = Translation2d(0.0, (sideOffsetDistance) into Meters)
@@ -57,22 +58,33 @@ class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Re
     }
 
     override fun execute() {
-        if(endPose == null) return
+        if(endPose == null) return else Logger.recordOutput("commands/$name/endPose", endPose!!)
+
+        val xOutput = xPid.calculate(drivebase.pose.translation.x, endPose!!.translation.x)
+        val yOutput = yPid.calculate(drivebase.pose.translation.y, endPose!!.translation.y)
+        val angleOutput = anglePid.calculate(drivebase.pose.rotation.radians, endPose!!.rotation.radians)
+
+        Logger.recordOutput("commands/$name/xOutput", xOutput)
+        Logger.recordOutput("commands/$name/yOutput", yOutput)
+        Logger.recordOutput("commands/$name/angleOutput", angleOutput)
+
         drivebase.applyChassisSpeeds(
             ChassisSpeeds.fromFieldRelativeSpeeds(
-                xPid.calculate(drivebase.pose.translation.x, endPose!!.translation.x),
-                yPid.calculate(drivebase.pose.translation.y, endPose!!.translation.y),
-                anglePid.calculate(drivebase.pose.rotation.radians, endPose!!.rotation.radians),
-                drivebase.gyroInputs.yaw
+                xOutput,
+                yOutput,
+                angleOutput,
+                drivebase.pose.rotation + drivebase.operatorPerspective
             )
         )
     }
 
     override fun isFinished(): Boolean {
+        println("xPid: ${xPid.atSetpoint()} yPid: ${yPid.atSetpoint()} anglePid: ${anglePid.atSetpoint()} Endpose: ${endPose == null}")
         return (xPid.atSetpoint() && yPid.atSetpoint() && anglePid.atSetpoint()) || endPose == null
     }
 
     override fun end(interrupted: Boolean) {
         drivebase.applyChassisSpeeds(ChassisSpeeds())
+        println(interrupted)
     }
 }

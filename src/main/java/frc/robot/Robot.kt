@@ -82,6 +82,9 @@ object Robot : LoggedRobot() {
         CanandEventLoop.getInstance()
         FieldConstants
 
+        CommandScheduler.getInstance().onCommandInitialize { command -> Logger.recordOutput("commands/${command.name}", true) }
+        CommandScheduler.getInstance().onCommandFinish { command -> Logger.recordOutput("commands/${command.name}", false) }
+
         drivebase = Drivebase()
         vision = Vision(drivebase::addVisionMeasurement)
         superstructure = Superstructure()
@@ -108,11 +111,11 @@ object Robot : LoggedRobot() {
         
         driverController.rightBumper().onTrue(drivebase.resetHeading())
 
-        driverController.povLeft().onTrue(
+        driverController.povLeft().whileTrue(
             NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.LEFT)
         )
 
-        driverController.povRight().onTrue(
+        driverController.povRight().whileTrue(
             NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.RIGHT)
         )
 
@@ -120,6 +123,8 @@ object Robot : LoggedRobot() {
         operatorController.povUp().onTrue(superstructure.getPrepL2Command())
         operatorController.a().onTrue(superstructure.getPrepL3Command())
         operatorController.y().onTrue(superstructure.getPrepL4Command())
+
+        operatorController.b().onTrue(superstructure.gripper.getIntakeCmd())
         
         operatorController.x().onTrue(superstructure.getStowCommand())
         

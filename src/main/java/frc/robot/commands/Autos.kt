@@ -20,7 +20,7 @@ class Autos(
 ) {
 
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
-        addDefaultOption("ABC", { ABC_Routine.build() })
+        addDefaultOption("IJ", { IJ_Routine.build() })
     }
 
     val ABC_Routine: AutoRoutine = AutoRoutine(
@@ -29,6 +29,15 @@ class Autos(
             Triple(FieldConstants.Reef.Branch.B, FieldConstants.Reef.Level.L2, true),
             Triple(FieldConstants.Reef.Branch.C, FieldConstants.Reef.Level.L3, false),
             Triple(FieldConstants.Reef.Branch.A, FieldConstants.Reef.Level.L3, false),
+        ),
+        drivebase,
+        superstructure
+    )
+
+    val IJ_Routine: AutoRoutine = AutoRoutine(
+        listOf(
+            Triple(FieldConstants.Reef.Branch.I, FieldConstants.Reef.Level.L4, true),
+            Triple(FieldConstants.Reef.Branch.J, FieldConstants.Reef.Level.L2, true),
         ),
         drivebase,
         superstructure

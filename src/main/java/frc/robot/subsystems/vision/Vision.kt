@@ -131,12 +131,12 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
     companion object {
         val robotToCameras = listOf(
             Transform3d(
-                Translation3d(Inches.of(12.875000), Inches.of(11.875000), Inches.of(6.261304)),
-                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(15.0))
+                Translation3d(Inches.of(12.875000), Inches.of(-11.875000), Inches.of(6.261304)),
+                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(25.0))
             ),
             Transform3d(
-                Translation3d(Inches.of(-12.875), Inches.of(11.875000), Inches.of(6.261304)),
-                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(180.0 - 25.0))
+                Translation3d(Inches.of(-12.875), Inches.of(-11.875000), Inches.of(6.261304)),
+                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(180.0 - 15.0))
             ),
         )
 
