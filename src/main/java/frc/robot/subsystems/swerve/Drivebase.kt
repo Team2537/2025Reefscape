@@ -167,8 +167,8 @@ class Drivebase : SubsystemBase("drivebase") {
 
     val pathFollower: PathFollower = SimplePathFollower(
         drivebase = this,
-        translationPIDGains = PIDGains(),
-        thetaPidGains = PIDGains(),
+        translationPIDGains = PIDGains(kP = 10.0),
+        thetaPidGains = PIDGains(kP = 1.0),
         speedConsumer = ::applyChassisSpeeds,
         poseSupplier = ::pose
     )
@@ -178,7 +178,12 @@ class Drivebase : SubsystemBase("drivebase") {
         ::resetOdometry,
         pathFollower::accept,
         true,
-        this
+        this,
+        { traj, isStart ->
+            if(isStart) {
+                Logger.recordOutput("auto/path", traj.poses)
+            }
+        }
     )
 
     fun applyChassisSpeeds(speeds: ChassisSpeeds, moduleForces: List<Vector<N2>>) {
