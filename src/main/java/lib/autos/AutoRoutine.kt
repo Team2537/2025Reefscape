@@ -30,13 +30,13 @@ class AutoRoutine(
         sequence.addCommands(
             superstructure.getStowCommand(),
             AutoBuilder.resetOdom(startPath.startingHolonomicPose.getOrDefault(Pose2d())),
-            drivebase.followPath(startPath),
+            AutoBuilder.followPath(startPath),
         )
 
         actions.forEachIndexed { index, (branch, level, isTop) ->
             sequence.addCommands(
                 Commands.parallel(
-                    drivebase.followPath(getPathToBranch(branch, isTop)).onlyIf({index != 0}),
+                    AutoBuilder.followPath(getPathToBranch(branch, isTop)).onlyIf({index != 0}),
 //                    when (level) {
 //                        Reef.Level.L1 -> superstructure.getPrepL1Command()
 //                        Reef.Level.L2 -> superstructure.getPrepL2Command()
@@ -52,7 +52,7 @@ class AutoRoutine(
             if(index != actions.size - 1) {
                 sequence.addCommands(
                     Commands.parallel(
-                        drivebase.followPath(getPathToSource(branch)),
+                        AutoBuilder.followPath(getPathToSource(branch)),
 //                        superstructure.getStowCommand(),
                     ),
 //                    superstructure.getSourceIntakeCommand()

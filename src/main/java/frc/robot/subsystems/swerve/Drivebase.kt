@@ -1,11 +1,9 @@
 package frc.robot.subsystems.swerve
 
+import choreo.auto.AutoFactory
 import com.pathplanner.lib.auto.AutoBuilder
-import com.pathplanner.lib.config.PIDConstants
 import com.pathplanner.lib.config.RobotConfig
-import com.pathplanner.lib.controllers.PPHolonomicDriveController
 import com.pathplanner.lib.path.PathConstraints
-import com.pathplanner.lib.path.PathPlannerPath
 import com.pathplanner.lib.util.DriveFeedforwards
 import com.pathplanner.lib.util.swerve.SwerveSetpoint
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator
@@ -14,7 +12,6 @@ import edu.wpi.first.math.Vector
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
-import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics
@@ -27,7 +24,6 @@ import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Voltage
-import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Robot
@@ -36,15 +32,14 @@ import frc.robot.subsystems.swerve.gyro.GyroIO
 import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2
 import frc.robot.subsystems.swerve.gyro.GyroIOSim
 import frc.robot.subsystems.swerve.module.SwerveModule
-import lib.math.geometry.FieldConstants
-import lib.math.geometry.flipped
+import lib.controllers.gains.PIDGains
+import lib.controllers.pathfollowing.PathFollower
+import lib.controllers.pathfollowing.SimplePathFollower
 import lib.math.units.into
 import lib.math.units.measuredIn
 import org.littletonrobotics.junction.Logger
-import java.lang.reflect.Field
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
-import kotlin.jvm.optionals.getOrDefault
 import kotlin.math.*
 
 class Drivebase : SubsystemBase("drivebase") {
@@ -170,23 +165,21 @@ class Drivebase : SubsystemBase("drivebase") {
     var hasAppliedOperatorPerspective = false
     var operatorPerspective: Rotation2d = bluePerspective
 
-    init {
-        AutoBuilder.configure(
-            ::pose,
-            ::resetOdometry,
-            ::chassisSpeeds,
-            { speeds: ChassisSpeeds, feedforward: DriveFeedforwards -> applyChassisSpeeds(speeds) },
-            PPHolonomicDriveController(
-                PIDConstants(5.0),
-                PIDConstants(1.0),
-            ),
-            robotConfig,
-            {
-                DriverStation.getAlliance().getOrDefault(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red
-            },
-            this
-        )
-    }
+    val pathFollower: PathFollower = SimplePathFollower(
+        drivebase = this,
+        translationPIDGains = PIDGains(),
+        thetaPidGains = PIDGains(),
+        speedConsumer = ::applyChassisSpeeds,
+        poseSupplier = ::pose
+    )
+
+    val autoFactory = AutoFactory(
+        ::pose,
+        ::resetOdometry,
+        pathFollower::accept,
+        true,
+        this
+    )
 
     fun applyChassisSpeeds(speeds: ChassisSpeeds, moduleForces: List<Vector<N2>>) {
         lastSetpoint =
@@ -219,10 +212,6 @@ class Drivebase : SubsystemBase("drivebase") {
         }
     }
 
-    fun followPath(path: PathPlannerPath): Command {
-
-        return AutoBuilder.followPath(path).alongWith(Commands.runOnce({ Logger.recordOutput("$name/autoPath", *path.pathPoses.toTypedArray()) }))
-    }
 
     fun getDriveCmd(
         forward: DoubleSupplier,

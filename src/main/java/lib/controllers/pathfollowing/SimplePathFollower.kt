@@ -4,28 +4,25 @@ import choreo.trajectory.SwerveSample
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
-import edu.wpi.first.math.util.Units
 import frc.robot.subsystems.swerve.Drivebase
 import lib.controllers.gains.PIDGains
 import org.littletonrobotics.junction.Logger
 import java.util.function.Consumer
 import java.util.function.Supplier
 import kotlin.math.PI
-import kotlin.math.absoluteValue
 
 class SimplePathFollower(
     private val drivebase: Drivebase,
-    xPidGains: PIDGains,
-    yPidGains: PIDGains,
+    translationPIDGains: PIDGains,
     thetaPidGains: PIDGains,
     private val speedConsumer: Consumer<ChassisSpeeds>,
     private val poseSupplier: Supplier<Pose2d>
 ) : PathFollower {
 
-    private val xPID = PIDController(xPidGains.kP, xPidGains.kI, xPidGains.kD)
-    private val yPID = PIDController(yPidGains.kP, yPidGains.kI, yPidGains.kD)
+    private val xPID = PIDController(translationPIDGains.kP, translationPIDGains.kI, translationPIDGains.kD)
+    private val yPID = PIDController(translationPIDGains.kP, translationPIDGains.kI, translationPIDGains.kD)
     private val thetaPID = PIDController(thetaPidGains.kP, thetaPidGains.kI, thetaPidGains.kD)
-        .apply { enableContinuousInput(-PI, PI) }
+        .apply { enableContinuousInput(0.0, 2 * PI) }
 
     override fun accept(sample: SwerveSample) {
         val pose = poseSupplier.get()
@@ -49,16 +46,6 @@ class SimplePathFollower(
         Logger.recordOutput("drivebase/auto/samplePose", Pose2d.struct, sample.pose)
         Logger.recordOutput("drivebase/auto/pose", Pose2d.struct, pose)
 
-        if (
-            speeds.vxMetersPerSecond.absoluteValue < Units.inchesToMeters(1.0)
-            && speeds.vyMetersPerSecond.absoluteValue < Units.inchesToMeters(1.0)
-            && speeds.omegaRadiansPerSecond.absoluteValue < Units.degreesToRadians(1.0)
-        ) {
-            speedConsumer.accept(ChassisSpeeds())
-            Logger.recordOutput("drivebase/auto/speeds", ChassisSpeeds.struct, ChassisSpeeds())
-        } else {
-            speedConsumer.accept(speeds)
-            Logger.recordOutput("drivebase/auto/speeds", ChassisSpeeds.struct, speeds)
-        }
+        speedConsumer.accept(speeds)
     }
 }
