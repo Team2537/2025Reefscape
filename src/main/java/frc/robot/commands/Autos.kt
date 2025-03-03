@@ -1,6 +1,8 @@
 package frc.robot.commands
 
+import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.commands.PathPlannerAuto
+import com.pathplanner.lib.path.PathPlannerPath
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
@@ -13,14 +15,31 @@ import lib.math.geometry.FieldConstants
 import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
 import java.util.function.Supplier
+import kotlin.jvm.optionals.getOrDefault
 
 class Autos(
     val drivebase: Drivebase,
     val superstructure: Superstructure
 ) {
 
+    val IJ_Routine_PP = Supplier {
+        val pp_topstart_i = PathPlannerPath.fromPathFile("pp_topstart_i")
+
+        Commands.sequence(
+            AutoBuilder.resetOdom(pp_topstart_i.startingHolonomicPose.getOrDefault(Pose2d())),
+            AutoBuilder.followPath(pp_topstart_i),
+            drivebase.getStopCmd(),
+            Commands.waitSeconds(1.0),
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("i_topsource")),
+            drivebase.getStopCmd(),
+            Commands.waitSeconds(1.0),
+            AutoBuilder.followPath(PathPlannerPath.fromPathFile("topsource_j")),
+            drivebase.getStopCmd(),
+        )
+    }
+
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
-        addDefaultOption("IJ", { IJ_Routine.build() })
+        addDefaultOption("IJ", {IJ_Routine.build()})
     }
 
     val ABC_Routine: AutoRoutine = AutoRoutine(
@@ -42,6 +61,7 @@ class Autos(
         drivebase,
         superstructure
     )
+
 
     val selectedRoutine: Command
         get() = chooser.get().get()

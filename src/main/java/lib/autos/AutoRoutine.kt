@@ -36,7 +36,7 @@ class AutoRoutine(
         actions.forEachIndexed { index, (branch, level, isTop) ->
             sequence.addCommands(
                 Commands.parallel(
-                    drivebase.followPath(getPathToBranch(branch, isTop)).onlyIf({index != 0}),
+                    drivebase.followPath(getPathToBranch(branch, isTop)).onlyIf({ index != 0 }),
 //                    when (level) {
 //                        Reef.Level.L1 -> superstructure.getPrepL1Command()
 //                        Reef.Level.L2 -> superstructure.getPrepL2Command()
@@ -45,11 +45,12 @@ class AutoRoutine(
 //                        Reef.Level.FLOOR -> TODO()
 //                    },
                 ),
+                drivebase.getStopCmd(),
                 Commands.waitSeconds(0.75)
 //                superstructure.getScoreCommand(),
             )
 
-            if(index != actions.size - 1) {
+            if (index != actions.size - 1) {
                 sequence.addCommands(
                     Commands.parallel(
                         drivebase.followPath(getPathToSource(branch)),

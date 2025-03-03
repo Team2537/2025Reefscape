@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "9ftRight"
+            "pathName": null
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "9ftLeft"
+            "pathName": null
           }
         }
       ]
