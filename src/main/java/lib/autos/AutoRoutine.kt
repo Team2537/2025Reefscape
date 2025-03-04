@@ -68,9 +68,9 @@ class AutoRoutine(
 
     private fun getPathToBranch(branch: Reef.Branch, top: Boolean): PathPlannerPath {
         return if (top) {
-            PathPlannerPath.fromChoreoTrajectory("ts_${branch.name.lowercase()}")
+            PathPlannerPath.fromPathFile("ts_to_${branch.name}")
         } else {
-            PathPlannerPath.fromChoreoTrajectory("bs_${branch.name.lowercase()}")
+            PathPlannerPath.fromPathFile("bs_to_${branch.name}")
         }
     }
 
@@ -84,7 +84,7 @@ class AutoRoutine(
             Reef.Branch.H
         )
 
-        return PathPlannerPath.fromChoreoTrajectory("${startBranch.name.lowercase()}_${if (topSource) "ts" else "bs"}")
+        return PathPlannerPath.fromPathFile("${startBranch.name}_to_${if (topSource) "ts" else "bs"}")
 
     }
 
@@ -99,9 +99,9 @@ class AutoRoutine(
         )
 
         return if (topBranches.contains(branch)) {
-            PathPlannerPath.fromChoreoTrajectory("top_start_${branch.name.lowercase()}")
+            PathPlannerPath.fromPathFile("tstart_${branch.name}")
         } else {
-            PathPlannerPath.fromChoreoTrajectory("bottom_start_${branch.name.lowercase()}")
+            PathPlannerPath.fromPathFile("bstart_${branch.name}")
         }
     }
 }
