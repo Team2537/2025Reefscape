@@ -354,14 +354,14 @@ class Drivebase : SubsystemBase("drivebase") {
          */
 
         // DONT FORGET TO CHANGE BACK!
-        val maxAttainableLinearVelocity = 12.4 measuredIn FeetPerSecond
+        val maxAttainableLinearVelocity = 4.5 measuredIn MetersPerSecond
 
         val maxAttainableAngularVelocity: AngularVelocity =
             (maxAttainableLinearVelocity.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn RadiansPerSecond
 
         val defaultLimits = PathConstraints(
             maxAttainableLinearVelocity,
-            MetersPerSecondPerSecond.of(11.5),
+            MetersPerSecondPerSecond.of(14.5),
             maxAttainableAngularVelocity,
             DegreesPerSecondPerSecond.of(2500.0)
         )

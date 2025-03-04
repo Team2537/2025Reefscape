@@ -99,7 +99,9 @@ class Arm : SubsystemBase("arm") {
     override fun periodic() {
         io.updateInputs(inputs)
         Logger.processInputs("superstructure/$name", inputs)
+    }
 
+    override fun simulationPeriodic() {
         MechanismVisualizer.setArmAngle(inputs.motorRelativePosition)
     }
 }

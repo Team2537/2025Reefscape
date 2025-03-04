@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.robot.CoralSimulator
 import frc.robot.MechanismVisualizer
 import frc.robot.Robot
 import frc.robot.Robot.drivebase
@@ -28,12 +27,6 @@ class Superstructure {
     val gripper: Gripper = Gripper()
 
     private var lastRequest: SuperstructureState = SuperstructureGoals.STOW
-
-    val gamepieceSimulator = CoralSimulator(
-        { MechanismVisualizer.mechanismPoses[2] },
-        drivebase::pose,
-        Inches.of(24.0)
-    )
 
     fun getArmSysIDCommand(): Command {
         return Commands.sequence(
@@ -151,6 +144,5 @@ class Superstructure {
 
     fun periodic() {
         Logger.recordOutput("superstructure/setpoint", SuperstructureState.struct, lastRequest)
-        gamepieceSimulator.update()
     }
 }

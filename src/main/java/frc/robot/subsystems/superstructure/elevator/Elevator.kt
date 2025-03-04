@@ -120,7 +120,9 @@ class Elevator : SubsystemBase("elevator") {
     override fun periodic() {
         io.updateInputs(inputs)
         Logger.processInputs("superstructure/$name", inputs)
-        
+    }
+
+    override fun simulationPeriodic() {
         MechanismVisualizer.setElevatorHeight(inputs.carriageHeight)
     }
 }

@@ -136,7 +136,6 @@ object Robot : LoggedRobot() {
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
         superstructure.periodic()
-        MechanismVisualizer.updatePoses()
     }
     
     override fun disabledInit() {}
@@ -161,5 +160,7 @@ object Robot : LoggedRobot() {
     
     override fun simulationInit() {}
     
-    override fun simulationPeriodic() {}
+    override fun simulationPeriodic() {
+        MechanismVisualizer.updatePoses()
+    }
 }
