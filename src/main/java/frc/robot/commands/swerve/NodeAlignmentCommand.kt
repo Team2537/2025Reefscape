@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj2.command.Command
 import frc.robot.subsystems.swerve.Drivebase
 import lib.math.geometry.FieldConstants
@@ -15,9 +16,10 @@ import lib.math.geometry.flipped
 import lib.math.units.inches
 import lib.math.units.into
 import org.littletonrobotics.junction.Logger
+import java.util.function.Supplier
 import kotlin.math.PI
 
-class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Reef.Side): Command() {
+class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Reef.Side, val coralDistanceSupplier: Supplier<Distance>): Command() {
 
     init {
         addRequirements(drivebase)
@@ -37,9 +39,9 @@ class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Re
         val closestPose = currentPose.nearest(FieldConstants.Reef.floorAlignmentPoses)
 
         val sideOffsetDistance = if(side == FieldConstants.Reef.Side.LEFT) {
-            (FieldConstants.Reef.sideOffset / 2.0) + 6.0.inches
+            (FieldConstants.Reef.sideOffset / 2.0) + 6.0.inches + coralDistanceSupplier.get()
         } else {
-            (FieldConstants.Reef.sideOffset / -2.0) + 7.0.inches
+            (FieldConstants.Reef.sideOffset / -2.0) + 7.0.inches + coralDistanceSupplier.get()
         }
 
         val sideOffset = Translation2d(0.0, (sideOffsetDistance) into Meters)
@@ -73,13 +75,12 @@ class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Re
                 xOutput,
                 yOutput,
                 angleOutput,
-                drivebase.pose.rotation + drivebase.operatorPerspective
+                drivebase.pose.rotation
             )
         )
     }
 
     override fun isFinished(): Boolean {
-        println("xPid: ${xPid.atSetpoint()} yPid: ${yPid.atSetpoint()} anglePid: ${anglePid.atSetpoint()} Endpose: ${endPose == null}")
         return (xPid.atSetpoint() && yPid.atSetpoint() && anglePid.atSetpoint()) || endPose == null
     }
 

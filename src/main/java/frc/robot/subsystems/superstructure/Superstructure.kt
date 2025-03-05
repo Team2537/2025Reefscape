@@ -2,6 +2,7 @@ package frc.robot.subsystems.superstructure
 
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.units.Units.Volts
+import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
@@ -27,6 +28,8 @@ class Superstructure {
     val gripper: Gripper = Gripper()
 
     private var lastRequest: SuperstructureState = SuperstructureGoals.STOW
+    
+    val coralPositionSupplier: Supplier<Distance> = Supplier { gripper.inputs.coralDistance }
 
     fun getArmSysIDCommand(): Command {
         return Commands.sequence(

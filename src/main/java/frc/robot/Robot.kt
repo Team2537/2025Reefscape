@@ -109,12 +109,12 @@ object Robot : LoggedRobot() {
             3
         )
 
-        driverController.leftTrigger().whileTrue(
-            NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.LEFT)
+        driverController.leftTrigger().toggleOnTrue(
+            NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.LEFT, superstructure.coralPositionSupplier)
         )
 
-        driverController.rightTrigger().whileTrue(
-            NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.RIGHT)
+        driverController.rightTrigger().toggleOnTrue(
+            NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.RIGHT, superstructure.coralPositionSupplier)
         )
 
         operatorController.povDown().onTrue(superstructure.getPrepL1Command())
