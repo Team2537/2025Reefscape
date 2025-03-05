@@ -36,6 +36,7 @@ import frc.robot.subsystems.swerve.gyro.GyroIO
 import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2
 import frc.robot.subsystems.swerve.gyro.GyroIOSim
 import frc.robot.subsystems.swerve.module.SwerveModule
+import lib.controllers.pathfollowing.repulsor.FieldPlanner
 import lib.math.geometry.FieldConstants
 import lib.math.geometry.flipped
 import lib.math.units.into
@@ -44,6 +45,7 @@ import org.littletonrobotics.junction.Logger
 import java.lang.reflect.Field
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
+import java.util.function.Supplier
 import kotlin.jvm.optionals.getOrDefault
 import kotlin.math.*
 
@@ -169,6 +171,8 @@ class Drivebase : SubsystemBase("drivebase") {
 
     var hasAppliedOperatorPerspective = false
     var operatorPerspective: Rotation2d = bluePerspective
+    
+    val fieldPlanner = FieldPlanner()
 
     init {
         AutoBuilder.configure(
@@ -217,6 +221,10 @@ class Drivebase : SubsystemBase("drivebase") {
         modules.zip(wheelStates).forEach { (module: SwerveModule, state: SwerveModuleState) ->
             module.applyState(SwerveModuleState(0.0, state.angle))
         }
+    }
+    
+    fun getSetRepulsorGoalCmd(supplier: Supplier<Translation2d>) = runOnce {
+        fieldPlanner.setGoal(supplier.get())
     }
 
     fun followPath(path: PathPlannerPath): Command {
@@ -309,6 +317,8 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.recordOutput("$name/moduleForces", *moduleForces.toTypedArray())
         Logger.recordOutput("$name/limits", limits)
         Logger.recordOutput("$name/operatorPerspective", Rotation2d.struct, operatorPerspective)
+        Logger.recordOutput("$name/repulsor/goal", Translation2d.struct, fieldPlanner.goal.getOrDefault(Translation2d()))
+        Logger.recordOutput("$name/repulsor/arrows", *fieldPlanner.arrows.toTypedArray())
 
         if(!hasAppliedOperatorPerspective || Robot.isDisabled ) {
             operatorPerspective = if(AutoBuilder.shouldFlip()) redPerspective else bluePerspective
