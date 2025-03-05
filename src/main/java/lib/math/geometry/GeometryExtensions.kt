@@ -53,3 +53,4 @@ val Ellipse2d.cardinals: List<Pose2d>
             Pose2d(x + dx, y + dy, Rotation2d.fromRadians(atan2(-dy, -dx)))
         }
     }
+

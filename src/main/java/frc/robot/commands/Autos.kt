@@ -4,6 +4,7 @@ import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.commands.PathPlannerAuto
 import com.pathplanner.lib.path.PathPlannerPath
 import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.PrintCommand
@@ -39,7 +40,37 @@ class Autos(
     }
 
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
-        addDefaultOption("IJ", {IJ_Routine.build()})
+//        addDefaultOption("IJ", {IJ_Routine.build()})
+        addDefaultOption("B - L2, L3", { bL2_L3() })
+    }
+
+    private fun bL2_L3(): Command {
+        val b_to_source = PathPlannerPath.fromPathFile("B_to_bs")
+        val source_to_b = PathPlannerPath.fromPathFile("bs_to_B")
+
+        return Commands.sequence(
+            AutoBuilder.resetOdom(b_to_source.startingHolonomicPose.getOrDefault(Pose2d())),
+            superstructure.getPrepL2Command(),
+            superstructure.getWaitUntilAtPositionCmd(),
+            superstructure.getScoreCommand(),
+            Commands.parallel(
+                AutoBuilder.followPath(b_to_source),
+                Commands.sequence(
+                    Commands.waitSeconds(0.15),
+                    superstructure.getSourceIntakeCommand()
+                )
+            ),
+            Commands.parallel(
+                AutoBuilder.followPath(source_to_b),
+                Commands.sequence(
+                    Commands.waitSeconds(0.2),
+                    superstructure.getStowCommand()
+                )
+            ),
+            superstructure.getPrepL3Command(),
+            superstructure.getWaitUntilAtPositionCmd(),
+            superstructure.getScoreCommand()
+        )
     }
 
     val ABC_Routine: AutoRoutine = AutoRoutine(

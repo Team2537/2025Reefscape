@@ -25,8 +25,8 @@ class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Re
         addRequirements(drivebase)
     }
 
-    val xPid = PIDController(5.0, 0.0, 0.05)
-    val yPid = PIDController(5.0, 0.0, 0.05)
+    val xPid = PIDController(4.0, 0.0, 0.05)
+    val yPid = PIDController(4.0, 0.0, 0.05)
     val anglePid = PIDController(5.0, 0.0, 0.05).apply { enableContinuousInput(0.0, 2 * PI) }
 
     var endPose: Pose2d? = null

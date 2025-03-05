@@ -10,7 +10,9 @@
       "nextControl": {
         "x": 2.7600000000000002,
         "y": 6.257
-      }
+      },
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -18,10 +20,12 @@
         "y": 5.3
       },
       "prevControl": {
-        "x": 2.7600000000000002,
+        "x": 2.76,
         "y": 6.257
       },
-      "nextControl": null
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -30,7 +34,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 11.0,
+    "maxAcceleration": 9.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

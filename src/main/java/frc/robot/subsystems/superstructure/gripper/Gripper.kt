@@ -23,7 +23,7 @@ class Gripper: SubsystemBase("gripper") {
             id = 31,
             sensorID = 0,
             isInverted = false,
-            gearing = 4.0
+            gearing = 4.0 * 1.5
         )
         else -> object : GripperIO {}
     }

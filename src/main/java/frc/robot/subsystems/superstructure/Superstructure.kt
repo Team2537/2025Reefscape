@@ -139,6 +139,11 @@ class Superstructure {
         )
     }
 
+    fun getWaitUntilAtPositionCmd(): Command = Commands.waitUntil(
+        elevator.getPositionInToleranceTrigger(2.0.inches)
+            .and(arm.getAngleInToleranceTrigger(5.0.degrees))
+    )
+
     private fun getForceStateCommand(stateSupplier: Supplier<SuperstructureState>): Command {
         return runOnce({
             lastRequest = stateSupplier.get()

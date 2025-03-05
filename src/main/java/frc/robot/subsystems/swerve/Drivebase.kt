@@ -7,6 +7,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController
 import com.pathplanner.lib.path.PathConstraints
 import com.pathplanner.lib.path.PathPlannerPath
 import com.pathplanner.lib.util.DriveFeedforwards
+import com.pathplanner.lib.util.PathPlannerLogging
 import com.pathplanner.lib.util.swerve.SwerveSetpoint
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator
 import edu.wpi.first.math.VecBuilder
@@ -28,6 +29,7 @@ import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Robot
@@ -78,7 +80,7 @@ class Drivebase : SubsystemBase("drivebase") {
         kinematics,
         gyroInputs.yaw,
         wheelPositions.toTypedArray(),
-        Pose2d(Translation2d(3.11, 4.04), Rotation2d()),
+        Pose2d(),
         VecBuilder.fill(0.1, 0.1, 0.1),
         VecBuilder.fill(0.9, 0.9, 0.9),
     )
@@ -177,7 +179,7 @@ class Drivebase : SubsystemBase("drivebase") {
             ::chassisSpeeds,
             { speeds: ChassisSpeeds, feedforward: DriveFeedforwards -> applyChassisSpeeds(speeds) },
             PPHolonomicDriveController(
-                PIDConstants(5.0),
+                PIDConstants(4.0),
                 PIDConstants(1.0),
             ),
             robotConfig,
@@ -186,11 +188,19 @@ class Drivebase : SubsystemBase("drivebase") {
             },
             this
         )
+
+        PathPlannerLogging.setLogActivePathCallback { path -> Logger.recordOutput("auto/activePath", *path.toTypedArray()) }
+        PathPlannerLogging.setLogTargetPoseCallback { pose -> Logger.recordOutput("auto/targetPose", Pose2d.struct, pose) }
     }
 
     fun applyChassisSpeeds(speeds: ChassisSpeeds, moduleForces: List<Vector<N2>>) {
         lastSetpoint =
-            setpointGenerator.generateSetpoint(lastSetpoint, speeds, limits, Robot.updateRateSec)
+            setpointGenerator.generateSetpoint(
+                lastSetpoint,
+                speeds,
+                if (RobotBase.isReal()) limits else defaultLimits,
+                Robot.updateRateSec
+            )
 
         modules.zip(lastSetpoint.moduleStates).forEachIndexed { index, (module, state) ->
             module.applyState(state, moduleForces[index])
@@ -199,7 +209,12 @@ class Drivebase : SubsystemBase("drivebase") {
 
     fun applyChassisSpeeds(speeds: ChassisSpeeds) {
         lastSetpoint =
-            setpointGenerator.generateSetpoint(lastSetpoint, speeds, limits, Robot.updateRateSec)
+            setpointGenerator.generateSetpoint(
+                lastSetpoint,
+                speeds,
+                if (RobotBase.isReal()) limits else defaultLimits,
+                Robot.updateRateSec
+            )
 
         modules.zip(lastSetpoint.moduleStates).forEach { (module, state) -> module.applyState(state) }
     }
@@ -221,7 +236,8 @@ class Drivebase : SubsystemBase("drivebase") {
 
     fun followPath(path: PathPlannerPath): Command {
 
-        return AutoBuilder.followPath(path).alongWith(Commands.runOnce({ Logger.recordOutput("$name/autoPath", *path.pathPoses.toTypedArray()) }))
+        return AutoBuilder.followPath(path)
+            .alongWith(Commands.runOnce({ Logger.recordOutput("$name/autoPath", *path.pathPoses.toTypedArray()) }))
     }
 
     fun getDriveCmd(
@@ -286,7 +302,7 @@ class Drivebase : SubsystemBase("drivebase") {
     }
 
     fun addVisionMeasurement(pose: Pose2d, timestamp: Double, stdDevs: Vector<N3>) {
-//        odometry.addVisionMeasurement(pose, timestamp, stdDevs)
+        odometry.addVisionMeasurement(pose, timestamp, stdDevs)
     }
 
     override fun periodic() {
@@ -310,8 +326,8 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.recordOutput("$name/limits", limits)
         Logger.recordOutput("$name/operatorPerspective", Rotation2d.struct, operatorPerspective)
 
-        if(!hasAppliedOperatorPerspective || Robot.isDisabled ) {
-            operatorPerspective = if(AutoBuilder.shouldFlip()) redPerspective else bluePerspective
+        if (!hasAppliedOperatorPerspective || Robot.isDisabled) {
+            operatorPerspective = if (AutoBuilder.shouldFlip()) redPerspective else bluePerspective
             hasAppliedOperatorPerspective = true
         }
     }
