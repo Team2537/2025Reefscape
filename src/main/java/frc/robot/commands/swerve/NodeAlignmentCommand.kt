@@ -41,7 +41,7 @@ class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Re
         val sideOffsetDistance = if(side == FieldConstants.Reef.Side.LEFT) {
             (FieldConstants.Reef.sideOffset / 2.0) + 6.0.inches + coralDistanceSupplier.get()
         } else {
-            (FieldConstants.Reef.sideOffset / -2.0) + 7.0.inches + coralDistanceSupplier.get()
+            (FieldConstants.Reef.sideOffset / -2.0) + 3.5.inches + coralDistanceSupplier.get()
         }
 
         val sideOffset = Translation2d(0.0, (sideOffsetDistance) into Meters)
@@ -86,6 +86,5 @@ class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Re
 
     override fun end(interrupted: Boolean) {
         drivebase.applyChassisSpeeds(ChassisSpeeds())
-        println(interrupted)
     }
 }

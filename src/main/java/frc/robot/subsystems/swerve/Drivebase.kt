@@ -354,7 +354,7 @@ class Drivebase : SubsystemBase("drivebase") {
          */
 
         // DONT FORGET TO CHANGE BACK!
-        val maxAttainableLinearVelocity = 2.5 measuredIn MetersPerSecond
+        val maxAttainableLinearVelocity = 4.5 measuredIn MetersPerSecond
 
         val maxAttainableAngularVelocity: AngularVelocity =
             (maxAttainableLinearVelocity.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn RadiansPerSecond
