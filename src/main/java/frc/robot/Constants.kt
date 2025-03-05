@@ -44,7 +44,7 @@ object Constants {
     }
 
     object GripperConstants {
-
+        const val CANANDCOLOR_INCH_SCALAR = 18.42105
     }
 
     object IntakeConstants {

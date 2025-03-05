@@ -9,12 +9,13 @@ import org.littletonrobotics.junction.inputs.LoggableInputs
 
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.MutCurrent
+import edu.wpi.first.units.measure.MutDistance
 
 interface GripperIO {
     class GripperInputs: LoggableInputs {
 
         var isHoldingCoral : Boolean = false
-
+        var coralDistance: MutDistance = Meters.zero().mutableCopy()
         val gripperPosition: MutAngle = Rotations.zero().mutableCopy()
         val gripperVelocity: MutAngularVelocity = RotationsPerSecond.zero().mutableCopy()
         val gripperAppliedVoltage: MutVoltage = Volt.zero().mutableCopy()
@@ -23,6 +24,7 @@ interface GripperIO {
         override fun toLog(table: LogTable) {
             table.put("isHoldingCoral", isHoldingCoral)
 
+            table.put("coralDistance", coralDistance)
             table.put("gripperPosition", gripperPosition)
             table.put("gripperVelocity", gripperVelocity)
             table.put("gripperAppliedVoltage", gripperAppliedVoltage)
@@ -31,6 +33,8 @@ interface GripperIO {
 
         override fun fromLog(table: LogTable) {
             isHoldingCoral = table.get("isHoldingCoral", isHoldingCoral)
+
+            coralDistance.mut_replace(table.get("coralDistance", coralDistance))
             gripperPosition.mut_replace(table.get("gripperPosition", gripperPosition))
             gripperVelocity.mut_replace(table.get("gripperVelocity", gripperVelocity))
             gripperAppliedVoltage.mut_replace(table.get("gripperAppliedVoltage", gripperAppliedVoltage))

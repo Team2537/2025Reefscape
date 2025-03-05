@@ -286,7 +286,7 @@ class Drivebase : SubsystemBase("drivebase") {
     }
 
     fun addVisionMeasurement(pose: Pose2d, timestamp: Double, stdDevs: Vector<N3>) {
-//        odometry.addVisionMeasurement(pose, timestamp, stdDevs)
+        odometry.addVisionMeasurement(pose, timestamp, stdDevs)
     }
 
     override fun periodic() {
@@ -354,7 +354,7 @@ class Drivebase : SubsystemBase("drivebase") {
          */
 
         // DONT FORGET TO CHANGE BACK!
-        val maxAttainableLinearVelocity = 4.5 measuredIn MetersPerSecond
+        val maxAttainableLinearVelocity = 2.5 measuredIn MetersPerSecond
 
         val maxAttainableAngularVelocity: AngularVelocity =
             (maxAttainableLinearVelocity.baseUnitMagnitude() / drivebaseRadius.baseUnitMagnitude()) measuredIn RadiansPerSecond
@@ -367,14 +367,14 @@ class Drivebase : SubsystemBase("drivebase") {
         )
 
         val extendedLimits = PathConstraints(
-            maxAttainableLinearVelocity / 2.0,
+            FeetPerSecond.of(3.0),
             MetersPerSecondPerSecond.of(5.5),
             maxAttainableAngularVelocity,
             DegreesPerSecondPerSecond.of(2500.0)
         )
 
         val intakeLimits = PathConstraints(
-            maxAttainableLinearVelocity / 3.0,
+            FeetPerSecond.of(3.0),
             MetersPerSecondPerSecond.of(5.5),
             maxAttainableAngularVelocity,
             DegreesPerSecondPerSecond.of(2500.0)

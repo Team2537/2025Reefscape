@@ -30,12 +30,12 @@ class Gripper: SubsystemBase("gripper") {
     
     val inputs: GripperIO.GripperInputs = GripperIO.GripperInputs()
     
-    val isHoldingCoral = Trigger { inputs.isHoldingCoral }
+    val isHoldingCoral = Trigger { inputs.isHoldingCoral }.debounce(0.1)
     
     fun getIntakeCmd(): Command = Commands.sequence(
         runOnce { io.setVoltage((-3.0).volts) },
         Commands.either(
-            Commands.waitUntil { inputs.isHoldingCoral },
+            Commands.waitUntil(isHoldingCoral),
             Commands.waitSeconds(0.75),
             { RobotBase.isReal() }
         ),
@@ -44,7 +44,7 @@ class Gripper: SubsystemBase("gripper") {
     ).handleInterrupt { io.setVoltage(Volts.zero())}
     
     fun getEjectCmd(): Command = Commands.sequence(
-        runOnce { io.setVoltage(9.0.volts) },
+        runOnce { io.setVoltage(12.0.volts) },
         Commands.either(
             Commands.waitUntil { !inputs.isHoldingCoral },
             Commands.waitSeconds(0.75),

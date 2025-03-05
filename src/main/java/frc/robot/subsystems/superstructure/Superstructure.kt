@@ -116,20 +116,22 @@ class Superstructure {
 
     fun getSourceIntakeCommand(): Command {
         return Commands.sequence(
-            getForceStateCommand { SuperstructureGoals.PRE_SOURCE },
-            Commands.parallel(
-                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
-                arm.getSendToAngleCmd { lastRequest.armAngle },
-            ),
-            Commands.waitUntil(
-                elevator.getPositionInToleranceTrigger(6.0.inches)
-                    .and(arm.getAngleInToleranceTrigger(5.0.degrees))
-            ),
-            getForceStateCommand({ SuperstructureGoals.SOURCE }),
-            Commands.parallel(
-                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
-                arm.getSendToAngleCmd { lastRequest.armAngle },
-            ),
+            Commands.sequence(
+                getForceStateCommand { SuperstructureGoals.PRE_SOURCE },
+                Commands.parallel(
+                    elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                    arm.getSendToAngleCmd { lastRequest.armAngle },
+                ),
+                Commands.waitUntil(
+                    elevator.getPositionInToleranceTrigger(6.0.inches)
+                        .and(arm.getAngleInToleranceTrigger(5.0.degrees))
+                ),
+                getForceStateCommand({ SuperstructureGoals.SOURCE }),
+                Commands.parallel(
+                    elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                    arm.getSendToAngleCmd { lastRequest.armAngle },
+                ),
+            ).onlyIf({ lastRequest != SuperstructureGoals.SOURCE }),
             gripper.getIntakeCmd(),
         )
     }

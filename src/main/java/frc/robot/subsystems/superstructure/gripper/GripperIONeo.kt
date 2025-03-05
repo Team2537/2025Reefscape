@@ -8,6 +8,7 @@ import com.revrobotics.spark.config.SparkMaxConfig
 import com.revrobotics.spark.config.SparkBaseConfig
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.*
+import frc.robot.Constants
 
 class GripperIONeo (
     private val id: Int,
@@ -31,6 +32,8 @@ class GripperIONeo (
     private val coralSensorThreshold : Double = 0.25
 
     override fun updateInputs(inputs: GripperIO.GripperInputs) {
+        inputs.coralDistance.mut_replace(canandcolor.proximity * Constants.GripperConstants.CANANDCOLOR_INCH_SCALAR, Inches)
+
         inputs.gripperPosition.mut_replace(Rotations.of(motor.encoder.position))
         inputs.gripperVelocity.mut_replace(
             RotationsPerSecond.of(motor.encoder.velocity / 60.0)

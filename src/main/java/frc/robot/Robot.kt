@@ -103,19 +103,17 @@ object Robot : LoggedRobot() {
         drivebase.defaultCommand = drivebase.getDriveCmd(
             { -(MathUtil.applyDeadband(driverController.leftY, 0.05)) },
             { -(MathUtil.applyDeadband(driverController.leftX, 0.05)) },
-            { -(MathUtil.applyDeadband(driverController.rightX, 0.05).pow(3)) },
+            { -(MathUtil.applyDeadband(driverController.rightX, 0.05)) },
             !driverController.leftBumper(),
             { 1.0 },
             3
         )
-        
-        driverController.rightBumper().onTrue(drivebase.resetHeading())
 
-        driverController.povLeft().whileTrue(
+        driverController.leftTrigger().whileTrue(
             NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.LEFT)
         )
 
-        driverController.povRight().whileTrue(
+        driverController.rightTrigger().whileTrue(
             NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.RIGHT)
         )
 
@@ -130,7 +128,10 @@ object Robot : LoggedRobot() {
         
         operatorController.rightBumper().onTrue(superstructure.getSourceIntakeCommand())
         
-        driverController.leftTrigger().onTrue(superstructure.getScoreCommand())
+        for(i in 1..4) {
+            driverController.button(i).onTrue(superstructure.getScoreCommand())
+        }
+
     }
     
     override fun robotPeriodic() {
