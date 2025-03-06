@@ -45,6 +45,7 @@ object FieldConstants {
         Reef
         Processor
         Barge
+        Source
     }
 
     object Reef {
@@ -183,7 +184,7 @@ object FieldConstants {
         }
 
         init {
-            Logger.recordOutput("field/reef/reefCenterBlue", reefCenterBlue)
+            Logger.recordOutput("field/reef/reefCenterBlue", Translation2d.struct, reefCenterBlue)
             Logger.recordOutput("field/reef/reefZone", *reefZone.cardinals.toTypedArray())
             Logger.recordOutput("field/reef/nodes", *nodes.map { it.pose }.toTypedArray())
             Logger.recordOutput("field/reef/floorPoses", *floorAlignmentPoses.toTypedArray())
@@ -208,7 +209,7 @@ object FieldConstants {
             )
 
         init {
-            Logger.recordOutput("field/processor/processorHoleCenter", processorHoleCenter)
+            Logger.recordOutput("field/processor/processorHoleCenter", Pose3d.struct, processorHoleCenter)
             Logger.recordOutput("field/processor/processorZone", *processorZone.corners.toTypedArray())
         }
 
@@ -254,6 +255,29 @@ object FieldConstants {
         init {
             Logger.recordOutput("field/barge/cages", cage1, cage2, cage3)
             Logger.recordOutput("field/barge/cageZone", *cageZone.corners.toTypedArray())
+        }
+    }
+    
+    object Source {
+        val blueTopSourceCenter = Pose2d(
+            Translation2d(
+                1.199.meters,
+                6.941.meters
+            ),
+            Rotation2d()
+        )
+        
+        val blueBottomSourceCenter = Pose2d(
+            Translation2d(
+                1.189.meters,
+                1.075.meters
+            ),
+            Rotation2d.fromDegrees(-170.0)
+        )
+        
+        init {
+            Logger.recordOutput("field/source/blueTopSourceCenter", Pose2d.struct, blueTopSourceCenter)
+            Logger.recordOutput("field/source/blueBottomSourceCenter", Pose2d.struct, blueBottomSourceCenter)
         }
     }
 }
