@@ -118,6 +118,10 @@ object Robot : LoggedRobot() {
         )
         
         driverController.rightBumper().onTrue(AlignmentCommand.algaeAlignment(drivebase))
+        
+        for(i in 0..360 step 45) {
+            driverController.pov(i).onTrue(AlignmentCommand.sourceAlignment(drivebase))
+        }
 
         operatorController.a().onTrue(superstructure.getPrepL1Command())
         operatorController.x().onTrue(superstructure.getPrepL2Command())
