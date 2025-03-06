@@ -117,20 +117,23 @@ object Robot : LoggedRobot() {
             NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.RIGHT, superstructure.coralPositionSupplier)
         )
 
-        operatorController.povDown().onTrue(superstructure.getPrepL1Command())
-        operatorController.povUp().onTrue(superstructure.getPrepL2Command())
-        operatorController.a().onTrue(superstructure.getPrepL3Command())
+        operatorController.a().onTrue(superstructure.getPrepL1Command())
+        operatorController.x().onTrue(superstructure.getPrepL2Command())
+        operatorController.b().onTrue(superstructure.getPrepL3Command())
         operatorController.y().onTrue(superstructure.getPrepL4Command())
 
-        operatorController.b().onTrue(superstructure.gripper.getIntakeCmd())
+        operatorController.povUp().onTrue(superstructure.getPrepL3DealgaefyCmd())
+        operatorController.povDown().onTrue(superstructure.getPrepL2DealgaefyCmd())
         
-        operatorController.x().onTrue(superstructure.getStowCommand())
+        operatorController.leftTrigger().and(operatorController.rightTrigger()).onTrue(superstructure.getStowCommand())
         
         operatorController.rightBumper().onTrue(superstructure.getSourceIntakeCommand())
         
-        for(i in 1..4) {
-            driverController.button(i).onTrue(superstructure.getScoreCommand())
-        }
+        driverController.x().onTrue(superstructure.getScoreCommand())
+        driverController.y().onTrue(superstructure.getScoreCommand())
+
+        driverController.a().onTrue(superstructure.getDealgaefyCommand())
+        driverController.b().onTrue(superstructure.getDealgaefyCommand())
 
     }
     

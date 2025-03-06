@@ -13,6 +13,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.MechanismVisualizer
 import frc.robot.Robot
 import frc.robot.Robot.drivebase
+import frc.robot.subsystems.superstructure.SuperstructureGoals.ALGAE_L2
+import frc.robot.subsystems.superstructure.SuperstructureGoals.ALGAE_L3
+import frc.robot.subsystems.superstructure.SuperstructureGoals.STOW
 import frc.robot.subsystems.superstructure.arm.Arm
 import frc.robot.subsystems.superstructure.elevator.Elevator
 import frc.robot.subsystems.superstructure.gripper.Gripper
@@ -21,6 +24,7 @@ import lib.math.units.inches
 import org.littletonrobotics.junction.Logger
 import java.util.function.DoubleSupplier
 import java.util.function.Supplier
+import kotlin.jvm.optionals.getOrDefault
 
 class Superstructure {
     val elevator: Elevator = Elevator()
@@ -28,7 +32,7 @@ class Superstructure {
     val gripper: Gripper = Gripper()
 
     private var lastRequest: SuperstructureState = SuperstructureGoals.STOW
-    
+
     val coralPositionSupplier: Supplier<Distance> = Supplier { gripper.inputs.coralDistance }
 
     fun getArmSysIDCommand(): Command {
@@ -107,6 +111,26 @@ class Superstructure {
         )
     }
 
+    fun getPrepL2DealgaefyCmd(): Command {
+        return Commands.sequence(
+            getForceStateCommand { SuperstructureGoals.PREP_ALGAE_L2 },
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+        )
+    }
+
+    fun getPrepL3DealgaefyCmd(): Command {
+        return Commands.sequence(
+            getForceStateCommand { SuperstructureGoals.PREP_ALGAE_L3 },
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+        )
+    }
+
     fun getStowCommand(): Command {
         return Commands.sequence(
             getForceStateCommand { SuperstructureGoals.STOW },
@@ -137,6 +161,22 @@ class Superstructure {
             ).onlyIf({ lastRequest != SuperstructureGoals.SOURCE }),
             gripper.getIntakeCmd(),
         )
+    }
+
+    fun getDealgaefyCommand(): Command {
+        return Commands.sequence(
+            getForceStateCommand { lastRequest.nextState.get() },
+            arm.getSendToAngleCmd({ lastRequest.armAngle }),
+            Commands.waitUntil(arm.getAngleInToleranceTrigger(1.0.degrees)),
+            Commands.parallel(
+                elevator.getMoveToHeightCommand({ lastRequest.elevatorHeight }),
+                gripper.getDealgaefyCmd(),
+            ),
+            getStowCommand()
+        ).onlyIf {
+            lastRequest.nextState.isPresent
+                    && lastRequest.nextState.getOrDefault(STOW) in listOf(ALGAE_L2, ALGAE_L3)
+        }.handleInterrupt { gripper.io.setVoltage(Volts.zero()) }
     }
 
     fun getWaitUntilAtPositionCmd(): Command = Commands.waitUntil(

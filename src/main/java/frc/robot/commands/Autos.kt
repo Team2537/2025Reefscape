@@ -3,12 +3,14 @@ package frc.robot.commands
 import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.commands.PathPlannerAuto
 import com.pathplanner.lib.path.PathPlannerPath
+import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.WaitCommand
+import frc.robot.commands.swerve.NodeAlignmentCommand
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.swerve.Drivebase
 import lib.autos.AutoRoutine
@@ -54,7 +56,11 @@ class Autos(
             superstructure.getWaitUntilAtPositionCmd(),
             superstructure.getScoreCommand(),
             Commands.parallel(
-                AutoBuilder.followPath(b_to_source),
+                AutoBuilder.followPath(b_to_source).until {
+                    MathUtil.isNear(b_to_source.pathPoses.last().x, drivebase.pose.x, Units.inchesToMeters(1.0))
+                            && MathUtil.isNear(b_to_source.pathPoses.last().y, drivebase.pose.y, Units.inchesToMeters(1.0))
+                            && MathUtil.isNear(b_to_source.pathPoses.last().rotation.radians, drivebase.pose.rotation.radians, Units.degreesToRadians(5.0))
+                },
                 Commands.sequence(
                     Commands.waitSeconds(0.15),
                     superstructure.getSourceIntakeCommand()
@@ -67,7 +73,10 @@ class Autos(
                     superstructure.getStowCommand()
                 )
             ),
-            superstructure.getPrepL3Command(),
+            Commands.parallel(
+                superstructure.getPrepL3Command(),
+                NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.RIGHT, superstructure.coralPositionSupplier)
+            ),
             superstructure.getWaitUntilAtPositionCmd(),
             superstructure.getScoreCommand()
         )

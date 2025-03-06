@@ -382,6 +382,13 @@ class Drivebase : SubsystemBase("drivebase") {
             DegreesPerSecondPerSecond.of(2500.0)
         )
 
+        val autoLimits = PathConstraints(
+            1.000 measuredIn MetersPerSecond,
+            12.0 measuredIn MetersPerSecondPerSecond,
+            540.0 measuredIn DegreesPerSecond,
+            720.0 measuredIn DegreesPerSecondPerSecond
+        )
+
         val extendedLimits = PathConstraints(
             FeetPerSecond.of(3.0),
             MetersPerSecondPerSecond.of(5.5),

@@ -12,7 +12,7 @@ import java.util.Optional
 
 object SuperstructureGoals {
     val stowAngle = Degrees.of(90.0)
-    val scoreAngle = Degrees.of(65.0)
+    val scoreAngle = Degrees.of(70.0)
 
     val STOW = SuperstructureState(
         armAngle = Degrees.of(90.0),
@@ -29,7 +29,34 @@ object SuperstructureGoals {
     val PRE_SOURCE = SuperstructureState(
         armAngle = Degrees.of(90.0),
         elevatorHeight = Meters.of(0.5),
-        driveLimits = Drivebase.defaultLimits,
+        driveLimits = Drivebase.extendedLimits,
+    )
+
+    val ALGAE_L2 = SuperstructureState(
+        armAngle = Degrees.of(40.0),
+        elevatorHeight = Inches.of(14.0),
+        driveLimits = Drivebase.extendedLimits,
+    )
+
+    val ALGAE_L3 = SuperstructureState(
+        armAngle = Degrees.of(45.0),
+        elevatorHeight = Inches.of(20.0),
+        driveLimits = Drivebase.extendedLimits,
+    )
+
+    val PREP_ALGAE_L2 = SuperstructureState(
+        armAngle = Degrees.of(90.0),
+        elevatorHeight = Inches.of(16.0),
+        driveLimits = Drivebase.extendedLimits,
+        nextState = Optional.of(ALGAE_L2)
+    )
+
+
+    val PREP_ALGAE_L3 = SuperstructureState(
+        armAngle = Degrees.of(90.0),
+        elevatorHeight = Inches.of(10.0),
+        driveLimits = Drivebase.extendedLimits,
+        nextState = Optional.of(ALGAE_L3)
     )
     
     val L1 = SuperstructureState(
@@ -40,7 +67,7 @@ object SuperstructureGoals {
     
     val L2 = SuperstructureState(
         armAngle = scoreAngle,
-        elevatorHeight = Inch.of(6.0),
+        elevatorHeight = Inch.of(7.0),
         driveLimits = Drivebase.extendedLimits,
     )
     
@@ -51,7 +78,7 @@ object SuperstructureGoals {
     )
     
     val L4 = SuperstructureState(
-        armAngle = Degrees.of(50.0),
+        armAngle = Degrees.of(90.0),
         elevatorHeight = Inches.of(49.0),
         driveLimits = Drivebase.extendedLimits,
     )
@@ -65,7 +92,7 @@ object SuperstructureGoals {
     
     val L2_PREP = SuperstructureState(
         armAngle = Degrees.of(90.0),
-        elevatorHeight = Inches.of(6.0),
+        elevatorHeight = Inches.of(8.0),
         driveLimits = Drivebase.extendedLimits,
         nextState = Optional.of(L2)
     )

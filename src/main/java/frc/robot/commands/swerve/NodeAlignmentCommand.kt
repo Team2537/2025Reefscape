@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj2.command.Command
@@ -25,8 +26,8 @@ class NodeAlignmentCommand(val drivebase: Drivebase, val side: FieldConstants.Re
         addRequirements(drivebase)
     }
 
-    val xPid = PIDController(4.0, 0.0, 0.05)
-    val yPid = PIDController(4.0, 0.0, 0.05)
+    val xPid = PIDController(4.0, 0.0, 0.05).apply { setTolerance(Units.inchesToMeters(0.5)) }
+    val yPid = PIDController(4.0, 0.0, 0.05).apply { setTolerance(Units.inchesToMeters(0.5)) }
     val anglePid = PIDController(5.0, 0.0, 0.05).apply { enableContinuousInput(0.0, 2 * PI) }
 
     var endPose: Pose2d? = null

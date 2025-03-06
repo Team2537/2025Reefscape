@@ -30,13 +30,13 @@ class Gripper: SubsystemBase("gripper") {
     
     val inputs: GripperIO.GripperInputs = GripperIO.GripperInputs()
     
-    val isHoldingCoral = Trigger { inputs.isHoldingCoral }.debounce(0.1)
+    val isHoldingCoral = Trigger { inputs.isHoldingCoral }.debounce(0.05)
     
     fun getIntakeCmd(): Command = Commands.sequence(
         runOnce { io.setVoltage((-3.0).volts) },
         Commands.either(
             Commands.waitUntil(isHoldingCoral),
-            Commands.waitSeconds(0.75),
+            Commands.waitSeconds(0.25),
             { RobotBase.isReal() }
         ),
         Commands.waitSeconds(0.05),
@@ -50,6 +50,12 @@ class Gripper: SubsystemBase("gripper") {
             Commands.waitSeconds(0.75),
             { RobotBase.isReal() }
         ),
+        runOnce { io.setVoltage(0.0.volts) }
+    )
+
+    fun getDealgaefyCmd(): Command = Commands.sequence(
+        runOnce { io.setVoltage(9.0.volts)},
+        Commands.waitSeconds(0.5),
         runOnce { io.setVoltage(0.0.volts) }
     )
     
