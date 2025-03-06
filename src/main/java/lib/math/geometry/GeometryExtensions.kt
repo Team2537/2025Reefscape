@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rectangle2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Rotation3d
+import edu.wpi.first.math.geometry.Transform2d
+import edu.wpi.first.math.geometry.Translation2d
 import kotlin.math.atan2
 
 val Pose2d.to3d: Pose3d
@@ -53,4 +55,8 @@ val Ellipse2d.cardinals: List<Pose2d>
             Pose2d(x + dx, y + dy, Rotation2d.fromRadians(atan2(-dy, -dx)))
         }
     }
+
+fun Pose2d.nudge(x: Double = 0.0, y: Double = 0.0, rotation: Rotation2d = Rotation2d()): Pose2d {
+    return this.transformBy(Transform2d(Translation2d(x, y), rotation))
+}
 

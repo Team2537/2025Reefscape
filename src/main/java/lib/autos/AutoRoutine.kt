@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.DeferredCommand
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
-import frc.robot.commands.swerve.NodeAlignmentCommand
+import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.swerve.Drivebase
 import lib.math.geometry.FieldConstants.Reef
@@ -46,7 +46,7 @@ class AutoRoutine(
                         Reef.Level.FLOOR -> TODO()
                     },
                 ),
-                NodeAlignmentCommand(
+                AlignmentCommand.nodeAlignment(
                     drivebase,
                     if (branch in listOf(
                             Reef.Branch.A,

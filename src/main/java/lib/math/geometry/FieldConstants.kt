@@ -84,7 +84,7 @@ object FieldConstants {
             Pose2d(Translation2d(5.86, 4.03), Rotation2d.fromDegrees(180.0)),
             Pose2d(Translation2d(5.17, 5.21), Rotation2d.fromDegrees(240.0)),
             Pose2d(Translation2d(3.80, 5.21), Rotation2d.fromDegrees(300.0))
-        )
+        ).map { it.nudge(x = Units.inchesToMeters(2.0)) }
 
         /**
          * Represents the different levels of the reef
@@ -138,10 +138,6 @@ object FieldConstants {
                 (sideDelta.cos * (translation2d.x - reefCenterBlue.x)) - (sideDelta.sin * (translation2d.y - reefCenterBlue.y)) + reefCenterBlue.x,
                 (sideDelta.sin * (translation2d.x - reefCenterBlue.x)) + (sideDelta.cos * (translation2d.y - reefCenterBlue.y)) + reefCenterBlue.y
             )
-
-            if (level == Level.FLOOR) {
-                println(translation2d)
-            }
 
             return Pose3d(
                 Translation3d(translation2d.x, translation2d.y, level.height into Meters),
@@ -264,16 +260,16 @@ object FieldConstants {
                 1.199.meters,
                 6.941.meters
             ),
-            Rotation2d()
-        )
+            Rotation2d.fromDegrees(-55.0)
+        ).nudge(x = Units.inchesToMeters(-2.0))
         
         val blueBottomSourceCenter = Pose2d(
             Translation2d(
                 1.189.meters,
                 1.075.meters
             ),
-            Rotation2d.fromDegrees(-170.0)
-        )
+            Rotation2d.fromDegrees(55.0)
+        ).nudge(x = Units.inchesToMeters(-2.0))
         
         init {
             Logger.recordOutput("field/source/blueTopSourceCenter", Pose2d.struct, blueTopSourceCenter)

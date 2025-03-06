@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.WrapperCommand
 import frc.robot.subsystems.swerve.Drivebase
 import lib.controllers.gains.PIDGains
 import lib.math.geometry.FieldConstants
@@ -47,7 +48,7 @@ class AlignmentCommand(
     }
     
     override fun execute() {
-        val pose = poseSupplier.get()?.let {
+        pose?.let {
             val translation = drivebase.pose.translation
             val rotation = drivebase.pose.rotation
             
@@ -68,34 +69,40 @@ class AlignmentCommand(
             drivebase: Drivebase,
             side: FieldConstants.Reef.Side,
             coralDistanceSupplier: Supplier<Distance>
-        ): AlignmentCommand {
+        ): Command {
             return AlignmentCommand(
                 drivebase = drivebase,
                 poseSupplier = {
-                    val currPose = drivebase.pose.let { if (AutoBuilder.shouldFlip()) it.flipped() else it }
+                    val currPose = drivebase.pose.let {
+                        if (AutoBuilder.shouldFlip()) it.flipped() else it
+                    }
+                    
                     val closestReefSide = currPose.nearest(FieldConstants.Reef.floorAlignmentPoses)
                     
                     val baseOffset = if (side == FieldConstants.Reef.Side.LEFT) 6.0.inches else 3.5.inches
+                    
                     val sideOffsetDistance =
                         (FieldConstants.Reef.sideOffset / (if (side == FieldConstants.Reef.Side.LEFT) 2.0 else -2.0)) + baseOffset + coralDistanceSupplier.get()
                     
-                    val targetPose = currPose.transformBy(
+                    val targetPose = closestReefSide.transformBy(
                         Transform2d(
                             Translation2d(0.0, sideOffsetDistance into Meters),
                             Rotation2d()
                         )
                     ).let { if (AutoBuilder.shouldFlip()) it.flipped() else it }
                     
-                    targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) >= 1.0 }
+                    val distanceToTarget = targetPose.translation.getDistance(drivebase.pose.translation)
+                    
+                    targetPose.takeIf { distanceToTarget <= 1.5 }
                 },
                 translationPID = PIDGains(5.0, 0.0, 0.05),
-                rotationPID = PIDGains(0.5, 0.0, 0.0)
-            )
+                rotationPID = PIDGains(5.0, 0.0, 0.0)
+            ).withName("NodeAlignmentCommand(${side.name})")
         }
         
         fun algaeAlignment(
             drivebase: Drivebase
-        ): AlignmentCommand {
+        ): Command {
             return AlignmentCommand(
                 drivebase,
                 {
@@ -107,12 +114,12 @@ class AlignmentCommand(
                 },
                 translationPID = PIDGains(5.0, 0.0, 0.05),
                 rotationPID = PIDGains(0.5, 0.0, 0.0)
-            )
+            ).withName("AlgaeAlignmentCommand")
         }
         
         fun sourceAlignment(
             drivebase: Drivebase,
-        ): AlignmentCommand {
+        ): Command {
             return AlignmentCommand(
                 drivebase,
                 {
@@ -124,7 +131,7 @@ class AlignmentCommand(
                 },
                 translationPID = PIDGains(5.0, 0.0, 0.05),
                 rotationPID = PIDGains(0.5, 0.0, 0.0)
-            )
+            ).withName("SourceAlignmentCommand")
         }
     }
 }
