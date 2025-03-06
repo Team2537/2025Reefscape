@@ -179,8 +179,8 @@ class Drivebase : SubsystemBase("drivebase") {
             ::chassisSpeeds,
             { speeds: ChassisSpeeds, feedforward: DriveFeedforwards -> applyChassisSpeeds(speeds) },
             PPHolonomicDriveController(
-                PIDConstants(4.0),
-                PIDConstants(1.0),
+                PIDConstants(0.0),
+                PIDConstants(0.0),
             ),
             robotConfig,
             {
@@ -302,7 +302,7 @@ class Drivebase : SubsystemBase("drivebase") {
     }
 
     fun addVisionMeasurement(pose: Pose2d, timestamp: Double, stdDevs: Vector<N3>) {
-        odometry.addVisionMeasurement(pose, timestamp, stdDevs)
+        if(RobotBase.isReal()) odometry.addVisionMeasurement(pose, timestamp, stdDevs)
     }
 
     override fun periodic() {
@@ -380,13 +380,6 @@ class Drivebase : SubsystemBase("drivebase") {
             MetersPerSecondPerSecond.of(14.5),
             maxAttainableAngularVelocity,
             DegreesPerSecondPerSecond.of(2500.0)
-        )
-
-        val autoLimits = PathConstraints(
-            1.000 measuredIn MetersPerSecond,
-            12.0 measuredIn MetersPerSecondPerSecond,
-            540.0 measuredIn DegreesPerSecond,
-            720.0 measuredIn DegreesPerSecondPerSecond
         )
 
         val extendedLimits = PathConstraints(

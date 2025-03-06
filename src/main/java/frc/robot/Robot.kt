@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.util.WPILibVersion
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.commands.Autos
+import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.commands.swerve.NodeAlignmentCommand
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.swerve.Drivebase
@@ -110,11 +111,11 @@ object Robot : LoggedRobot() {
         )
 
         driverController.leftTrigger().toggleOnTrue(
-            NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.LEFT, superstructure.coralPositionSupplier)
+            AlignmentCommand.nodeAlignment(drivebase, FieldConstants.Reef.Side.LEFT, superstructure.coralPositionSupplier)
         )
 
         driverController.rightTrigger().toggleOnTrue(
-            NodeAlignmentCommand(drivebase, FieldConstants.Reef.Side.RIGHT, superstructure.coralPositionSupplier)
+            AlignmentCommand.nodeAlignment(drivebase, FieldConstants.Reef.Side.RIGHT, superstructure.coralPositionSupplier)
         )
 
         operatorController.a().onTrue(superstructure.getPrepL1Command())
