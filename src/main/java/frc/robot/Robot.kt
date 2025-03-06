@@ -116,6 +116,8 @@ object Robot : LoggedRobot() {
         driverController.rightTrigger().toggleOnTrue(
             AlignmentCommand.nodeAlignment(drivebase, FieldConstants.Reef.Side.RIGHT, superstructure.coralPositionSupplier)
         )
+        
+        driverController.rightBumper().onTrue(AlignmentCommand.algaeAlignment(drivebase))
 
         operatorController.a().onTrue(superstructure.getPrepL1Command())
         operatorController.x().onTrue(superstructure.getPrepL2Command())

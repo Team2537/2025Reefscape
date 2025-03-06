@@ -110,10 +110,10 @@ class AlignmentCommand(
                     val targetPose = currPose.nearest(FieldConstants.Reef.floorAlignmentPoses)
                         .let { if (AutoBuilder.shouldFlip()) it.flipped() else it }
                     
-                    targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) >= 1.0 }
+                    targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) <= 1.5 }
                 },
                 translationPID = PIDGains(5.0, 0.0, 0.05),
-                rotationPID = PIDGains(0.5, 0.0, 0.0)
+                rotationPID = PIDGains(5.0, 0.0, 0.0)
             ).withName("AlgaeAlignmentCommand")
         }
         
