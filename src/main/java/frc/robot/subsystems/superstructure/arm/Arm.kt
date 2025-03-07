@@ -33,7 +33,7 @@ class Arm : SubsystemBase("arm") {
             ffGains = FeedforwardGains(kS = 0.12782, kV = 4.97),
             kG = 0.45,
             velocityLimit = RotationsPerSecond.of(1.0),
-            accelerationLimit = RotationsPerSecondPerSecond.of(1.0),
+            accelerationLimit = RotationsPerSecondPerSecond.of(2.0),
         )
 
         RobotType.Mode.SIMULATION -> ArmIOSim(

@@ -47,7 +47,7 @@ class ArmIOKraken(
 
         config.ClosedLoopGeneral.ContinuousWrap = true
 
-        config.CurrentLimits.StatorCurrentLimit = 40.0
+        config.CurrentLimits.StatorCurrentLimit = 60.0
         config.CurrentLimits.StatorCurrentLimitEnable = true
 
         config.MotionMagic.withMotionMagicCruiseVelocity(velocityLimit)
