@@ -5,13 +5,16 @@ import com.revrobotics.spark.SparkLowLevel
 import com.revrobotics.spark.SparkBase
 import com.revrobotics.spark.config.SparkMaxConfig
 import com.revrobotics.spark.config.SparkBaseConfig
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Voltage
+import edu.wpi.first.wpilibj.DutyCycleEncoder
 import kotlin.math.PI
 
 class ClimbIONeo(
     private val id: Int,
+    private val encoderID: Int,
     private val isInverted: Boolean,
     private val gearing: Double,
 ) : ClimbIO {
@@ -20,15 +23,19 @@ class ClimbIONeo(
         encoder.positionConversionFactor(1.0 / gearing)
         encoder.velocityConversionFactor(1.0 / gearing)
         idleMode(SparkBaseConfig.IdleMode.kCoast)
-        smartCurrentLimit(30)
+        smartCurrentLimit(60)
     }
+
+    private val throughbore: DutyCycleEncoder = DutyCycleEncoder(encoderID, 1.0, 0.58)
 
     private val motor = SparkMax(id, SparkLowLevel.MotorType.kBrushless).apply {
         configure(coastConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
+        encoder.position = Units.degreesToRotations(80.0)
     }
 
     override fun updateInputs(inputs: ClimbIO.ClimbArmInputs) {
-        inputs.absoluteAngle.mut_replace(Rotations.of(motor.encoder.position))
+        inputs.absoluteAngle.mut_replace(throughbore.get(), Rotations)
+        inputs.relativeAngle.mut_replace(motor.encoder.position, Rotations)
         inputs.angularVelocity.mut_replace(
             RotationsPerSecond.of(motor.encoder.velocity / 60.0)
         )

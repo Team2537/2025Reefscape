@@ -179,8 +179,8 @@ class Drivebase : SubsystemBase("drivebase") {
             ::chassisSpeeds,
             { speeds: ChassisSpeeds, feedforward: DriveFeedforwards -> applyChassisSpeeds(speeds) },
             PPHolonomicDriveController(
-                PIDConstants(0.0),
-                PIDConstants(0.0),
+                PIDConstants(5.0),
+                PIDConstants(1.0),
             ),
             robotConfig,
             {
@@ -207,16 +207,20 @@ class Drivebase : SubsystemBase("drivebase") {
         }
     }
 
-    fun applyChassisSpeeds(speeds: ChassisSpeeds) {
+    fun applyChassisSpeeds(speed: ChassisSpeeds, limits: PathConstraints) {
         lastSetpoint =
             setpointGenerator.generateSetpoint(
                 lastSetpoint,
-                speeds,
-                if (RobotBase.isReal()) limits else defaultLimits,
+                speed,
+                limits,
                 Robot.updateRateSec
             )
 
         modules.zip(lastSetpoint.moduleStates).forEach { (module, state) -> module.applyState(state) }
+    }
+
+    fun applyChassisSpeeds(speeds: ChassisSpeeds) {
+        applyChassisSpeeds(speeds, if(Robot.isTeleop) limits else defaultLimits)
     }
 
 
@@ -245,7 +249,7 @@ class Drivebase : SubsystemBase("drivebase") {
         strafe: DoubleSupplier,
         rotation: DoubleSupplier,
         shouldFieldOrient: BooleanSupplier,
-        slowmodeInput: DoubleSupplier,
+        slowmodeInput: BooleanSupplier,
         exponent: Int
     ): Command {
         return run {
@@ -273,7 +277,7 @@ class Drivebase : SubsystemBase("drivebase") {
                 )
             }
 
-            applyChassisSpeeds(speeds)
+            applyChassisSpeeds(speeds, if(slowmodeInput.asBoolean) slowmodeLimits else limits)
         }
     }
 
@@ -386,6 +390,14 @@ class Drivebase : SubsystemBase("drivebase") {
             FeetPerSecond.of(3.0),
             MetersPerSecondPerSecond.of(5.5),
             maxAttainableAngularVelocity,
+            DegreesPerSecondPerSecond.of(2500.0)
+        )
+
+
+        val slowmodeLimits = PathConstraints(
+            FeetPerSecond.of(3.0),
+            MetersPerSecondPerSecond.of(5.5),
+            DegreesPerSecond.of(180.0),
             DegreesPerSecondPerSecond.of(2500.0)
         )
 

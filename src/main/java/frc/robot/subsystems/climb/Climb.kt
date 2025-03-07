@@ -1,20 +1,29 @@
 package frc.robot.subsystems.climb
 
+import edu.wpi.first.math.controller.BangBangController
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.Constants
 import edu.wpi.first.math.system.plant.DCMotor
+import edu.wpi.first.math.util.Units
 import frc.robot.subsystems.climb.ClimbIO.ClimbArmInputs
 import org.littletonrobotics.junction.Logger
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.units.Units.*
+import edu.wpi.first.units.measure.Angle
 import frc.robot.RobotType
 import edu.wpi.first.wpilibj2.command.Commands
+import edu.wpi.first.wpilibj2.command.PrintCommand
+import lib.math.units.epsilonEquals
 import lib.math.units.into
+import lib.math.units.measuredIn
+import lib.math.units.volts
+import java.util.function.Supplier
 
 class Climb : SubsystemBase() {
     private val io: ClimbIO = when (RobotType.mode) {
         RobotType.Mode.REAL -> ClimbIONeo(
             Constants.ClimbConstants.CLIMB_MOTOR_ID,
+            Constants.ClimbConstants.THROUGHBORE_ID,
             Constants.ClimbConstants.IS_CLIMB_MOTOR_INVERTED,
             Constants.ClimbConstants.CLIMB_GEAR_RATIO
         )
@@ -44,6 +53,20 @@ class Climb : SubsystemBase() {
         // i'm not sure what to do for the Logger.processOutputs() stuff
     }
 
+    fun getSendToPositionCommand(position: Supplier<Angle>): Command {
+        return run {
+            if(position.get() < inputs.absoluteAngle) {
+                io.setVoltage(12.0.volts)
+            } else {
+                io.setVoltage((-12.0).volts)
+            }
+        }.until { inputs.absoluteAngle.epsilonEquals(position.get(), Units.degreesToRadians(5.0)) }
+    }
+
+    fun getVoltageControlCommand(supplier: Supplier<Double>): Command = run {
+        io.setVoltage(supplier.get() measuredIn Volts)
+    }
+
     fun getExtendCommand(): Command {
         // move the arm to the extension angle with bang bang control
         return Commands.sequence(
@@ -53,7 +76,7 @@ class Climb : SubsystemBase() {
             run {
                 val targetAngle = Constants.ClimbConstants.EXTENDED_ANGLE
                 val currentAngle = inputs.absoluteAngle.plus(Constants.ClimbConstants.ABSOLUTE_OFFSET)
-                
+
                 // Apply voltage based on whether we need to move up or down
                 if (currentAngle > targetAngle) {
                     io.setVoltage(-Constants.ClimbConstants.EXTEND_VOLTAGE) // Move up
@@ -62,11 +85,13 @@ class Climb : SubsystemBase() {
                 } else {
                     io.stop()
                 }
-            }.until( {
+            }.until({
                 // End command when we're close enough to target angle
-                kotlin.math.abs((inputs.absoluteAngle into Degrees) - 
-                    (Constants.ClimbConstants.EXTENDED_ANGLE into Degrees)) < (Constants.ClimbConstants.EXTEND_ANGLE_TOLERANCE into Degrees)
-            } ),
+                kotlin.math.abs(
+                    (inputs.absoluteAngle into Degrees) -
+                            (Constants.ClimbConstants.EXTENDED_ANGLE into Degrees)
+                ) < (Constants.ClimbConstants.EXTEND_ANGLE_TOLERANCE into Degrees)
+            }),
             runOnce {
                 io.stop()
                 io.setBrakeMode(true)
@@ -87,7 +112,8 @@ class Climb : SubsystemBase() {
             Commands.waitUntil {
                 // End command when we detect a hard stop (high current and near-zero velocity)
                 val currentSpike = inputs.statorCurrent > Constants.ClimbConstants.CURRENT_SPIKE_THRESHOLD
-                val velocityNearZero = kotlin.math.abs(inputs.angularVelocity into RotationsPerSecond) < Constants.ClimbConstants.VELOCITY_ZERO_THRESHOLD into RotationsPerSecond
+                val velocityNearZero =
+                    kotlin.math.abs(inputs.angularVelocity into RotationsPerSecond) < Constants.ClimbConstants.VELOCITY_ZERO_THRESHOLD into RotationsPerSecond
                 currentSpike && velocityNearZero
             },
             runOnce {

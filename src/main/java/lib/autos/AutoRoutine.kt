@@ -11,16 +11,19 @@ import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.DeferredCommand
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import frc.robot.commands.swerve.AlignmentCommand
+import frc.robot.subsystems.climb.Climb
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.swerve.Drivebase
 import lib.math.geometry.FieldConstants.Reef
 import lib.math.geometry.flipped
+import lib.math.units.degrees
 import kotlin.jvm.optionals.getOrDefault
 
 class AutoRoutine(
     private val actions: List<Triple<Reef.Branch, Reef.Level, Boolean>>,
     private val drivebase: Drivebase,
-    private val superstructure: Superstructure
+    private val superstructure: Superstructure,
+    private val climb: Climb
 ) {
     
     fun build(): Command {
@@ -29,9 +32,14 @@ class AutoRoutine(
         val startPath = getPathFromStart(actions.first().first)
         
         sequence.addCommands(
-            superstructure.getStowCommand(),
-            AutoBuilder.resetOdom(startPath.startingHolonomicPose.getOrDefault(Pose2d())),
-            drivebase.followPath(startPath),
+            Commands.parallel(
+                climb.getSendToPositionCommand{ 60.0.degrees },
+                Commands.sequence(
+                    superstructure.getStowCommand(),
+                    AutoBuilder.resetOdom(startPath.startingHolonomicPose.getOrDefault(Pose2d())),
+                    drivebase.followPath(startPath),
+                )
+            )
         )
         
         actions.forEachIndexed { index, (branch, level, isTop) ->
@@ -56,7 +64,7 @@ class AutoRoutine(
                             Reef.Branch.I,
                             Reef.Branch.K
                         )
-                    ) Reef.Side.LEFT else Reef.Side.RIGHT, superstructure.coralPositionSupplier
+                    ) Reef.Side.LEFT else Reef.Side.RIGHT, superstructure.coralPositionSupplier, { level == Reef.Level.L4}
                 ),
                 Commands.waitSeconds(0.75),
                 superstructure.getScoreCommand(),

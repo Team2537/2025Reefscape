@@ -84,7 +84,7 @@ object FieldConstants {
             Pose2d(Translation2d(5.86, 4.03), Rotation2d.fromDegrees(180.0)),
             Pose2d(Translation2d(5.17, 5.21), Rotation2d.fromDegrees(240.0)),
             Pose2d(Translation2d(3.80, 5.21), Rotation2d.fromDegrees(300.0))
-        ).map { it.nudge(x = Units.inchesToMeters(2.0)) }
+        ).map { it.nudge(x = Units.inchesToMeters(1.5)) }
 
         /**
          * Represents the different levels of the reef
@@ -257,16 +257,16 @@ object FieldConstants {
     object Source {
         val blueTopSourceCenter = Pose2d(
             Translation2d(
-                1.199.meters,
-                6.941.meters
+                1.307.meters,
+                6.986.meters
             ),
             Rotation2d.fromDegrees(-55.0)
         ).nudge(x = Units.inchesToMeters(-2.0))
         
         val blueBottomSourceCenter = Pose2d(
             Translation2d(
-                1.189.meters,
-                1.075.meters
+                0.959.meters,
+                1.304.meters
             ),
             Rotation2d.fromDegrees(55.0)
         ).nudge(x = Units.inchesToMeters(-2.0))

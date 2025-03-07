@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.robot.commands.swerve.AlignmentCommand
+import frc.robot.subsystems.climb.Climb
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.swerve.Drivebase
 import lib.autos.AutoRoutine
@@ -22,7 +23,8 @@ import kotlin.jvm.optionals.getOrDefault
 
 class Autos(
     val drivebase: Drivebase,
-    val superstructure: Superstructure
+    val superstructure: Superstructure,
+    val climb: Climb
 ) {
 
     val IJ_Routine_PP = Supplier {
@@ -42,8 +44,8 @@ class Autos(
     }
 
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
-        addDefaultOption("IJ", {IJ_Routine.build()})
-//        addDefaultOption("B - L2, L3", { bL2_L3() })
+//        addDefaultOption("IJ", {IJ_Routine.build()})
+        addDefaultOption("B - L2, L3", { bL2_L3() })
     }
 
     private fun bL2_L3(): Command {
@@ -56,11 +58,14 @@ class Autos(
             superstructure.getWaitUntilAtPositionCmd(),
             superstructure.getScoreCommand(),
             Commands.parallel(
-                AutoBuilder.followPath(b_to_source).until {
-                    MathUtil.isNear(b_to_source.pathPoses.last().x, drivebase.pose.x, Units.inchesToMeters(1.0))
-                            && MathUtil.isNear(b_to_source.pathPoses.last().y, drivebase.pose.y, Units.inchesToMeters(1.0))
-                            && MathUtil.isNear(b_to_source.pathPoses.last().rotation.radians, drivebase.pose.rotation.radians, Units.degreesToRadians(5.0))
-                },
+                Commands.sequence(
+                    AutoBuilder.followPath(b_to_source).until {
+                        MathUtil.isNear(b_to_source.pathPoses.last().x, drivebase.pose.x, Units.inchesToMeters(1.0))
+                                && MathUtil.isNear(b_to_source.pathPoses.last().y, drivebase.pose.y, Units.inchesToMeters(1.0))
+                                && MathUtil.isNear(b_to_source.pathPoses.last().rotation.radians, drivebase.pose.rotation.radians, Units.degreesToRadians(5.0))
+                    },
+                    AlignmentCommand.sourceAlignment(drivebase),
+                    ),
                 Commands.sequence(
                     Commands.waitSeconds(0.15),
                     superstructure.getSourceIntakeCommand()
@@ -75,7 +80,7 @@ class Autos(
             ),
             Commands.parallel(
                 superstructure.getPrepL3Command(),
-                AlignmentCommand.nodeAlignment(drivebase, FieldConstants.Reef.Side.RIGHT, superstructure.coralPositionSupplier)
+                AlignmentCommand.nodeAlignment(drivebase, FieldConstants.Reef.Side.RIGHT, superstructure.coralPositionSupplier, { false })
             ),
             superstructure.getWaitUntilAtPositionCmd(),
             superstructure.getScoreCommand()
@@ -90,7 +95,8 @@ class Autos(
             Triple(FieldConstants.Reef.Branch.A, FieldConstants.Reef.Level.L3, false),
         ),
         drivebase,
-        superstructure
+        superstructure,
+        climb
     )
 
     val IJ_Routine: AutoRoutine = AutoRoutine(
@@ -99,7 +105,8 @@ class Autos(
             Triple(FieldConstants.Reef.Branch.J, FieldConstants.Reef.Level.L2, true),
         ),
         drivebase,
-        superstructure
+        superstructure,
+        climb
     )
 
 

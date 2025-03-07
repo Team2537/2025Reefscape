@@ -19,9 +19,10 @@ object Constants {
 
     object ClimbConstants {
         // PLACEHOLDER VALUES
-        val CLIMB_MOTOR_ID: Int = 1
+        val CLIMB_MOTOR_ID: Int = 23
+        val THROUGHBORE_ID: Int = 0
         val IS_CLIMB_MOTOR_INVERTED: Boolean = true
-        val CLIMB_GEAR_RATIO: Double = 1.0
+        val CLIMB_GEAR_RATIO: Double = 100.0
         val MOI: MomentOfInertia = KilogramSquareMeters.of(0.0)
         val ARM_LENGTH: Distance = Meters.of(0.0)
 

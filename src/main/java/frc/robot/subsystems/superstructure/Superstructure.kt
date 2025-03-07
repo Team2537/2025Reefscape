@@ -5,6 +5,7 @@ import edu.wpi.first.units.Units.Volts
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.PrintCommand
@@ -134,10 +135,11 @@ class Superstructure {
     fun getStowCommand(): Command {
         return Commands.sequence(
             getForceStateCommand { SuperstructureGoals.STOW },
-            Commands.parallel(
-                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+            Commands.sequence(
                 arm.getSendToAngleCmd { lastRequest.armAngle },
-            ),
+                Commands.waitUntil { arm.inputs.motorRelativePosition > 65.0.degrees },
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight }
+            )
         )
     }
 
@@ -177,6 +179,23 @@ class Superstructure {
             lastRequest.nextState.isPresent
                     && lastRequest.nextState.getOrDefault(STOW) in listOf(ALGAE_L2, ALGAE_L3)
         }.handleInterrupt { gripper.io.setVoltage(Volts.zero()) }
+    }
+
+    fun getClimbCommand(): Command {
+        return Commands.sequence(
+            getForceStateCommand { SuperstructureGoals.PRE_CLIMB },
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+            getWaitUntilAtPositionCmd(),
+            getForceStateCommand { SuperstructureGoals.CLIMB },
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                arm.getSendToAngleCmd { lastRequest.armAngle },
+            ),
+            getWaitUntilAtPositionCmd()
+        )
     }
 
     fun getWaitUntilAtPositionCmd(): Command = Commands.waitUntil(
