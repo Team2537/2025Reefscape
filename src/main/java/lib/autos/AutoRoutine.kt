@@ -28,7 +28,60 @@ class AutoRoutine(
     
     fun build(): Command {
         val sequence = SequentialCommandGroup()
-        
+
+        if (actions.isEmpty()) {
+            sequence.addCommands(
+                Commands.sequence(
+                    climb.getSendToPositionCommand{ 60.0.degrees },
+                    superstructure.getStowCommand(),
+                    AutoBuilder.resetOdom(Pose2d())
+
+                )
+            )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+            return sequence
+        }
+
         val startPath = getPathFromStart(actions.first().first)
         
         sequence.addCommands(
@@ -119,10 +172,6 @@ class AutoRoutine(
             Reef.Branch.H
         )
         
-        return if (topBranches.contains(branch)) {
-            PathPlannerPath.fromPathFile("tstart_to_${branch.name}")
-        } else {
-            PathPlannerPath.fromPathFile("bstart_to_${branch.name}")
-        }
+        return PathPlannerPath.fromPathFile("tstart_to_${branch.name}")
     }
 }

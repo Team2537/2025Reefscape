@@ -45,7 +45,9 @@ class Autos(
 
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
 //        addDefaultOption("IJ", {IJ_Routine.build()})
-        addDefaultOption("B - L2, L3", { bL2_L3() })
+        addOption("ABC", {ABC_Routine.build()})
+        addOption("IJ", { IJ_Routine.build() })
+        addDefaultOption("idle", { idle_Routine.build()})
     }
 
     private fun bL2_L3(): Command {
@@ -102,13 +104,22 @@ class Autos(
     val IJ_Routine: AutoRoutine = AutoRoutine(
         listOf(
             Triple(FieldConstants.Reef.Branch.I, FieldConstants.Reef.Level.L4, true),
-            Triple(FieldConstants.Reef.Branch.J, FieldConstants.Reef.Level.L2, true),
+//            Triple(FieldConstants.Reef.Branch.J, FieldConstants.Reef.Level.L4, true),
         ),
         drivebase,
         superstructure,
         climb
     )
 
+    val idle_Routine: AutoRoutine = AutoRoutine(
+        listOf(
+//            Triple(FieldConstants.Reef.Branch.I, FieldConstants.Reef.Level.L4, true),
+//            Triple(FieldConstants.Reef.Branch.J, FieldConstants.Reef.Level.L4, true),
+        ),
+        drivebase,
+        superstructure,
+        climb
+    )
 
     val selectedRoutine: Command
         get() = chooser.get().get()
