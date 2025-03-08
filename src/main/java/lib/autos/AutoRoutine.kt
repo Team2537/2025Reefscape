@@ -48,13 +48,11 @@ class AutoRoutine(
         val startPath = getPathFromStart(actions.first().first)
         
         sequence.addCommands(
-            Commands.parallel(
+            Commands.sequence(
                 climb.getVoltageControlCommand(Supplier<Double> { 12.0 }).withTimeout(2.5),
-                Commands.sequence(
-                    superstructure.getStowCommand(),
-                    AutoBuilder.resetOdom(startPath.startingHolonomicPose.getOrDefault(Pose2d())),
-                    drivebase.followPath(startPath),
-                )
+                superstructure.getStowCommand(),
+                AutoBuilder.resetOdom(startPath.startingHolonomicPose.getOrDefault(Pose2d())),
+                drivebase.followPath(startPath),
             )
         )
         
