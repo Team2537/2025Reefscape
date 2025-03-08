@@ -57,6 +57,10 @@ object Robot : LoggedRobot() {
 
         Logger.recordMetadata("Type", RobotType.type.toString())
         Logger.recordMetadata("Serial Number", HALUtil.getSerialNumber())
+        Logger.recordOutput("Git Dirty", if(DIRTY == 1) "DIRTY" else "CLEAN")
+        Logger.recordOutput("Git Branch", GIT_BRANCH)
+        Logger.recordOutput("Git SHA", GIT_SHA)
+        Logger.recordOutput("Git Date", GIT_DATE)
 
         when (RobotType.mode) {
             RobotType.Mode.REAL -> {
