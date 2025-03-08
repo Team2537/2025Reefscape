@@ -28,7 +28,7 @@ class ClimbIONeo(
 
     private val motor = SparkMax(id, SparkLowLevel.MotorType.kBrushless).apply {
         configure(coastConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
-        encoder.position = Units.degreesToRotations(80.0)
+        encoder.position = Units.degreesToRotations(90.0)
     }
 
     override fun updateInputs(inputs: ClimbIO.ClimbArmInputs) {
