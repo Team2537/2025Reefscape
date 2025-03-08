@@ -48,7 +48,7 @@ class AutoRoutine(
         
         sequence.addCommands(
             Commands.parallel(
-                climb.getSendToPositionCommand{ 60.0.degrees }.onlyIf{RobotBase.isReal()},
+                climb.getSendToPositionCommand{ (-1000.0).degrees }.withTimeout(2.5).onlyIf{RobotBase.isReal()},
                 Commands.sequence(
                     superstructure.getStowCommand(),
                     AutoBuilder.resetOdom(startPath.startingHolonomicPose.getOrDefault(Pose2d())),
