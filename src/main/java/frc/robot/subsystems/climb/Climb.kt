@@ -28,14 +28,14 @@ class Climb : SubsystemBase() {
             Constants.ClimbConstants.CLIMB_GEAR_RATIO
         )
 
-        RobotType.Mode.SIMULATION -> ClimbIOSim(
-            DCMotor.getNEO(1),
-            Constants.ClimbConstants.CLIMB_GEAR_RATIO,
-            Constants.ClimbConstants.MOI,
-            Constants.ClimbConstants.ARM_LENGTH
-        )
+//        RobotType.Mode.SIMULATION -> ClimbIOSim(
+//            DCMotor.getNEO(1),
+//            Constants.ClimbConstants.CLIMB_GEAR_RATIO,
+//            Constants.ClimbConstants.MOI,
+//            Constants.ClimbConstants.ARM_LENGTH
+//        )
 
-        RobotType.Mode.REPLAY -> object : ClimbIO {}
+        else -> object : ClimbIO {}
     }
 
     private val inputs: ClimbArmInputs = ClimbArmInputs()
