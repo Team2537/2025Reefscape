@@ -26,13 +26,15 @@ class ClimbIONeo(
         smartCurrentLimit(60)
     }
 
+    private val throughbore: DutyCycleEncoder = DutyCycleEncoder(encoderID, 1.0, 2.839)
+
     private val motor = SparkMax(id, SparkLowLevel.MotorType.kBrushless).apply {
         configure(coastConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
-        encoder.position = Units.degreesToRotations(90.0)
+        encoder.setPosition(Units.degreesToRotations(90.0))
     }
 
     override fun updateInputs(inputs: ClimbIO.ClimbArmInputs) {
-        inputs.absoluteAngle.mut_replace(motor.encoder.position, Rotations) // temp, absolute is broken
+        inputs.absoluteAngle.mut_replace(throughbore.get(), Rotations) // temp, absolute is broken
         inputs.relativeAngle.mut_replace(motor.encoder.position, Rotations)
         inputs.angularVelocity.mut_replace(
             RotationsPerSecond.of(motor.encoder.velocity / 60.0)
