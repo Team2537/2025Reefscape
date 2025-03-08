@@ -26,7 +26,7 @@ class ClimbIONeo(
         smartCurrentLimit(60)
     }
 
-    private val throughbore: DutyCycleEncoder = DutyCycleEncoder(encoderID, 1.0, 0.58)
+    private val throughbore: DutyCycleEncoder = DutyCycleEncoder(encoderID, 1.0, 2.439)
 
     private val motor = SparkMax(id, SparkLowLevel.MotorType.kBrushless).apply {
         configure(coastConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters)
