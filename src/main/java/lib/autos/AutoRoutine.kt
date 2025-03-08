@@ -38,7 +38,6 @@ class AutoRoutine(
 
                 )
             )
-            y
             return sequence
         }
 
