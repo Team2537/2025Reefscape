@@ -95,7 +95,8 @@ class AutoRoutine(
                     ),
                     drivebase.getStopCmd(),
                     superstructure.getSourceIntakeCommand(),
-                    Commands.waitSeconds(0.75)
+                    Commands.waitSeconds(0.75),
+                    superstructure.getStowCommand()
                 )
             }
         }
