@@ -38,46 +38,6 @@ class AutoRoutine(
 
                 )
             )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             
             return sequence
         }
