@@ -49,8 +49,8 @@ class AutoRoutine(
         
         sequence.addCommands(
             Commands.parallel(
+                climb.getVoltageControlCommand(Supplier<Double> { 12.0 }).withTimeout(2.5),
                 Commands.sequence(
-                    climb.getSendToPositionCommand{ (60).degrees }.withTimeout(2.5),
                     superstructure.getStowCommand(),
                     AutoBuilder.resetOdom(startPath.startingHolonomicPose.getOrDefault(Pose2d())),
                     drivebase.followPath(startPath),
