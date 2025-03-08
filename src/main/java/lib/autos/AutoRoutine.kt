@@ -127,14 +127,14 @@ class AutoRoutine(
     
     fun getPathFromStart(branch: Reef.Branch): PathPlannerPath {
         val topBranches = listOf(
-            Reef.Branch.A,
-            Reef.Branch.L,
-            Reef.Branch.K,
             Reef.Branch.J,
             Reef.Branch.I,
-            Reef.Branch.H
         )
         
-        return PathPlannerPath.fromPathFile("tstart_to_${branch.name}")
+        return if (topBranches.contains(branch)) {
+            PathPlannerPath.fromPathFile("tstart_to_${branch.name}")
+        } else {
+            PathPlannerPath.fromPathFile("bstart_to_${branch.name}")
+        }
     }
 }

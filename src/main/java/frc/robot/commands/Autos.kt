@@ -45,6 +45,10 @@ class Autos(
 
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
         addOption("IJ", { IJ_Routine.build() })
+        addOption("I4", { I4_Routine.build() })
+        addOption("FE", { FE_Routine.build() })
+        addOption("F4", { F4_Routine.build() })
+        addOption("B - L2, L3", { bL2_L3() })
         addDefaultOption("idle", { idle_Routine.build()})
     }
 
@@ -100,7 +104,35 @@ class Autos(
     val IJ_Routine: AutoRoutine = AutoRoutine(
         listOf(
             Triple(FieldConstants.Reef.Branch.I, FieldConstants.Reef.Level.L4, true),
-//            Triple(FieldConstants.Reef.Branch.J, FieldConstants.Reef.Level.L4, true),
+            Triple(FieldConstants.Reef.Branch.J, FieldConstants.Reef.Level.L4, true),
+        ),
+        drivebase,
+        superstructure,
+        climb
+    )
+
+    val I4_Routine: AutoRoutine = AutoRoutine(
+        listOf(
+            Triple(FieldConstants.Reef.Branch.I, FieldConstants.Reef.Level.L4, true),
+        ),
+        drivebase,
+        superstructure,
+        climb
+    )
+
+    val FE_Routine: AutoRoutine = AutoRoutine(
+        listOf(
+            Triple(FieldConstants.Reef.Branch.F, FieldConstants.Reef.Level.L4, true),
+            Triple(FieldConstants.Reef.Branch.E, FieldConstants.Reef.Level.L4, true),
+        ),
+        drivebase,
+        superstructure,
+        climb
+    )
+
+    val F4_Routine: AutoRoutine = AutoRoutine(
+        listOf(
+            Triple(FieldConstants.Reef.Branch.F, FieldConstants.Reef.Level.L4, true),
         ),
         drivebase,
         superstructure,
