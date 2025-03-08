@@ -1,6 +1,7 @@
 package frc.robot
 
 import com.reduxrobotics.canand.CanandEventLoop
+import edu.wpi.first.cameraserver.CameraServer
 import edu.wpi.first.hal.FRCNetComm.tInstances
 import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
@@ -93,6 +94,8 @@ object Robot : LoggedRobot() {
             .onCommandInitialize { command -> Logger.recordOutput("commands/${command.name}", true) }
         CommandScheduler.getInstance()
             .onCommandFinish { command -> Logger.recordOutput("commands/${command.name}", false) }
+
+        CameraServer.startAutomaticCapture()
 
         drivebase = Drivebase()
         vision = Vision(drivebase::addVisionMeasurement)
