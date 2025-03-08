@@ -61,6 +61,7 @@ class AutoRoutine(
         actions.forEachIndexed { index, (branch, level, isTop) ->
             sequence.addCommands(
                 Commands.parallel(
+                    superstructure.getStowCommand(),
                     drivebase.followPath(getPathToBranch(branch, isTop)).onlyIf({ index != 0 }),
                     when (level) {
                         Reef.Level.L1 -> superstructure.getPrepL1Command()
