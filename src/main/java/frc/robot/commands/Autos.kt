@@ -44,9 +44,8 @@ class Autos(
     }
 
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
-//        addDefaultOption("IJ", {IJ_Routine.build()})
         addOption("ABC", {ABC_Routine.build()})
-        addOption("IJ", { IJ_Routine.build() })
+        addDefaultOption("IJ", { IJ_Routine.build() })
         addDefaultOption("idle", { idle_Routine.build()})
     }
 
@@ -61,11 +60,7 @@ class Autos(
             superstructure.getScoreCommand(),
             Commands.parallel(
                 Commands.sequence(
-                    AutoBuilder.followPath(b_to_source).until {
-                        MathUtil.isNear(b_to_source.pathPoses.last().x, drivebase.pose.x, Units.inchesToMeters(1.0))
-                                && MathUtil.isNear(b_to_source.pathPoses.last().y, drivebase.pose.y, Units.inchesToMeters(1.0))
-                                && MathUtil.isNear(b_to_source.pathPoses.last().rotation.radians, drivebase.pose.rotation.radians, Units.degreesToRadians(5.0))
-                    },
+                    AutoBuilder.followPath(b_to_source),
                     AlignmentCommand.sourceAlignment(drivebase),
                     ),
                 Commands.sequence(
@@ -88,6 +83,8 @@ class Autos(
             superstructure.getScoreCommand()
         )
     }
+
+
 
     val ABC_Routine: AutoRoutine = AutoRoutine(
         listOf(

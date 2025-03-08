@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.DeferredCommand
+import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.subsystems.climb.Climb
@@ -17,6 +18,7 @@ import frc.robot.subsystems.swerve.Drivebase
 import lib.math.geometry.FieldConstants.Reef
 import lib.math.geometry.flipped
 import lib.math.units.degrees
+import org.littletonrobotics.junction.Logger
 import kotlin.jvm.optionals.getOrDefault
 
 class AutoRoutine(
@@ -64,8 +66,9 @@ class AutoRoutine(
                         Reef.Level.L3 -> superstructure.getPrepL3Command()
                         Reef.Level.L4 -> superstructure.getPrepL4Command()
                         Reef.Level.FLOOR -> TODO()
-                    },
+                    }
                 ),
+                PrintCommand("here"),
                 AlignmentCommand.nodeAlignment(
                     drivebase,
                     if (branch in listOf(

@@ -223,6 +223,10 @@ class Drivebase : SubsystemBase("drivebase") {
         applyChassisSpeeds(speeds, if(Robot.isTeleop) limits else defaultLimits)
     }
 
+    fun followPath(path: PathPlannerPath): Command {
+        return AutoBuilder.followPath(path).andThen(getStopCmd())
+    }
+
 
     fun runWheelRadiusCharacterization(omegaSpeed: AngularVelocity) {
         applyChassisSpeeds(
@@ -236,12 +240,6 @@ class Drivebase : SubsystemBase("drivebase") {
         modules.zip(wheelStates).forEach { (module: SwerveModule, state: SwerveModuleState) ->
             module.applyState(SwerveModuleState(0.0, state.angle))
         }
-    }
-
-    fun followPath(path: PathPlannerPath): Command {
-
-        return AutoBuilder.followPath(path)
-            .alongWith(Commands.runOnce({ Logger.recordOutput("$name/autoPath", *path.pathPoses.toTypedArray()) }))
     }
 
     fun getDriveCmd(
