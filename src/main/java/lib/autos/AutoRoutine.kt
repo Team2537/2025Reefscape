@@ -20,6 +20,7 @@ import lib.math.geometry.FieldConstants.Reef
 import lib.math.geometry.flipped
 import lib.math.units.degrees
 import org.littletonrobotics.junction.Logger
+import java.util.function.Supplier
 import kotlin.jvm.optionals.getOrDefault
 
 class AutoRoutine(
@@ -35,7 +36,7 @@ class AutoRoutine(
         if (actions.isEmpty()) {
             sequence.addCommands(
                 Commands.sequence(
-                    climb.getSendToPositionCommand{ (60).degrees },
+                    climb.getVoltageControlCommand(Supplier<Double> { 12.0 }).withTimeout(2.5),
                     superstructure.getStowCommand(),
                     AutoBuilder.resetOdom(Pose2d())
 
