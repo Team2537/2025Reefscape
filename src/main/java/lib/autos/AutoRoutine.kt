@@ -35,7 +35,7 @@ class AutoRoutine(
         if (actions.isEmpty()) {
             sequence.addCommands(
                 Commands.sequence(
-                    climb.getSendToPositionCommand{ 60.0.degrees },
+                    climb.getSendToPositionCommand{ 60.0.degrees }.withTimeout(2.5),
                     superstructure.getStowCommand(),
                     AutoBuilder.resetOdom(Pose2d())
 
