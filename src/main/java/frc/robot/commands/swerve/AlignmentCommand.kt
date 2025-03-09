@@ -135,7 +135,7 @@ class AlignmentCommand(
                 drivebase,
                 {
                     val currPose = drivebase.pose.let { if (AutoBuilder.shouldFlip()) it.flipped() else it }
-                    val targetPose = currPose.nearest(FieldConstants.Reef.floorAlignmentPoses).nudge(y=Units.inchesToMeters(10.0))
+                    val targetPose = currPose.nearest(FieldConstants.Reef.floorAlignmentPoses).nudge(y=Units.inchesToMeters(11.0))
                         .let { if (AutoBuilder.shouldFlip()) it.flipped() else it }
 
                     targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) <= 1.5 }
