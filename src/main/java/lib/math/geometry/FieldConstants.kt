@@ -261,7 +261,7 @@ object FieldConstants {
                 6.986.meters
             ),
             Rotation2d.fromDegrees(-55.0)
-        ).nudge(x = Units.inchesToMeters(-2.0))
+        ).nudge(x = Units.inchesToMeters(-4.0))
         
         val blueBottomSourceCenter = Pose2d(
             Translation2d(
@@ -269,7 +269,7 @@ object FieldConstants {
                 1.304.meters
             ),
             Rotation2d.fromDegrees(55.0)
-        ).nudge(x = Units.inchesToMeters(-2.0))
+        ).nudge(x = Units.inchesToMeters(-4.0))
         
         init {
             Logger.recordOutput("field/source/blueTopSourceCenter", Pose2d.struct, blueTopSourceCenter)

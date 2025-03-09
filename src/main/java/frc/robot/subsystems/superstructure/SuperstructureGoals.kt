@@ -21,8 +21,8 @@ object SuperstructureGoals {
     )
     
     val SOURCE = SuperstructureState(
-        armAngle = Degrees.of(-140.0),
-        elevatorHeight = Meters.of(1.0),
+        armAngle = Degrees.of(-135.0),
+        elevatorHeight = Inches.of(44.0),
         driveLimits = Drivebase.intakeLimits
     )
     
