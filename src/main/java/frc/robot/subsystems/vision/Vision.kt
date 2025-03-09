@@ -79,7 +79,7 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
             for (observation in inputs.poseObservations) {
                 val rejectPose: Boolean =
                     observation.tagCount == 0
-                            || (observation.tagCount == 1 && observation.ambiguity > maxAmbiguity)
+                            || (observation.tagCount == 1 && (observation.ambiguity > maxAmbiguity || inputs.tagIDs !in FieldConstants.Reef.reefTags))
                             || abs(observation.pose.z) > maxZError
                             || observation.pose.x < 0.0
                             || observation.pose.x > FieldConstants.tagLayout.fieldLength

@@ -179,6 +179,11 @@ object FieldConstants {
             return nodes.first { it.level == level && it.reefFace == reefFace && it.side == side }
         }
 
+        val reefTags = listOf(
+            17..22,
+            6..11
+        ).flatten()
+
         init {
             Logger.recordOutput("field/reef/reefCenterBlue", Translation2d.struct, reefCenterBlue)
             Logger.recordOutput("field/reef/reefZone", *reefZone.cardinals.toTypedArray())
