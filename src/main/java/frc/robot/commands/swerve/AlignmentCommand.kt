@@ -103,7 +103,7 @@ class AlignmentCommand(
 
                     val closestReefSide = currPose.nearest(FieldConstants.Reef.floorAlignmentPoses)
 
-                    val baseOffset = if (side == FieldConstants.Reef.Side.LEFT) 6.5.inches else 4.0.inches
+                    val baseOffset = if (side == FieldConstants.Reef.Side.LEFT) 6.5.inches else 4.5.inches
 
                     val sideOffsetDistance =
                         (FieldConstants.Reef.sideOffset / (if (side == FieldConstants.Reef.Side.LEFT) 2.0 else -2.0)) + baseOffset + coralDistanceSupplier.get()
