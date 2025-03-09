@@ -17,6 +17,7 @@ import frc.robot.subsystems.swerve.Drivebase
 import lib.controllers.gains.PIDGains
 import lib.math.geometry.FieldConstants
 import lib.math.geometry.flipped
+import lib.math.geometry.nudge
 import lib.math.units.inches
 import lib.math.units.into
 import org.littletonrobotics.junction.Logger
@@ -134,7 +135,7 @@ class AlignmentCommand(
                 drivebase,
                 {
                     val currPose = drivebase.pose.let { if (AutoBuilder.shouldFlip()) it.flipped() else it }
-                    val targetPose = currPose.nearest(FieldConstants.Reef.floorAlignmentPoses)
+                    val targetPose = currPose.nearest(FieldConstants.Reef.floorAlignmentPoses).nudge(y=Units.inchesToMeters(6.0))
                         .let { if (AutoBuilder.shouldFlip()) it.flipped() else it }
 
                     targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) <= 1.5 }
