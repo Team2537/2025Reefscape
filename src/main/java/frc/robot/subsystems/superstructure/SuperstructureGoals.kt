@@ -39,8 +39,8 @@ object SuperstructureGoals {
     )
 
     val ALGAE_L3 = SuperstructureState(
-        armAngle = Degrees.of(45.0),
-        elevatorHeight = Inches.of(20.0),
+        armAngle = Degrees.of(50.0),
+        elevatorHeight = Inches.of(25.0),
         driveLimits = Drivebase.extendedLimits,
     )
 
