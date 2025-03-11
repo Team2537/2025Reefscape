@@ -1,4 +1,4 @@
-package lib.controllers.gains
+package lib.math.controllers.gains
 
 data class PIDGains(
     val kP: Double = 0.0,

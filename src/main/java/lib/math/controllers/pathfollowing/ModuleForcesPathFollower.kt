@@ -1,4 +1,4 @@
-package lib.controllers.pathfollowing
+package lib.math.controllers.pathfollowing
 
 import choreo.trajectory.SwerveSample
 import edu.wpi.first.math.VecBuilder
@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.numbers.N2
 import frc.robot.subsystems.swerve.Drivebase
-import lib.controllers.gains.PIDGains
+import lib.math.controllers.gains.PIDGains
 import org.littletonrobotics.junction.Logger
 import java.util.function.BiConsumer
 import java.util.function.Consumer

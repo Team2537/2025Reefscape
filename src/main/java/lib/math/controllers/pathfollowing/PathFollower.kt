@@ -1,4 +1,4 @@
-package lib.controllers.pathfollowing
+package lib.math.controllers.pathfollowing
 
 import choreo.trajectory.SwerveSample
 import java.util.function.Consumer

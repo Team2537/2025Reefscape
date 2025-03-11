@@ -10,8 +10,8 @@ import edu.wpi.first.units.measure.MomentOfInertia
 import edu.wpi.first.units.measure.MutVoltage
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
-import lib.controllers.gains.FeedforwardGains
-import lib.controllers.gains.PIDGains
+import lib.math.controllers.gains.FeedforwardGains
+import lib.math.controllers.gains.PIDGains
 import lib.math.units.into
 
 class IntakePivotIOSim(

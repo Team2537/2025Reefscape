@@ -13,8 +13,8 @@ import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.units.measure.LinearAcceleration
 import edu.wpi.first.units.measure.LinearVelocity
-import lib.controllers.gains.FeedforwardGains
-import lib.controllers.gains.PIDGains
+import lib.math.controllers.gains.FeedforwardGains
+import lib.math.controllers.gains.PIDGains
 
 class ElevatorIOKraken(
     private val leftMotorId: Int,

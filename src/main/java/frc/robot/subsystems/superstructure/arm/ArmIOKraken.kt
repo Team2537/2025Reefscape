@@ -11,8 +11,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.units.AngularAccelerationUnit
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.*
-import lib.controllers.gains.FeedforwardGains
-import lib.controllers.gains.PIDGains
+import lib.math.controllers.gains.FeedforwardGains
+import lib.math.controllers.gains.PIDGains
 
 class ArmIOKraken(
     motorID: Int,

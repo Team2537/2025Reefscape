@@ -3,7 +3,7 @@ package frc.robot.subsystems.swerve.module
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.*
-import lib.controllers.gains.PIDGains
+import lib.math.controllers.gains.PIDGains
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 

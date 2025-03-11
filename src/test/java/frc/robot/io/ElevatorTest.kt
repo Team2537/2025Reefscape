@@ -4,8 +4,8 @@ import edu.wpi.first.hal.HAL
 import edu.wpi.first.units.Units.*
 import frc.robot.subsystems.superstructure.elevator.ElevatorIO
 import frc.robot.subsystems.superstructure.elevator.ElevatorIOSim
-import lib.controllers.gains.FeedforwardGains
-import lib.controllers.gains.PIDGains
+import lib.math.controllers.gains.FeedforwardGains
+import lib.math.controllers.gains.PIDGains
 import lib.math.units.inches
 import lib.math.units.measuredIn
 import org.junit.jupiter.api.BeforeEach

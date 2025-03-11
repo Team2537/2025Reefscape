@@ -15,8 +15,8 @@ import frc.robot.Constants
 import frc.robot.MechanismVisualizer
 import frc.robot.RobotType
 import frc.robot.subsystems.superstructure.Superstructure
-import lib.controllers.gains.FeedforwardGains
-import lib.controllers.gains.PIDGains
+import lib.math.controllers.gains.FeedforwardGains
+import lib.math.controllers.gains.PIDGains
 import lib.math.units.epsilonEquals
 import lib.math.units.volts
 import org.littletonrobotics.junction.Logger

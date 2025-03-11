@@ -1,4 +1,4 @@
-package lib.controllers.gains
+package lib.math.controllers.gains
 
 data class FeedforwardGains(
     val kS: Double = 0.0,

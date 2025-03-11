@@ -5,8 +5,8 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units.*
 import frc.robot.subsystems.superstructure.arm.ArmIO
 import frc.robot.subsystems.superstructure.arm.ArmIOSim
-import lib.controllers.gains.FeedforwardGains
-import lib.controllers.gains.PIDGains
+import lib.math.controllers.gains.FeedforwardGains
+import lib.math.controllers.gains.PIDGains
 import lib.math.units.degrees
 import lib.math.units.into
 import org.junit.jupiter.api.BeforeEach
