@@ -121,27 +121,8 @@ object Robot : LoggedRobot() {
             3
         )
 
-        driverController.leftTrigger().toggleOnTrue(
-            AlignmentCommand.nodeAlignment(
-                drivebase,
-                FieldConstants.Reef.Side.LEFT,
-                superstructure.coralPositionSupplier,
-                driverController.y()
-            )
-        )
-
         operatorController.leftStick().onTrue(climb.getSendToPositionCommand { 60.0.degrees })
 
-        driverController.rightTrigger().toggleOnTrue(
-            AlignmentCommand.nodeAlignment(
-                drivebase,
-                FieldConstants.Reef.Side.RIGHT,
-                superstructure.coralPositionSupplier,
-                driverController.y()
-            )
-        )
-
-        driverController.rightBumper().onTrue(AlignmentCommand.algaeAlignment(drivebase))
 
         for (i in 0..360 step 45) {
             driverController.pov(i).onTrue(AlignmentCommand.sourceAlignment(drivebase))
