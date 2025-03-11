@@ -66,9 +66,10 @@ object FieldConstants {
         /**
          * Represents the left and right racks on each side of the reef
          */
-        enum class Side {
+        public enum class Side {
             LEFT,
-            RIGHT
+            RIGHT,
+            CENTER
         }
 
         val sideOffset = 12.937968.inches
@@ -108,7 +109,7 @@ object FieldConstants {
          *
          * S1 is the face closest to the driver station, continues CCW around the reef
          */
-        enum class ReefFace {
+        public enum class ReefFace {
             S1, S2, S3, S4, S5, S6
         }
 
@@ -128,6 +129,7 @@ object FieldConstants {
             when (rack) {
                 Side.LEFT -> y -= sideOffset / 2.0
                 Side.RIGHT -> y += sideOffset / 2.0
+                Side.CENTER -> {}
             }
 
             var translation2d = Translation2d(x, y)
