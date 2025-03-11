@@ -23,6 +23,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.math.numbers.N2
 import edu.wpi.first.math.numbers.N3
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.AngularVelocity
@@ -46,6 +47,7 @@ import org.littletonrobotics.junction.Logger
 import java.lang.reflect.Field
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
+import java.util.function.Supplier
 import kotlin.jvm.optionals.getOrDefault
 import kotlin.math.*
 
@@ -174,6 +176,8 @@ class Drivebase : SubsystemBase("drivebase") {
 
     private var slowModeEnabled = false
 
+    var alignmentState: AlignmentState = AlignmentState.DRIVING
+
     init {
         AutoBuilder.configure(
             ::pose,
@@ -191,8 +195,19 @@ class Drivebase : SubsystemBase("drivebase") {
             this
         )
 
-        PathPlannerLogging.setLogActivePathCallback { path -> Logger.recordOutput("auto/activePath", *path.toTypedArray()) }
-        PathPlannerLogging.setLogTargetPoseCallback { pose -> Logger.recordOutput("auto/targetPose", Pose2d.struct, pose) }
+        PathPlannerLogging.setLogActivePathCallback { path ->
+            Logger.recordOutput(
+                "auto/activePath",
+                *path.toTypedArray()
+            )
+        }
+        PathPlannerLogging.setLogTargetPoseCallback { pose ->
+            Logger.recordOutput(
+                "auto/targetPose",
+                Pose2d.struct,
+                pose
+            )
+        }
     }
 
     fun applyChassisSpeeds(speeds: ChassisSpeeds, moduleForces: List<Vector<N2>>) {
@@ -222,7 +237,7 @@ class Drivebase : SubsystemBase("drivebase") {
     }
 
     fun applyChassisSpeeds(speeds: ChassisSpeeds) {
-        applyChassisSpeeds(speeds, if(Robot.isTeleop) limits else defaultLimits)
+        applyChassisSpeeds(speeds, if (Robot.isTeleop) limits else defaultLimits)
     }
 
     fun followPath(path: PathPlannerPath): Command {
@@ -244,6 +259,9 @@ class Drivebase : SubsystemBase("drivebase") {
         }
     }
 
+    fun getForceStateCommand(newState: Supplier<AlignmentState>) =
+        runOnce { alignmentState = newState.get() }
+
     fun toggleSlowMode() {
         slowModeEnabled = !slowModeEnabled
     }
@@ -264,6 +282,11 @@ class Drivebase : SubsystemBase("drivebase") {
             val forwardS = magnitude * direction.sin
             val strafeS = magnitude * direction.cos
 
+            // If alignment state isn't set to driving, and we're trying to drive more than 0.5in/s, set alignment state to driving
+            if(alignmentState != AlignmentState.DRIVING && magnitude > Units.inchesToMeters(0.5)) {
+                alignmentState = AlignmentState.DRIVING
+            }
+
             if (shouldFieldOrient.asBoolean) {
                 speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                     forwardS * (maxAttainableLinearVelocity into MetersPerSecond),
@@ -279,7 +302,7 @@ class Drivebase : SubsystemBase("drivebase") {
                 )
             }
 
-            applyChassisSpeeds(speeds, if(slowModeEnabled) slowmodeLimits else limits)
+            applyChassisSpeeds(speeds, if (slowModeEnabled) slowmodeLimits else limits)
         }
     }
 
@@ -308,7 +331,7 @@ class Drivebase : SubsystemBase("drivebase") {
     }
 
     fun addVisionMeasurement(pose: Pose2d, timestamp: Double, stdDevs: Vector<N3>) {
-        if(RobotBase.isReal()) odometry.addVisionMeasurement(pose, timestamp, stdDevs)
+        if (RobotBase.isReal()) odometry.addVisionMeasurement(pose, timestamp, stdDevs)
     }
 
     override fun periodic() {
@@ -412,5 +435,14 @@ class Drivebase : SubsystemBase("drivebase") {
 
         val bluePerspective = Rotation2d.fromDegrees(0.0)
         val redPerspective = Rotation2d.fromDegrees(180.0)
+
+        enum class AlignmentState {
+            ALIGNING,
+            ALIGNED_ALGAE,
+            ALIGNED_LOW_CORAL,
+            ALIGNED_L4_CORAL,
+            ALIGNED_SOURCE,
+            DRIVING
+        }
     }
 }

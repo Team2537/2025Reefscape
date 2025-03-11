@@ -13,6 +13,7 @@ import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.WrapperCommand
+import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.subsystems.swerve.Drivebase
 import lib.controllers.gains.PIDGains
 import lib.math.geometry.FieldConstants
@@ -31,7 +32,8 @@ class AlignmentCommand(
     val drivebase: Drivebase,
     val poseSupplier: Supplier<Pose2d?>,
     val translationPID: PIDGains,
-    val rotationPID: PIDGains
+    val rotationPID: PIDGains,
+    val endState: Drivebase.Constants.AlignmentState
 ) : Command() {
     private val xPid = PIDController(
         translationPID.kP,
@@ -58,6 +60,7 @@ class AlignmentCommand(
 
     override fun initialize() {
         pose = null
+        drivebase.alignmentState = Drivebase.Constants.AlignmentState.ALIGNING
 
         xPid.reset()
         yPid.reset()
@@ -88,61 +91,56 @@ class AlignmentCommand(
         return (xPid.atSetpoint() && yPid.atSetpoint() && rotPid.atSetpoint()) || pose == null
     }
 
+    override fun end(interrupted: Boolean) {
+        drivebase.alignmentState = endState
+    }
+
     companion object {
-        fun nodeAlignment(
+        fun buttonBoardAlign(
             drivebase: Drivebase,
-            side: FieldConstants.Reef.Side,
+            side: FieldConstants.Reef.ReefFace,
             coralDistanceSupplier: Supplier<Distance>,
-            isL4: BooleanSupplier
-        ): Command {
-            return AlignmentCommand(
-                drivebase = drivebase,
-                poseSupplier = {
-                    val currPose = drivebase.pose.let {
-                        if (AutoBuilder.shouldFlip()) it.flipped() else it
-                    }
-
-                    val closestReefSide = currPose.nearest(FieldConstants.Reef.floorAlignmentPoses)
-
-                    val baseOffset = if (side == FieldConstants.Reef.Side.LEFT) 6.5.inches else 4.5.inches
-
-                    val sideOffsetDistance =
-                        (FieldConstants.Reef.sideOffset / (if (side == FieldConstants.Reef.Side.LEFT) 2.0 else -2.0)) + baseOffset + coralDistanceSupplier.get()
-
-                    val targetPose = closestReefSide.transformBy(
-                        Transform2d(
-                            Translation2d(
-                                if (isL4.asBoolean) Units.inchesToMeters(-3.5) else 0.0,
-                                sideOffsetDistance into Meters
-                            ),
-                            Rotation2d()
-                        )
-                    ).let { if (AutoBuilder.shouldFlip()) it.flipped() else it }
-
-                    val distanceToTarget = targetPose.translation.getDistance(drivebase.pose.translation)
-
-                    targetPose.takeIf { distanceToTarget <= 1.5 }
-                },
-                translationPID = PIDGains(5.0, 0.0, 0.05),
-                rotationPID = PIDGains(5.0, 0.0, 0.0)
-            ).withName("NodeAlignmentCommand(${side.name})").withTimeout(3.0)
-        }
-
-        fun algaeAlignment(
-            drivebase: Drivebase
+            isL4: Trigger,
+            leftSupplier: Trigger,
+            rightSupplier: Trigger,
+            centerSupplier: Trigger,
         ): Command {
             return AlignmentCommand(
                 drivebase,
                 {
-                    val currPose = drivebase.pose.let { if (AutoBuilder.shouldFlip()) it.flipped() else it }
-                    val targetPose = currPose.nearest(FieldConstants.Reef.floorAlignmentPoses).nudge(y=Units.inchesToMeters(11.0))
-                        .let { if (AutoBuilder.shouldFlip()) it.flipped() else it }
+                    var targetPose = FieldConstants.Reef.floorAlignmentPoses[side.ordinal + 1]
 
-                    targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) <= 1.5 }
+                    when {
+                        leftSupplier.asBoolean
+                                && !rightSupplier.asBoolean
+                                && !centerSupplier.asBoolean -> {
+                            targetPose = targetPose.nudge(
+                                x = if(isL4.asBoolean) -backupL4.into(Inches) else 0.0,
+                                y = (FieldConstants.Reef.sideOffset + leftOffset + coralDistanceSupplier.get()).into(Inches)
+                            )
+                        }
+
+                        rightSupplier.asBoolean
+                                && !leftSupplier.asBoolean
+                                && !centerSupplier.asBoolean -> {
+                        }
+
+                        (rightSupplier.asBoolean && leftSupplier.asBoolean)
+                                || centerSupplier.asBoolean -> {
+                        }
+                    }
+
+                    targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) < 1.5 }
                 },
-                translationPID = PIDGains(5.0, 0.0, 0.05),
-                rotationPID = PIDGains(5.0, 0.0, 0.0)
-            ).withName("AlgaeAlignmentCommand").withTimeout(3.0)
+                PIDGains(kP = 5.0),
+                PIDGains(kP = 5.0),
+                when {
+                    (rightSupplier.asBoolean || leftSupplier.asBoolean) && !centerSupplier.asBoolean ->
+                        if(isL4.asBoolean) Drivebase.Constants.AlignmentState.ALIGNED_L4_CORAL else Drivebase.Constants.AlignmentState.ALIGNED_LOW_CORAL
+                    centerSupplier.asBoolean -> Drivebase.Constants.AlignmentState.ALIGNED_ALGAE
+                    else -> Drivebase.Constants.AlignmentState.DRIVING
+                }
+            )
         }
 
         fun sourceAlignment(
@@ -163,15 +161,23 @@ class AlignmentCommand(
                     targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) <= 1.0 }
                 },
                 translationPID = PIDGains(5.0, 0.0, 0.05),
-                rotationPID = PIDGains(5.0, 0.0, 0.0)
+                rotationPID = PIDGains(5.0, 0.0, 0.0),
+                endState = Drivebase.Constants.AlignmentState.ALIGNED_SOURCE
             ).withName("SourceAlignmentCommand").withTimeout(3.0)
         }
+
+        val leftOffset: Distance = Inches.of(6.0)
+        val rightOffset: Distance = Inches.of(3.5)
+        val centerOffset: Distance = Inches.of(2.0)
+        val backupL4: Distance = Inches.of(3.0)
+
+        val alignLimits: PathConstraints = PathConstraints(
+            MetersPerSecond.of(1.5),
+            MetersPerSecondPerSecond.of(8.0),
+            DegreesPerSecond.of(360 + 180.0),
+            DegreesPerSecondPerSecond.of(720.0)
+        )
     }
 
-    val alignLimits: PathConstraints = PathConstraints(
-        MetersPerSecond.of(1.5),
-        MetersPerSecondPerSecond.of(8.0),
-        DegreesPerSecond.of(360 + 180.0),
-        DegreesPerSecondPerSecond.of(720.0)
-    )
+
 }
