@@ -172,6 +172,8 @@ class Drivebase : SubsystemBase("drivebase") {
     var hasAppliedOperatorPerspective = false
     var operatorPerspective: Rotation2d = bluePerspective
 
+    private var slowModeEnabled = false
+
     init {
         AutoBuilder.configure(
             ::pose,
@@ -242,12 +244,15 @@ class Drivebase : SubsystemBase("drivebase") {
         }
     }
 
+    fun toggleSlowMode() {
+        slowModeEnabled = !slowModeEnabled
+    }
+
     fun getDriveCmd(
         forward: DoubleSupplier,
         strafe: DoubleSupplier,
         rotation: DoubleSupplier,
         shouldFieldOrient: BooleanSupplier,
-        slowmodeInput: BooleanSupplier,
         exponent: Int
     ): Command {
         return run {
@@ -258,7 +263,6 @@ class Drivebase : SubsystemBase("drivebase") {
 
             val forwardS = magnitude * direction.sin
             val strafeS = magnitude * direction.cos
-
 
             if (shouldFieldOrient.asBoolean) {
                 speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -275,7 +279,7 @@ class Drivebase : SubsystemBase("drivebase") {
                 )
             }
 
-            applyChassisSpeeds(speeds, if(slowmodeInput.asBoolean) slowmodeLimits else limits)
+            applyChassisSpeeds(speeds, if(slowModeEnabled) slowmodeLimits else limits)
         }
     }
 

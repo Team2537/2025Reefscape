@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.util.WPILibVersion
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
+import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.AlignmentCommand
@@ -117,7 +118,6 @@ object Robot : LoggedRobot() {
             { -(MathUtil.applyDeadband(driverController.leftX, 0.05)) },
             { -(MathUtil.applyDeadband(driverController.rightX, 0.05)) },
             !driverController.leftBumper(),
-            driverController.rightStick(),
             3
         )
 
@@ -169,6 +169,7 @@ object Robot : LoggedRobot() {
         driverController.a().onTrue(superstructure.getDealgaefyCommand())
         driverController.b().onTrue(superstructure.getDealgaefyCommand())
 
+        driverController.rightStick().onTrue(Commands.runOnce({ drivebase.toggleSlowMode() }))
     }
 
     override fun robotPeriodic() {
