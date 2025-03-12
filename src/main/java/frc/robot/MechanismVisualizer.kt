@@ -3,6 +3,7 @@ package frc.robot
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.geometry.Translation3d
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.Radians
 import edu.wpi.first.units.measure.Angle
@@ -43,9 +44,9 @@ object MechanismVisualizer {
         
         mechanismPoses[2] = Pose3d(
             Translation3d(
-                0.095880,
-                -0.044220,
-                0.197480 + carriageHeight
+                Units.inchesToMeters(12.150963),
+                0.0,
+                Units.inchesToMeters(15.75) + carriageHeight
             ), Rotation3d(0.0, -angleRadians, 0.0)
         )
     }
