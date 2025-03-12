@@ -49,6 +49,10 @@
         {
           "axis": "z",
           "degrees": -90.0
+        },
+        {
+          "axis": "y",
+          "degrees": 180
         }
       ],
       "zeroedPosition": [

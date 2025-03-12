@@ -15,21 +15,9 @@ object SuperstructureGoals {
     val scoreAngle = Degrees.of(70.0)
 
     val STOW = SuperstructureState(
-        armAngle = Degrees.of(90.0),
+        armAngle = Degrees.of(180.0),
         elevatorHeight = Inches.of(2.75),
         driveLimits = Drivebase.defaultLimits
-    )
-    
-    val SOURCE = SuperstructureState(
-        armAngle = Degrees.of(-135.0),
-        elevatorHeight = Inches.of(40.0),
-        driveLimits = Drivebase.intakeLimits
-    )
-    
-    val PRE_SOURCE = SuperstructureState(
-        armAngle = Degrees.of(90.0),
-        elevatorHeight = Meters.of(0.5),
-        driveLimits = Drivebase.extendedLimits,
     )
 
     val ALGAE_L2 = SuperstructureState(
@@ -42,21 +30,6 @@ object SuperstructureGoals {
         armAngle = Degrees.of(50.0),
         elevatorHeight = Inches.of(25.0),
         driveLimits = Drivebase.extendedLimits,
-    )
-
-    val PREP_ALGAE_L2 = SuperstructureState(
-        armAngle = Degrees.of(90.0),
-        elevatorHeight = Inches.of(16.0),
-        driveLimits = Drivebase.extendedLimits,
-        nextState = Optional.of(ALGAE_L2)
-    )
-
-
-    val PREP_ALGAE_L3 = SuperstructureState(
-        armAngle = Degrees.of(90.0),
-        elevatorHeight = Inches.of(10.0),
-        driveLimits = Drivebase.extendedLimits,
-        nextState = Optional.of(ALGAE_L3)
     )
     
     val L1 = SuperstructureState(
@@ -81,46 +54,5 @@ object SuperstructureGoals {
         armAngle = Degrees.of(35.0),
         elevatorHeight = Inches.of(51.0),
         driveLimits = Drivebase.extendedLimits,
-    )
-
-    val CLIMB = SuperstructureState(
-        armAngle = Degrees.of(180.0),
-        elevatorHeight = Inches.of(3.0),
-        driveLimits = Drivebase.slowmodeLimits
-    )
-
-    val PRE_CLIMB = SuperstructureState(
-        armAngle = Degrees.of(90.0),
-        elevatorHeight = Inches.of(6.0),
-        driveLimits = Drivebase.slowmodeLimits,
-        nextState = Optional.of(CLIMB)
-    )
-    
-    val L1_PREP = SuperstructureState(
-        armAngle = Degrees.of(90.0),
-        elevatorHeight = Inches.of(1.15),
-        driveLimits = Drivebase.extendedLimits,
-        nextState = Optional.of(L1)
-    )
-    
-    val L2_PREP = SuperstructureState(
-        armAngle = Degrees.of(90.0),
-        elevatorHeight = Inches.of(8.0),
-        driveLimits = Drivebase.extendedLimits,
-        nextState = Optional.of(L2)
-    )
-    
-    val L3_PREP = SuperstructureState(
-        armAngle = Degrees.of(90.0),
-        elevatorHeight = Inches.of(22.0),
-        driveLimits = Drivebase.extendedLimits,
-        nextState = Optional.of(L3)
-    )
-    
-    val L4_PREP = SuperstructureState(
-        armAngle = Degrees.of(90.0),
-        elevatorHeight = Inches.of(51.0),
-        driveLimits = Drivebase.extendedLimits,
-        nextState = Optional.of(L4)
     )
 }

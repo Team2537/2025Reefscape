@@ -19,8 +19,8 @@ import frc.robot.commands.Autos
 import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.subsystems.climb.Climb
 import frc.robot.subsystems.superstructure.Superstructure
+import frc.robot.subsystems.superstructure.SuperstructureGoals
 import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
-import frc.robot.subsystems.superstructure.SuperstructureGoals.L4_PREP
 import frc.robot.subsystems.swerve.Drivebase
 import frc.robot.subsystems.vision.Vision
 import lib.commands.not
@@ -125,29 +125,27 @@ object Robot : LoggedRobot() {
             3
         )
         
-        FieldConstants.Reef.ReefFace.entries.forEach { face ->
-            FieldConstants.Reef.Side.entries.forEach { side -> 
-                operatorController.getReefButton(face, side).onTrue(
-                    AlignmentCommand.buttonBoardAlign(
-                        drivebase,
-                        face,
-                        superstructure.coralPositionSupplier,
-                        Trigger { superstructure.lastRequest == L4 || superstructure.lastRequest == L4_PREP },
-                        leftSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.LEFT),
-                        rightSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.RIGHT),
-                        centerSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.CENTER)
-                    )
-                )
-            }
-        }
+//        FieldConstants.Reef.ReefFace.entries.forEach { face ->
+//            FieldConstants.Reef.Side.entries.forEach { side ->
+//                operatorController.getReefButton(face, side).onTrue(
+//                    AlignmentCommand.buttonBoardAlign(
+//                        drivebase,
+//                        face,
+//                        Trigger { superstructure.lastRequest == L4 || superstructure.lastRequest == L4_PREP },
+//                        leftSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.LEFT),
+//                        rightSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.RIGHT),
+//                        centerSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.CENTER)
+//                    )
+//                )
+//            }
+//        }
         
-        operatorController.getL1Button().onTrue(superstructure.getPrepL1Command())
-        operatorController.getL2Button().onTrue(superstructure.getPrepL2Command())
-        operatorController.getL3Button().onTrue(superstructure.getPrepL3Command())
-        operatorController.getL4Button().onTrue(superstructure.getPrepL4Command())
-        
-        operatorController.getActionButton().onTrue(superstructure.getScoreCommand())
-        operatorController.getStowButton().onTrue(superstructure.getStowCommand())
+        operatorController.getL1Button().onTrue(superstructure.getSendToStateCommand(SuperstructureGoals.L1))
+        operatorController.getL2Button().onTrue(superstructure.getSendToStateCommand(SuperstructureGoals.L2))
+        operatorController.getL3Button().onTrue(superstructure.getSendToStateCommand(SuperstructureGoals.L3))
+        operatorController.getL4Button().onTrue(superstructure.getSendToStateCommand(SuperstructureGoals.L4))
+
+        operatorController.getStowButton().onTrue(superstructure.getSendToStateCommand(SuperstructureGoals.STOW))
     }
 
     override fun robotPeriodic() {
@@ -167,7 +165,7 @@ object Robot : LoggedRobot() {
 
     override fun teleopInit() {
         CommandScheduler.getInstance().cancelAll()
-        superstructure.getStowCommand().schedule()
+        superstructure.getSendToStateCommand(SuperstructureGoals.STOW).schedule()
     }
 
     override fun teleopPeriodic() {}
