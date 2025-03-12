@@ -17,14 +17,14 @@ interface ManipulatorWristIO {
         val statorCurrent: MutCurrent = Amps.zero().mutableCopy()
         val appliedVoltage: MutVoltage = Volts.zero().mutableCopy()
 
-        override fun fromLog(table: LogTable) {
+        override fun toLog(table: LogTable) {
             table.put("angle", angle)
             table.put("velocity", velocity)
             table.put("statorCurrent", statorCurrent)
             table.put("appliedVoltage", appliedVoltage)
         }
 
-        override fun toLog(table: LogTable) {
+        override fun fromLog(table: LogTable) {
             angle.mut_replace(table.get("angle", angle))
             velocity.mut_replace(table.get("velocity", velocity))
             statorCurrent.mut_replace(table.get("statorCurrent", statorCurrent))

@@ -102,6 +102,6 @@ class Arm : SubsystemBase("arm") {
     }
 
     override fun simulationPeriodic() {
-        MechanismVisualizer.setArmAngle(inputs.motorRelativePosition)
+//        MechanismVisualizer.setArmAngle(inputs.motorRelativePosition)
     }
 }

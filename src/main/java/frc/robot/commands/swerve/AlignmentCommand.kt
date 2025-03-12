@@ -101,7 +101,6 @@ class AlignmentCommand(
         fun buttonBoardAlign(
             drivebase: Drivebase,
             side: FieldConstants.Reef.ReefFace,
-            coralDistanceSupplier: Supplier<Distance>,
             isL4: Trigger,
             leftSupplier: Trigger,
             rightSupplier: Trigger,
@@ -118,7 +117,7 @@ class AlignmentCommand(
                                 && !centerSupplier.asBoolean -> {
                             targetPose = targetPose.nudge(
                                 x = if(isL4.asBoolean) -backupL4.into(Meters) else 0.0,
-                                y = (FieldConstants.Reef.sideOffset + coralDistanceSupplier.get()).into(Meters)
+                                y = (FieldConstants.Reef.sideOffset).into(Meters)
                             )
                         }
 
@@ -127,7 +126,7 @@ class AlignmentCommand(
                                 && !centerSupplier.asBoolean -> {
                             targetPose = targetPose.nudge(
                                 x = if(isL4.asBoolean) backupL4.into(Meters) else 0.0,
-                                y = ((-FieldConstants.Reef.sideOffset) + coralDistanceSupplier.get()).into(Meters)
+                                y = (-FieldConstants.Reef.sideOffset).into(Meters)
                             )
                         }
 

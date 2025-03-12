@@ -44,49 +44,13 @@ class Autos(
     }
 
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
-        addOption("IJ", { IJ_Routine.build() })
-        addDefaultOption("I4", { I4_Routine.build() })
-        addOption("FE", { FE_Routine.build() })
-        addOption("F4", { F4_Routine.build() })
-        addOption("B - L2, L3", { bL2_L3() })
-        addOption("idle", { idle_Routine.build()})
+//        addOption("IJ", { IJ_Routine.build() })
+//        addDefaultOption("I4", { I4_Routine.build() })
+//        addOption("FE", { FE_Routine.build() })
+//        addOption("F4", { F4_Routine.build() })
+//        addOption("B - L2, L3", { bL2_L3() })
+//        addOption("idle", { idle_Routine.build()})
     }
-
-    private fun bL2_L3(): Command {
-        val b_to_source = PathPlannerPath.fromPathFile("B_to_bs")
-        val source_to_b = PathPlannerPath.fromPathFile("bs_to_B")
-
-        return Commands.sequence(
-            AutoBuilder.resetOdom(b_to_source.startingHolonomicPose.getOrDefault(Pose2d())),
-            superstructure.getPrepL2Command(),
-            superstructure.getWaitUntilAtPositionCmd(),
-            superstructure.getScoreCommand(),
-            Commands.parallel(
-                Commands.sequence(
-                    AutoBuilder.followPath(b_to_source),
-                    AlignmentCommand.sourceAlignment(drivebase),
-                    ),
-                Commands.sequence(
-                    Commands.waitSeconds(0.15),
-                    superstructure.getSourceIntakeCommand()
-                )
-            ),
-            Commands.parallel(
-                AutoBuilder.followPath(source_to_b),
-                Commands.sequence(
-                    Commands.waitSeconds(0.2),
-                    superstructure.getStowCommand()
-                )
-            ),
-            Commands.parallel(
-                superstructure.getPrepL3Command(),
-            ),
-            superstructure.getWaitUntilAtPositionCmd(),
-            superstructure.getScoreCommand()
-        )
-    }
-
-
 
     val ABC_Routine: AutoRoutine = AutoRoutine(
         listOf(
