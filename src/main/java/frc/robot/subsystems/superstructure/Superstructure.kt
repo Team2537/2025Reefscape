@@ -32,7 +32,7 @@ class Superstructure {
     val arm: Arm = Arm()
     val gripper: Gripper = Gripper()
 
-    private var lastRequest: SuperstructureState = SuperstructureGoals.STOW
+    var lastRequest: SuperstructureState = SuperstructureGoals.STOW
 
     val coralPositionSupplier: Supplier<Distance> = Supplier { gripper.inputs.coralDistance }
 

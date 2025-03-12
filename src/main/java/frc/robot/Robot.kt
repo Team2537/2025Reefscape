@@ -14,13 +14,17 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.subsystems.climb.Climb
 import frc.robot.subsystems.superstructure.Superstructure
+import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
+import frc.robot.subsystems.superstructure.SuperstructureGoals.L4_PREP
 import frc.robot.subsystems.swerve.Drivebase
 import frc.robot.subsystems.vision.Vision
 import lib.commands.not
+import lib.controllers.CommandButtonBoard
 import lib.math.geometry.FieldConstants
 import lib.math.units.degrees
 import org.littletonrobotics.junction.LogFileUtil
@@ -35,7 +39,7 @@ object Robot : LoggedRobot() {
     val updateRateSec = 0.02
 
     val driverController = CommandXboxController(0)
-    val operatorController = CommandXboxController(1)
+    val operatorController = CommandButtonBoard(1, 2)
 
     val godController: CommandXboxController = CommandXboxController(5)
 
@@ -120,37 +124,30 @@ object Robot : LoggedRobot() {
             !driverController.leftBumper(),
             3
         )
-
-        operatorController.leftStick().onTrue(climb.getSendToPositionCommand { 60.0.degrees })
-
-
-        for (i in 0..360 step 45) {
-            driverController.pov(i).onTrue(AlignmentCommand.sourceAlignment(drivebase))
+        
+        FieldConstants.Reef.ReefFace.entries.forEach { face ->
+            FieldConstants.Reef.Side.entries.forEach { side -> 
+                operatorController.getReefButton(face, side).onTrue(
+                    AlignmentCommand.buttonBoardAlign(
+                        drivebase,
+                        face,
+                        superstructure.coralPositionSupplier,
+                        Trigger { superstructure.lastRequest == L4 || superstructure.lastRequest == L4_PREP },
+                        leftSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.LEFT),
+                        rightSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.RIGHT),
+                        centerSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.CENTER)
+                    )
+                )
+            }
         }
-
-        operatorController.povDown().onTrue(superstructure.getPrepL1Command())
-        operatorController.povUp().onTrue(superstructure.getPrepL2Command())
-        operatorController.a().onTrue(superstructure.getPrepL3Command())
-        operatorController.y().onTrue(superstructure.getPrepL4Command())
-
-        operatorController.rightTrigger().onTrue(superstructure.getPrepL3DealgaefyCmd())
-
-        operatorController.x().onTrue(superstructure.getStowCommand())
-
-        operatorController.rightBumper().and(
-            operatorController.leftBumper()
-        ).onTrue(superstructure.getSourceIntakeCommand())
-
-        climb.defaultCommand = climb.getVoltageControlCommand { -operatorController.rightY * 12.0 }
-
-        operatorController.rightStick().onTrue(superstructure.getClimbCommand())
-
-        driverController.x().onTrue(superstructure.getScoreCommand())
-
-        driverController.a().onTrue(superstructure.getDealgaefyCommand())
-        driverController.b().onTrue(superstructure.getDealgaefyCommand())
-
-        driverController.rightStick().onTrue(Commands.runOnce({ drivebase.toggleSlowMode() }))
+        
+        operatorController.getL1Button().onTrue(superstructure.getPrepL1Command())
+        operatorController.getL2Button().onTrue(superstructure.getPrepL2Command())
+        operatorController.getL3Button().onTrue(superstructure.getPrepL3Command())
+        operatorController.getL4Button().onTrue(superstructure.getPrepL4Command())
+        
+        operatorController.getActionButton().onTrue(superstructure.getScoreCommand())
+        operatorController.getStowButton().onTrue(superstructure.getStowCommand())
     }
 
     override fun robotPeriodic() {

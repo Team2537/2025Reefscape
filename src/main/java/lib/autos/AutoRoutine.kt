@@ -71,18 +71,6 @@ class AutoRoutine(
                     }
                 ),
                 PrintCommand("here"),
-                AlignmentCommand.nodeAlignment(
-                    drivebase,
-                    if (branch in listOf(
-                            Reef.Branch.A,
-                            Reef.Branch.C,
-                            Reef.Branch.E,
-                            Reef.Branch.G,
-                            Reef.Branch.I,
-                            Reef.Branch.K
-                        )
-                    ) Reef.Side.LEFT else Reef.Side.RIGHT, superstructure.coralPositionSupplier, { level == Reef.Level.L4}
-                ),
                 Commands.waitSeconds(0.75),
                 superstructure.getScoreCommand(),
             )

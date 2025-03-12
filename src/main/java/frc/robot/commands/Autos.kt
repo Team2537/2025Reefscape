@@ -80,7 +80,6 @@ class Autos(
             ),
             Commands.parallel(
                 superstructure.getPrepL3Command(),
-                AlignmentCommand.nodeAlignment(drivebase, FieldConstants.Reef.Side.RIGHT, superstructure.coralPositionSupplier, { false })
             ),
             superstructure.getWaitUntilAtPositionCmd(),
             superstructure.getScoreCommand()

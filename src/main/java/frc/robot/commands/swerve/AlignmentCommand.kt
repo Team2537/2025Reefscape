@@ -108,29 +108,37 @@ class AlignmentCommand(
             return AlignmentCommand(
                 drivebase,
                 {
-                    var targetPose = FieldConstants.Reef.floorAlignmentPoses[side.ordinal + 1]
+                    var targetPose = FieldConstants.Reef.floorAlignmentPoses[side.ordinal]
 
                     when {
                         leftSupplier.asBoolean
                                 && !rightSupplier.asBoolean
                                 && !centerSupplier.asBoolean -> {
                             targetPose = targetPose.nudge(
-                                x = if(isL4.asBoolean) -backupL4.into(Inches) else 0.0,
-                                y = (FieldConstants.Reef.sideOffset + leftOffset + coralDistanceSupplier.get()).into(Inches)
+                                x = if(isL4.asBoolean) -backupL4.into(Meters) else 0.0,
+                                y = (FieldConstants.Reef.sideOffset + coralDistanceSupplier.get()).into(Meters)
                             )
                         }
 
                         rightSupplier.asBoolean
                                 && !leftSupplier.asBoolean
                                 && !centerSupplier.asBoolean -> {
+                            targetPose = targetPose.nudge(
+                                x = if(isL4.asBoolean) backupL4.into(Meters) else 0.0,
+                                y = ((-FieldConstants.Reef.sideOffset) + coralDistanceSupplier.get()).into(Meters)
+                            )
                         }
 
                         (rightSupplier.asBoolean && leftSupplier.asBoolean)
                                 || centerSupplier.asBoolean -> {
+                            targetPose = targetPose.nudge(
+                                x = 0.0,
+                                y = (centerOffset).into(Meters)
+                            )
                         }
                     }
 
-                    targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) < 1.5 }
+                    targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) <= 1.5 }
                 },
                 PIDGains(kP = 5.0),
                 PIDGains(kP = 5.0),
