@@ -33,7 +33,7 @@ class AlignmentCommand(
     val poseSupplier: Supplier<Pose2d?>,
     val translationPID: PIDGains,
     val rotationPID: PIDGains,
-    val endState: Drivebase.Constants.AlignmentState
+    val endStateSupplier: Supplier<Drivebase.Constants.AlignmentState>
 ) : Command() {
     private val xPid = PIDController(
         translationPID.kP,
@@ -53,6 +53,7 @@ class AlignmentCommand(
         }
 
     private var pose: Pose2d? = null
+    private var endState: Drivebase.Constants.AlignmentState = Drivebase.Constants.AlignmentState.DRIVING
 
     init {
         addRequirements(drivebase)
@@ -61,6 +62,7 @@ class AlignmentCommand(
     override fun initialize() {
         pose = null
         drivebase.alignmentState = Drivebase.Constants.AlignmentState.ALIGNING
+        endState = endStateSupplier.get()
 
         xPid.reset()
         yPid.reset()
@@ -142,11 +144,13 @@ class AlignmentCommand(
                 },
                 PIDGains(kP = 5.0),
                 PIDGains(kP = 5.0),
-                when {
-                    (rightSupplier.asBoolean || leftSupplier.asBoolean) && !centerSupplier.asBoolean ->
-                        if(isL4.asBoolean) Drivebase.Constants.AlignmentState.ALIGNED_L4_CORAL else Drivebase.Constants.AlignmentState.ALIGNED_LOW_CORAL
-                    centerSupplier.asBoolean -> Drivebase.Constants.AlignmentState.ALIGNED_ALGAE
-                    else -> Drivebase.Constants.AlignmentState.DRIVING
+                {
+                    when {
+                        (rightSupplier.asBoolean || leftSupplier.asBoolean) && !centerSupplier.asBoolean ->
+                            if(isL4.asBoolean) Drivebase.Constants.AlignmentState.ALIGNED_L4_CORAL else Drivebase.Constants.AlignmentState.ALIGNED_LOW_CORAL
+                        centerSupplier.asBoolean -> Drivebase.Constants.AlignmentState.ALIGNED_ALGAE
+                        else -> Drivebase.Constants.AlignmentState.DRIVING
+                    }
                 }
             )
         }
@@ -170,7 +174,7 @@ class AlignmentCommand(
                 },
                 translationPID = PIDGains(5.0, 0.0, 0.05),
                 rotationPID = PIDGains(5.0, 0.0, 0.0),
-                endState = Drivebase.Constants.AlignmentState.ALIGNED_SOURCE
+                { Drivebase.Constants.AlignmentState.ALIGNED_SOURCE }
             ).withName("SourceAlignmentCommand").withTimeout(3.0)
         }
 

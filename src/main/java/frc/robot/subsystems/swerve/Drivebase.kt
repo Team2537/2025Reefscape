@@ -283,8 +283,9 @@ class Drivebase : SubsystemBase("drivebase") {
             val strafeS = magnitude * direction.cos
 
             // If alignment state isn't set to driving, and we're trying to drive more than 0.5in/s, set alignment state to driving
-            if(alignmentState != AlignmentState.DRIVING && magnitude > Units.inchesToMeters(0.5)) {
+            if(alignmentState != AlignmentState.DRIVING && magnitude > Units.inchesToMeters(2.0)) {
                 alignmentState = AlignmentState.DRIVING
+                println("Alignment state set to DRIVING")
             }
 
             if (shouldFieldOrient.asBoolean) {
@@ -354,6 +355,8 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.recordOutput("$name/moduleForces", *moduleForces.toTypedArray())
         Logger.recordOutput("$name/limits", limits)
         Logger.recordOutput("$name/operatorPerspective", Rotation2d.struct, operatorPerspective)
+        Logger.recordOutput("$name/slowModeEnabled", slowModeEnabled)
+        Logger.recordOutput("$name/alignmentState", alignmentState)
 
         if (!hasAppliedOperatorPerspective || Robot.isDisabled) {
             operatorPerspective = if (AutoBuilder.shouldFlip()) redPerspective else bluePerspective
