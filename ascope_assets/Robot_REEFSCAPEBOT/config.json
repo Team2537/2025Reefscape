@@ -52,7 +52,7 @@
         },
         {
           "axis": "y",
-          "degrees": 180
+          "degrees": 270.0
         }
       ],
       "zeroedPosition": [
