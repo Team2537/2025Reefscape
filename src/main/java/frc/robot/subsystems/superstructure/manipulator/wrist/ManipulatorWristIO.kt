@@ -12,12 +12,15 @@ import org.littletonrobotics.junction.inputs.LoggableInputs
 
 interface ManipulatorWristIO {
     class ManipulatorWristInputs : LoggableInputs {
+        var isConnected = false
+
         val angle: MutAngle = Radians.zero().mutableCopy()
         val velocity: MutAngularVelocity = RadiansPerSecond.zero().mutableCopy()
         val statorCurrent: MutCurrent = Amps.zero().mutableCopy()
         val appliedVoltage: MutVoltage = Volts.zero().mutableCopy()
 
         override fun toLog(table: LogTable) {
+            table.put("isConnected", isConnected)
             table.put("angle", angle)
             table.put("velocity", velocity)
             table.put("statorCurrent", statorCurrent)
@@ -25,6 +28,7 @@ interface ManipulatorWristIO {
         }
 
         override fun fromLog(table: LogTable) {
+            isConnected = table.get("isConnected", isConnected)
             angle.mut_replace(table.get("angle", angle))
             velocity.mut_replace(table.get("velocity", velocity))
             statorCurrent.mut_replace(table.get("statorCurrent", statorCurrent))

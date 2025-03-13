@@ -79,12 +79,12 @@ object FieldConstants {
         }
 
         val floorAlignmentPoses = listOf(
-            Pose2d(Translation2d(3.12, 4.03), Rotation2d.fromDegrees(0.0)),
-            Pose2d(Translation2d(3.80, 2.84), Rotation2d.fromDegrees(60.0)),
-            Pose2d(Translation2d(5.17, 2.84), Rotation2d.fromDegrees(120.0)),
-            Pose2d(Translation2d(5.86, 4.03), Rotation2d.fromDegrees(180.0)),
-            Pose2d(Translation2d(5.17, 5.21), Rotation2d.fromDegrees(240.0)),
-            Pose2d(Translation2d(3.80, 5.21), Rotation2d.fromDegrees(300.0))
+            Pose2d(Translation2d(3.12, 4.03), Rotation2d.fromDegrees(180.0 + 0.0)),
+            Pose2d(Translation2d(3.80, 2.84), Rotation2d.fromDegrees(180.0 + 60.0)),
+            Pose2d(Translation2d(5.17, 2.84), Rotation2d.fromDegrees(180.0 + 120.0)),
+            Pose2d(Translation2d(5.86, 4.03), Rotation2d.fromDegrees(180.0 + 180.0)),
+            Pose2d(Translation2d(5.17, 5.21), Rotation2d.fromDegrees(180.0 + 240.0)),
+            Pose2d(Translation2d(3.80, 5.21), Rotation2d.fromDegrees(180.0 + 300.0))
         ).map { it.nudge(x = Units.inchesToMeters(1.5)) }
 
         /**

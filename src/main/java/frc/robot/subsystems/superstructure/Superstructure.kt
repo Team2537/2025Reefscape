@@ -1,7 +1,7 @@
 package frc.robot.subsystems.superstructure
 
-import edu.wpi.first.units.Units.Inches
-import edu.wpi.first.units.Units.Volts
+import edu.wpi.first.math.util.Units
+import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
@@ -25,8 +25,11 @@ import frc.robot.subsystems.superstructure.SuperstructureGoals.STOW
 import frc.robot.subsystems.superstructure.arm.Arm
 import frc.robot.subsystems.superstructure.elevator.Elevator
 import frc.robot.subsystems.superstructure.gripper.Gripper
+import frc.robot.subsystems.superstructure.manipulator.roller.ManipulatorRoller
+import frc.robot.subsystems.superstructure.manipulator.roller.ManipulatorRollerIOKraken
 import frc.robot.subsystems.superstructure.manipulator.wrist.ManipulatorWrist
 import lib.math.units.degrees
+import lib.math.units.epsilonEquals
 import lib.math.units.inches
 import org.littletonrobotics.junction.Logger
 import java.util.function.DoubleSupplier
@@ -36,6 +39,7 @@ import kotlin.jvm.optionals.getOrDefault
 class Superstructure {
     val elevator: Elevator = Elevator()
     val wrist: ManipulatorWrist = ManipulatorWrist()
+    val rollers: ManipulatorRoller = ManipulatorRoller()
 
     var lastRequest: SuperstructureState = SuperstructureGoals.STOW
 
@@ -49,7 +53,7 @@ class Superstructure {
     }
 
     private val readyToScore: Trigger = Trigger { SmartDashboard.getBoolean("shouldScore", false) }
-    
+
     val isL1: Trigger = Trigger { lastRequest == L1 }
     val isL2: Trigger = Trigger { lastRequest == L2 }
     val isL3: Trigger = Trigger { lastRequest == L3 }
@@ -74,9 +78,15 @@ class Superstructure {
 
     fun getScoreCommand(): Command {
         return Commands.sequence(
-            getSendToStateCommand { lastRequest },
-            PrintCommand("Scoring"),
-            WaitCommand(2.0),
+            elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+            Commands.waitUntil(
+                elevator.getPositionInToleranceTrigger(Inches.of(12.0))
+                    .and { elevator.inputs.carriageHeight > 3.0.inches }),
+            wrist.getSendToAngleCmd { lastRequest.armAngle },
+            Commands.waitUntil { wrist.inputs.angle.epsilonEquals(lastRequest.armAngle, Degrees.of(1.0)) },
+            Commands.waitSeconds(0.05),
+            rollers.getScoreCommand(),
+            Commands.waitSeconds(0.1),
             getSendToStateCommand { STOW }
         )
     }
