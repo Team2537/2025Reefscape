@@ -15,10 +15,10 @@ import java.util.function.Supplier
 class ManipulatorWrist: SubsystemBase("wrist") {
     val io: ManipulatorWristIO = when(RobotType.mode) {
         RobotType.Mode.SIMULATION -> ManipulatorWristSim(
-            gearing = 1.0,
+            gearing = 40.0,
             mass = Pounds.of(6.0),
             moi = KilogramSquareMeters.of(0.055093356),
-            pidGains = PIDGains(1.0, 0.0, 0.0)
+            pidGains = PIDGains(100.0, 0.0, 0.0)
         )
         RobotType.Mode.REAL -> ManipulatorWristKraken(
             motorID = 0,

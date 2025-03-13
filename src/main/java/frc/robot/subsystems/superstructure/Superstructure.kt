@@ -16,6 +16,10 @@ import frc.robot.Robot
 import frc.robot.Robot.drivebase
 import frc.robot.subsystems.superstructure.SuperstructureGoals.ALGAE_L2
 import frc.robot.subsystems.superstructure.SuperstructureGoals.ALGAE_L3
+import frc.robot.subsystems.superstructure.SuperstructureGoals.L1
+import frc.robot.subsystems.superstructure.SuperstructureGoals.L2
+import frc.robot.subsystems.superstructure.SuperstructureGoals.L3
+import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
 import frc.robot.subsystems.superstructure.SuperstructureGoals.STOW
 import frc.robot.subsystems.superstructure.arm.Arm
 import frc.robot.subsystems.superstructure.elevator.Elevator
@@ -44,24 +48,32 @@ class Superstructure {
     }
 
     private val readyToScore: Trigger = Trigger { SmartDashboard.getBoolean("shouldScore", false) }
+    
+    val isL1: Trigger = Trigger { lastRequest == L1 }
+    val isL2: Trigger = Trigger { lastRequest == L2 }
+    val isL3: Trigger = Trigger { lastRequest == L3 }
+    val isL4: Trigger = Trigger { lastRequest == L4 }
 
-    fun getSendToStateCommand(superstructureState: SuperstructureState): Command {
+    fun getSendToStateCommand(superstructureState: Supplier<SuperstructureState>): Command {
         return Commands.sequence(
-            getForceStateCommand { superstructureState },
-            Commands.parallel(
-                elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
-                wrist.getSendToAngleCmd { lastRequest.armAngle }
-            )
+            getForceStateCommand(superstructureState),
         )
     }
 
-    private fun getForceStateCommand(stateSupplier: Supplier<SuperstructureState>): Command {
+    fun getForceStateCommand(stateSupplier: Supplier<SuperstructureState>): Command {
         return runOnce({
             lastRequest = stateSupplier.get()
             drivebase.limits = lastRequest.driveLimits
         })
     }
 
+    fun getScoreCommand(): Command {
+        return Commands.sequence(
+            getSendToStateCommand { lastRequest },
+            PrintCommand("Scoring"),
+            getSendToStateCommand { STOW }
+        )
+    }
 
     fun periodic() {
         Logger.recordOutput("superstructure/setpoint", SuperstructureState.struct, lastRequest)
