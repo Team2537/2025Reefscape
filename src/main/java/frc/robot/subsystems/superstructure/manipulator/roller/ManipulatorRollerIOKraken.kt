@@ -60,7 +60,7 @@ class ManipulatorRollerIOKraken(
         inputs.angularPosition.mut_replace(position.value)
         inputs.statorCurrent.mut_replace(current.value)
         inputs.appliedVoltage.mut_replace(voltage.value)
-        inputs.coralDistance.mut_replace(sensor.proximity, Inches)
+        inputs.coralDistance = sensor.proximity
     }
     
     override fun setVoltage(voltage: Voltage) {

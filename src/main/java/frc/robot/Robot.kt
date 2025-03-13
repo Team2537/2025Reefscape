@@ -7,6 +7,7 @@ import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.hal.HALUtil
 import edu.wpi.first.math.MathUtil
+import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.util.WPILibVersion
@@ -38,20 +39,20 @@ import kotlin.math.pow
 
 object Robot : LoggedRobot() {
     val updateRateSec = 0.02
-    
+
     val driverController = CommandXboxController(0)
     val operatorController = CommandButtonBoard(1, 2)
-    
+
     val godController: CommandXboxController = CommandXboxController(5)
-    
+
     val drivebase: Drivebase
     val vision: Vision
     val superstructure: Superstructure
     val climb = Climb()
-    
+
     val autos: Autos
-    
-    
+
+
     init {
         // Report the use of the Kotlin Language for "FRC Usage Report" statistics.
         // Please retain this line so that Kotlin's growing use by teams is seen by FRC/WPI.
@@ -61,62 +62,62 @@ object Robot : LoggedRobot() {
             0,
             WPILibVersion.Version
         )
-        
+
         Logger.recordMetadata("Type", RobotType.type.toString())
         Logger.recordMetadata("Serial Number", HALUtil.getSerialNumber())
         Logger.recordOutput("Git Dirty", if (DIRTY == 1) "DIRTY" else "CLEAN")
         Logger.recordOutput("Git Branch", GIT_BRANCH)
         Logger.recordOutput("Git SHA", GIT_SHA)
         Logger.recordOutput("Git Date", GIT_DATE)
-        
+
         when (RobotType.mode) {
             RobotType.Mode.REAL -> {
                 Logger.addDataReceiver(NT4Publisher())
                 Logger.addDataReceiver(WPILOGWriter())
-                
+
                 PowerDistribution(1, PowerDistribution.ModuleType.kRev)
             }
-            
+
             RobotType.Mode.SIMULATION -> {
                 Logger.addDataReceiver(NT4Publisher())
                 Logger.addDataReceiver(WPILOGWriter())
             }
-            
+
             RobotType.Mode.REPLAY -> {
                 setUseTiming(false)
-                
+
                 val logFile = LogFileUtil.findReplayLog()
                 Logger.setReplaySource(WPILOGReader(logFile))
                 Logger.addDataReceiver(WPILOGWriter(LogFileUtil.addPathSuffix(logFile, "_replayed")))
             }
         }
-        
+
         Logger.start()
-        
+
         CanandEventLoop.getInstance()
         FieldConstants
-        
+
         CommandScheduler.getInstance()
             .onCommandInitialize { command -> Logger.recordOutput("commands/${command.name}", true) }
         CommandScheduler.getInstance()
             .onCommandFinish { command -> Logger.recordOutput("commands/${command.name}", false) }
-        
-        CameraServer.startAutomaticCapture()
-        
+
+//        CameraServer.startAutomaticCapture()
+
         drivebase = Drivebase()
         vision = Vision(drivebase::addVisionMeasurement)
         superstructure = Superstructure()
-        
+
         autos = Autos(drivebase, superstructure, climb)
-        
-        
+
+
         configureBindings()
-        
+
         DriverStation.silenceJoystickConnectionWarning(true)
 
 //        driverController.a().whileTrue(drivebase.driveSysId())
     }
-    
+
     fun configureBindings() {
         drivebase.defaultCommand = drivebase.getDriveCmd(
             { -(MathUtil.applyDeadband(driverController.leftY, 0.05)) },
@@ -125,7 +126,7 @@ object Robot : LoggedRobot() {
             !driverController.leftBumper(),
             3
         )
-        
+
         FieldConstants.Reef.ReefFace.entries.forEach { face ->
             FieldConstants.Reef.Side.entries.forEach { side ->
                 operatorController.getReefButton(face, side).onTrue(
@@ -140,56 +141,56 @@ object Robot : LoggedRobot() {
                 )
             }
         }
-        
+
         operatorController.getL1Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L1 })
         operatorController.getL2Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L2 })
         operatorController.getL3Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L3 })
         operatorController.getL4Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L4 })
-        
+
+//        operatorController.getL1Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(6.0) })
+//        operatorController.getL2Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(12.0) })
+//        operatorController.getL3Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(18.0) })
+//        operatorController.getL4Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(24.0) })
+
         operatorController.getActionButton().onTrue(
-            Commands.either(
-                superstructure.getScoreCommand(),
-                PrintCommand("Dealgaefying"),
-                {
-                    drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_L4_CORAL
-                      || drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_LOW_CORAL
-                }
-            )
+            superstructure.getScoreCommand()
         )
-        
-        operatorController.getStowButton().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
+
+        operatorController.getStowButton().onTrue(
+            superstructure.getSendToStateCommand { SuperstructureGoals.STOW }
+        )
     }
-    
+
     override fun robotPeriodic() {
         CommandScheduler.getInstance().run()
         superstructure.periodic()
     }
-    
+
     override fun disabledInit() {}
-    
+
     override fun disabledPeriodic() {}
-    
+
     override fun autonomousInit() {
         autos.selectedRoutine.schedule()
     }
-    
+
     override fun autonomousPeriodic() {}
-    
+
     override fun teleopInit() {
         CommandScheduler.getInstance().cancelAll()
-        superstructure.getSendToStateCommand({ SuperstructureGoals.STOW }).schedule()
+//        superstructure.getSendToStateCommand({ SuperstructureGoals.STOW }).schedule()
     }
-    
+
     override fun teleopPeriodic() {}
-    
+
     override fun testInit() {
         CommandScheduler.getInstance().cancelAll()
     }
-    
+
     override fun testPeriodic() {}
-    
+
     override fun simulationInit() {}
-    
+
     override fun simulationPeriodic() {
         MechanismVisualizer.updatePoses()
     }

@@ -27,7 +27,7 @@ interface ManipulatorRollerIO {
         val angularPosition: MutAngle = Radians.zero().mutableCopy()
         val appliedVoltage: MutVoltage = Volts.zero().mutableCopy()
         val statorCurrent: MutCurrent = Amps.zero().mutableCopy()
-        val coralDistance: MutDistance = Meters.zero().mutableCopy()
+        var coralDistance: Double = 0.0
         
         override fun toLog(table: LogTable) {
             table.put("isMotorConnected", isMotorConnected)
@@ -44,7 +44,7 @@ interface ManipulatorRollerIO {
             angularPosition.mut_replace(table.get("angularPosition", angularPosition))
             appliedVoltage.mut_replace(table.get("appliedVoltage", appliedVoltage))
             statorCurrent.mut_replace(table.get("statorCurrent", statorCurrent))
-            coralDistance.mut_replace(table.get("coralDistance", coralDistance))
+            coralDistance = table.get("coralDistance", coralDistance)
         }
     }
     
