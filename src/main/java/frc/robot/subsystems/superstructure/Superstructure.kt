@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.PrintCommand
+import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.MechanismVisualizer
@@ -57,6 +58,10 @@ class Superstructure {
     fun getSendToStateCommand(superstructureState: Supplier<SuperstructureState>): Command {
         return Commands.sequence(
             getForceStateCommand(superstructureState),
+            Commands.parallel(
+                elevator.getMoveToHeightCommand { superstructureState.get().elevatorHeight },
+                wrist.getSendToAngleCmd { superstructureState.get().armAngle }
+            )
         )
     }
 
@@ -71,11 +76,13 @@ class Superstructure {
         return Commands.sequence(
             getSendToStateCommand { lastRequest },
             PrintCommand("Scoring"),
+            WaitCommand(2.0),
             getSendToStateCommand { STOW }
         )
     }
 
     fun periodic() {
         Logger.recordOutput("superstructure/setpoint", SuperstructureState.struct, lastRequest)
+        Logger.recordOutput("superstructure/setpoint/name", lastRequest.name)
     }
 }

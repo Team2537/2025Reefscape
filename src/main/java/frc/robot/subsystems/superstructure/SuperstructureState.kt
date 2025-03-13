@@ -16,7 +16,8 @@ data class SuperstructureState(
     val armAngle: Angle,
     val elevatorHeight: Distance,
     val driveLimits: PathConstraints = Drivebase.defaultLimits,
-    val nextState: Optional<SuperstructureState> = Optional.empty()
+    val nextState: Optional<SuperstructureState> = Optional.empty(),
+    val name: String = ""
 ) : StructSerializable {
     companion object {
         class SuperstructureStateStruct : Struct<SuperstructureState> {
