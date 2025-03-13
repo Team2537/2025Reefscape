@@ -27,9 +27,9 @@ class CommandButtonBoard(
     fun getReefButton(face: FieldConstants.Reef.ReefFace, side: FieldConstants.Reef.Side): Trigger {
         return when (face) {
             FieldConstants.Reef.ReefFace.S1 -> when (side) { // South
-                FieldConstants.Reef.Side.LEFT -> leftButtonBoard.button(11)
-                FieldConstants.Reef.Side.CENTER -> leftButtonBoard.button(12)
-                FieldConstants.Reef.Side.RIGHT -> leftButtonBoard.button(10)
+                FieldConstants.Reef.Side.LEFT -> leftButtonBoard.button(6)
+                FieldConstants.Reef.Side.CENTER -> leftButtonBoard.button(4)
+                FieldConstants.Reef.Side.RIGHT -> leftButtonBoard.button(5)
             }
             FieldConstants.Reef.ReefFace.S2 -> when (side) { // Southeast
                 FieldConstants.Reef.Side.LEFT -> rightButtonBoard.button(7)
@@ -37,9 +37,9 @@ class CommandButtonBoard(
                 FieldConstants.Reef.Side.RIGHT -> rightButtonBoard.button(9)
             }
             FieldConstants.Reef.ReefFace.S3 -> when (side) { // Northeast
-                FieldConstants.Reef.Side.LEFT -> rightButtonBoard.button(7)
-                FieldConstants.Reef.Side.CENTER -> rightButtonBoard.button(8)
-                FieldConstants.Reef.Side.RIGHT -> rightButtonBoard.button(9)
+                FieldConstants.Reef.Side.LEFT -> rightButtonBoard.button(11)
+                FieldConstants.Reef.Side.CENTER -> rightButtonBoard.button(12)
+                FieldConstants.Reef.Side.RIGHT -> rightButtonBoard.button(10)
             }
             FieldConstants.Reef.ReefFace.S4 -> when (side) { // North
                 FieldConstants.Reef.Side.LEFT -> leftButtonBoard.button(3)
