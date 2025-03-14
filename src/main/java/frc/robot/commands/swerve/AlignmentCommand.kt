@@ -102,7 +102,9 @@ class AlignmentCommand(
             return AlignmentCommand(
                 drivebase,
                 {
-                    var targetPose = FieldConstants.Reef.floorAlignmentPoses[side.ordinal]
+                    var targetPose = FieldConstants.Reef.floorAlignmentPoses[side.ordinal].let {
+                        if(AutoBuilder.shouldFlip()) it.flipped() else it
+                    }
 
                     when {
                         leftSupplier.asBoolean
