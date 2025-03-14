@@ -15,6 +15,7 @@ import edu.wpi.first.units.measure.LinearAcceleration
 import edu.wpi.first.units.measure.LinearVelocity
 import lib.math.controllers.gains.FeedforwardGains
 import lib.math.controllers.gains.PIDGains
+import kotlin.math.PI
 
 class ElevatorIOKraken(
     private val leftMotorId: Int,
@@ -53,8 +54,8 @@ class ElevatorIOKraken(
             config.Slot0.GravityType = GravityTypeValue.Elevator_Static
             
             // Configure motion magic parameters
-            config.MotionMagic.withMotionMagicAcceleration(motionMagicAcceleration.baseUnitMagnitude())
-            config.MotionMagic.withMotionMagicCruiseVelocity(motionMagicCruiseVelocity.baseUnitMagnitude())
+            config.MotionMagic.withMotionMagicAcceleration(motionMagicAcceleration.baseUnitMagnitude() / (PI * drumRadius.baseUnitMagnitude()))
+            config.MotionMagic.withMotionMagicCruiseVelocity(motionMagicCruiseVelocity.baseUnitMagnitude() / (PI * drumRadius.baseUnitMagnitude()))
             config.MotionMagic.withMotionMagicJerk(motionMagicJerk)
             
             // Configure current limits
