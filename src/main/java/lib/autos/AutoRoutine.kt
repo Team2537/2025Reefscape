@@ -27,7 +27,6 @@ class AutoRoutine(
     private val actions: List<Triple<Reef.Branch, Reef.Level, Boolean>>,
     private val drivebase: Drivebase,
     private val superstructure: Superstructure,
-    private val climb: Climb
 ) {
     
 //    fun build(): Command {

@@ -4,28 +4,21 @@ import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.path.PathConstraints
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Pose2d
-import edu.wpi.first.math.geometry.Rotation2d
-import edu.wpi.first.math.geometry.Transform2d
-import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj2.command.Command
-import edu.wpi.first.wpilibj2.command.WrapperCommand
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.subsystems.swerve.Drivebase
 import lib.math.controllers.gains.PIDGains
 import lib.math.geometry.FieldConstants
 import lib.math.geometry.flipped
 import lib.math.geometry.nudge
-import lib.math.units.inches
 import lib.math.units.into
 import org.littletonrobotics.junction.Logger
 import java.util.*
-import java.util.function.BooleanSupplier
 import java.util.function.Supplier
-import kotlin.jvm.optionals.getOrDefault
 import kotlin.math.PI
 
 class AlignmentCommand(
@@ -116,8 +109,7 @@ class AlignmentCommand(
                                 && !rightSupplier.asBoolean
                                 && !centerSupplier.asBoolean -> {
                             targetPose = targetPose.nudge(
-                                x = if(isL4.asBoolean) -backupL4.into(Meters) else 0.0,
-                                y = (FieldConstants.Reef.sideOffset).into(Meters)
+                                y = (FieldConstants.Reef.sideOffset + leftOffset).into(Meters)
                             )
                         }
 
@@ -125,15 +117,13 @@ class AlignmentCommand(
                                 && !leftSupplier.asBoolean
                                 && !centerSupplier.asBoolean -> {
                             targetPose = targetPose.nudge(
-                                x = if(isL4.asBoolean) backupL4.into(Meters) else 0.0,
-                                y = (-FieldConstants.Reef.sideOffset).into(Meters)
+                                y = (-FieldConstants.Reef.sideOffset + rightOffset).into(Meters)
                             )
                         }
 
                         (rightSupplier.asBoolean && leftSupplier.asBoolean)
                                 || centerSupplier.asBoolean -> {
                             targetPose = targetPose.nudge(
-                                x = 0.0,
                                 y = (centerOffset).into(Meters)
                             )
                         }
@@ -146,7 +136,7 @@ class AlignmentCommand(
                 {
                     when {
                         (rightSupplier.asBoolean || leftSupplier.asBoolean) && !centerSupplier.asBoolean ->
-                            if(isL4.asBoolean) Drivebase.Constants.AlignmentState.ALIGNED_L4_CORAL else Drivebase.Constants.AlignmentState.ALIGNED_LOW_CORAL
+                            Drivebase.Constants.AlignmentState.ALIGNED_CORAL
                         centerSupplier.asBoolean -> Drivebase.Constants.AlignmentState.ALIGNED_ALGAE
                         else -> Drivebase.Constants.AlignmentState.DRIVING
                     }
@@ -177,10 +167,12 @@ class AlignmentCommand(
             ).withName("SourceAlignmentCommand").withTimeout(3.0)
         }
 
-        val leftOffset: Distance = Inches.of(6.0)
-        val rightOffset: Distance = Inches.of(3.5)
-        val centerOffset: Distance = Inches.of(2.0)
+        val leftOffset: Distance = Inches.of(-15.0)
+        val rightOffset: Distance = Inches.of(1.0)
+        val centerOffset: Distance = Inches.of(-6.0)
         val backupL4: Distance = Inches.of(3.0)
+
+        val manipulatorOffset = Inches.of(4.75)
 
         val alignLimits: PathConstraints = PathConstraints(
             MetersPerSecond.of(1.5),

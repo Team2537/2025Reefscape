@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.signals.GravityTypeValue
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.math.util.Units
@@ -33,6 +34,8 @@ class ManipulatorWristKraken(
         config.Slot0.kS = ffGains.kS
         config.Slot0.kV = ffGains.kV
         config.Slot0.kA = ffGains.kA
+        config.Slot0.kG = 0.45
+        config.Slot0.GravityType = GravityTypeValue.Arm_Cosine
 
         config.MotionMagic
             .withMotionMagicCruiseVelocity(cruiseVelocity)
@@ -47,6 +50,8 @@ class ManipulatorWristKraken(
         config.CurrentLimits.SupplyCurrentLimit = 40.0
         config.CurrentLimits.StatorCurrentLimitEnable = true
         config.CurrentLimits.SupplyCurrentLimitEnable = true
+
+        configurator.apply(config)
 
         setPosition(Units.degreesToRotations(10.0))
     }

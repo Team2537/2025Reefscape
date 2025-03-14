@@ -1,45 +1,39 @@
 package frc.robot.subsystems.superstructure
 
-import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
-import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
-import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
-import edu.wpi.first.wpilibj2.command.PrintCommand
-import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.robot.MechanismVisualizer
-import frc.robot.Robot
 import frc.robot.Robot.drivebase
-import frc.robot.subsystems.superstructure.SuperstructureGoals.ALGAE_L2
-import frc.robot.subsystems.superstructure.SuperstructureGoals.ALGAE_L3
 import frc.robot.subsystems.superstructure.SuperstructureGoals.L1
 import frc.robot.subsystems.superstructure.SuperstructureGoals.L2
 import frc.robot.subsystems.superstructure.SuperstructureGoals.L3
 import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
 import frc.robot.subsystems.superstructure.SuperstructureGoals.STOW
-import frc.robot.subsystems.superstructure.arm.Arm
 import frc.robot.subsystems.superstructure.elevator.Elevator
-import frc.robot.subsystems.superstructure.gripper.Gripper
 import frc.robot.subsystems.superstructure.manipulator.roller.ManipulatorRoller
-import frc.robot.subsystems.superstructure.manipulator.roller.ManipulatorRollerIOKraken
 import frc.robot.subsystems.superstructure.manipulator.wrist.ManipulatorWrist
 import lib.math.units.degrees
 import lib.math.units.epsilonEquals
 import lib.math.units.inches
 import org.littletonrobotics.junction.Logger
-import java.util.function.DoubleSupplier
 import java.util.function.Supplier
-import kotlin.jvm.optionals.getOrDefault
 
 class Superstructure {
     val elevator: Elevator = Elevator()
     val wrist: ManipulatorWrist = ManipulatorWrist()
-    val rollers: ManipulatorRoller = ManipulatorRoller()
+    val rollers: ManipulatorRoller = ManipulatorRoller().apply {
+        defaultCommand = this.run {
+            if (inputs.coralDistance > 0.2) {
+                io.setVoltage(Volts.of(1.0))
+            } else {
+                io.setVoltage(Volts.zero())
+            }
+        }.onlyIf { lastRequest == STOW }.handleInterrupt { io.setVoltage(Volts.zero()) }
+    }
 
     var lastRequest: SuperstructureState = SuperstructureGoals.STOW
 
@@ -76,17 +70,48 @@ class Superstructure {
         })
     }
 
+    fun getDealgaefyCommand(): Command {
+        return Commands.sequence(
+            elevator.getMoveToHeightCommand { Inches.of(9.0) },
+            Commands.waitUntil(elevator.getPositionInToleranceTrigger(0.5.inches)),
+            wrist.getSendToAngleCmd { Degrees.of(140.0) },
+            Commands.waitUntil { wrist.inputs.angle.epsilonEquals(140.0.degrees, 5.0.degrees) },
+            Commands.parallel(
+                wrist.getSendToAngleCmd { Degrees.of(170.0) },
+                elevator.getMoveToHeightCommand {
+                    if (lastRequest == L3) Inches.of(29.0)
+                    else Inches.of(12.0)
+                },
+                rollers.getDealgaefyCommand()
+            ).onlyIf { lastRequest == L3 || lastRequest == L2 },
+
+            )
+    }
+
+
     fun getScoreCommand(): Command {
         return Commands.sequence(
-            elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
-            Commands.waitUntil(
-                elevator.getPositionInToleranceTrigger(Inches.of(12.0))
-                    .and { elevator.inputs.carriageHeight > 3.0.inches }),
-            wrist.getSendToAngleCmd { lastRequest.armAngle },
-            Commands.waitUntil { wrist.inputs.angle.epsilonEquals(lastRequest.armAngle, Degrees.of(1.0)) },
-            Commands.waitSeconds(0.05),
+            Commands.either(
+                Commands.sequence(
+
+                    elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
+                    Commands.waitUntil(
+                        elevator.getPositionInToleranceTrigger(Inches.of(3.0))
+                            .and { elevator.inputs.carriageHeight > 3.0.inches }),
+                    wrist.getSendToAngleCmd { lastRequest.armAngle },
+                    Commands.waitUntil { wrist.inputs.angle.epsilonEquals(lastRequest.armAngle, Degrees.of(5.0)) },
+                    Commands.waitSeconds(0.4)
+                ),
+                Commands.sequence(
+                    getSendToStateCommand { lastRequest },
+                    Commands.waitUntil(
+                        elevator.getPositionInToleranceTrigger(Inches.of(0.5))
+                            .and { wrist.inputs.angle.epsilonEquals(lastRequest.armAngle, Degrees.of(5.0)) }
+                    ),
+                ),
+                { lastRequest == L4 }
+            ),
             rollers.getScoreCommand(),
-            Commands.waitSeconds(0.1),
             getSendToStateCommand { STOW }
         )
     }

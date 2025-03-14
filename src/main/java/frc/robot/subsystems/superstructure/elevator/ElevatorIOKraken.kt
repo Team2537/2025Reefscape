@@ -58,7 +58,7 @@ class ElevatorIOKraken(
             config.MotionMagic.withMotionMagicJerk(motionMagicJerk)
             
             // Configure current limits
-            config.CurrentLimits.StatorCurrentLimit = 100.0
+            config.CurrentLimits.StatorCurrentLimit = 120.0
             config.CurrentLimits.SupplyCurrentLimit = 40.0
             config.CurrentLimits.StatorCurrentLimitEnable = true
             config.CurrentLimits.SupplyCurrentLimitEnable = true

@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.robot.commands.swerve.AlignmentCommand
-import frc.robot.subsystems.climb.Climb
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.swerve.Drivebase
 import lib.autos.AutoRoutine
@@ -24,7 +23,6 @@ import kotlin.jvm.optionals.getOrDefault
 class Autos(
     val drivebase: Drivebase,
     val superstructure: Superstructure,
-    val climb: Climb
 ) {
 
     val IJ_Routine_PP = Supplier {
@@ -61,7 +59,6 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        climb
     )
 
     val IJ_Routine: AutoRoutine = AutoRoutine(
@@ -71,7 +68,7 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        climb
+        
     )
 
     val I4_Routine: AutoRoutine = AutoRoutine(
@@ -80,7 +77,7 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        climb
+        
     )
 
     val FE_Routine: AutoRoutine = AutoRoutine(
@@ -90,7 +87,7 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        climb
+        
     )
 
     val F4_Routine: AutoRoutine = AutoRoutine(
@@ -99,7 +96,7 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        climb
+        
     )
 
     val idle_Routine: AutoRoutine = AutoRoutine(
@@ -109,7 +106,7 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        climb
+        
     )
 
     val selectedRoutine: Command

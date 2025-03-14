@@ -15,7 +15,6 @@ import edu.wpi.first.math.Vector
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
-import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics
@@ -39,12 +38,9 @@ import frc.robot.subsystems.swerve.gyro.GyroIO
 import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2
 import frc.robot.subsystems.swerve.gyro.GyroIOSim
 import frc.robot.subsystems.swerve.module.SwerveModule
-import lib.math.geometry.FieldConstants
-import lib.math.geometry.flipped
 import lib.math.units.into
 import lib.math.units.measuredIn
 import org.littletonrobotics.junction.Logger
-import java.lang.reflect.Field
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
 import java.util.function.Supplier
@@ -62,10 +58,10 @@ class Drivebase : SubsystemBase("drivebase") {
      * 3: Back Right
      */
     val modules: Array<SwerveModule> = arrayOf(
-        SwerveModule(1, 2, 2, true, true, Rotation2d.fromRadians(1.540), moduleTranslations[0]),
-        SwerveModule(3, 4, 4, true, true, Rotation2d.fromRadians(2.530), moduleTranslations[1]),
-        SwerveModule(5, 6, 6, true, true, Rotation2d.fromRadians(0.739), moduleTranslations[2]),
-        SwerveModule(7, 8, 8, true, true, Rotation2d.fromRadians(2.132), moduleTranslations[3])
+        SwerveModule(1, 2, 2, false, true, Rotation2d.fromRotations(0.3779296875), moduleTranslations[0]),
+        SwerveModule(3, 4, 4, true, true, Rotation2d.fromRotations(-0.376220703125), moduleTranslations[1]),
+        SwerveModule(5, 6, 6, false, true, Rotation2d.fromRotations(0.383544921875), moduleTranslations[2]),
+        SwerveModule(7, 8, 8, true, true, Rotation2d.fromRotations(-0.230712890625), moduleTranslations[3])
     )
 
     val gyro: GyroIO = when (RobotType.mode) {
@@ -271,6 +267,7 @@ class Drivebase : SubsystemBase("drivebase") {
         strafe: DoubleSupplier,
         rotation: DoubleSupplier,
         shouldFieldOrient: BooleanSupplier,
+        shouldBoostSupplier: BooleanSupplier,
         exponent: Int
     ): Command {
         return run {
@@ -303,7 +300,7 @@ class Drivebase : SubsystemBase("drivebase") {
                 )
             }
 
-            applyChassisSpeeds(speeds, if (slowModeEnabled) slowmodeLimits else limits)
+            applyChassisSpeeds(speeds, if (!shouldBoostSupplier.asBoolean) slowmodeLimits else limits)
         }
     }
 
@@ -442,8 +439,7 @@ class Drivebase : SubsystemBase("drivebase") {
         enum class AlignmentState {
             ALIGNING,
             ALIGNED_ALGAE,
-            ALIGNED_LOW_CORAL,
-            ALIGNED_L4_CORAL,
+            ALIGNED_CORAL,
             ALIGNED_SOURCE,
             DRIVING
         }
