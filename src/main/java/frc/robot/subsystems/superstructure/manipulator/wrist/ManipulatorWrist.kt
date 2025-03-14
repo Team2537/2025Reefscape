@@ -22,9 +22,9 @@ class ManipulatorWrist: SubsystemBase("wrist") {
         )
         RobotType.Mode.REAL -> ManipulatorWristKraken(
             motorID = 22,
-            pidGains = PIDGains(10.0, 0.0, 0.0),
-            ffGains = FeedforwardGains(0.0, 0.0, 0.0),
-            inverted = false,
+            pidGains = PIDGains(kP = 40.0),
+            ffGains = FeedforwardGains(kS = 0.12782, kV = 4.97),
+            inverted = true,
             gearing = 40.0,
             cruiseVelocity = RotationsPerSecond.of(2.0),
             acceleration = RotationsPerSecondPerSecond.of(4.0)

@@ -48,7 +48,6 @@ object Robot : LoggedRobot() {
     val drivebase: Drivebase
     val vision: Vision
     val superstructure: Superstructure
-    val climb = Climb()
 
     val autos: Autos
 
@@ -108,7 +107,7 @@ object Robot : LoggedRobot() {
         vision = Vision(drivebase::addVisionMeasurement)
         superstructure = Superstructure()
 
-        autos = Autos(drivebase, superstructure, climb)
+        autos = Autos(drivebase, superstructure)
 
 
         configureBindings()
@@ -124,6 +123,7 @@ object Robot : LoggedRobot() {
             { -(MathUtil.applyDeadband(driverController.leftX, 0.05)) },
             { -(MathUtil.applyDeadband(driverController.rightX, 0.05)) },
             !driverController.leftBumper(),
+            driverController.leftTrigger(),
             3
         )
 
@@ -153,7 +153,15 @@ object Robot : LoggedRobot() {
 //        operatorController.getL4Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(24.0) })
 
         operatorController.getActionButton().onTrue(
-            superstructure.getScoreCommand()
+            Commands.either(
+                superstructure.getScoreCommand(),
+                superstructure.getDealgaefyCommand(),
+                { drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
+            )
+                .onlyIf {
+                    drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL
+                            || drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_ALGAE
+                }
         )
 
         operatorController.getStowButton().onTrue(
