@@ -42,6 +42,14 @@ object FieldConstants {
 
     val tagLayout = AprilTagFieldLayout(Filesystem.getDeployDirectory().resolve("2025-reefscape-andymark-nobarge.json").toPath())
 
+    val blueTagIDs = listOf(
+        12, 13, 16, 17, 18, 19, 20, 21, 22
+    )
+
+    val redTagIDs = listOf(
+        1, 2, 3, 6, 7, 8, 9, 10, 11
+    )
+
     // Access the reef and processor constants to initialize them
     init {
         tagLayout.tags.forEach { print("${it.ID} - ") }

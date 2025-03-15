@@ -1,5 +1,6 @@
 package frc.robot.subsystems.vision
 
+import com.pathplanner.lib.auto.AutoBuilder
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.VecBuilder
@@ -79,7 +80,10 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
             for (observation in inputs.poseObservations) {
                 val rejectPose: Boolean =
                     observation.tagCount == 0
-                            || (observation.tagCount == 1 && (observation.ambiguity > maxAmbiguity || inputs.tagIDs.first() !in FieldConstants.Reef.reefTags))
+                            || (observation.tagCount == 1 && (
+                            observation.ambiguity > maxAmbiguity
+                                    || inputs.tagIDs.first() !in FieldConstants.Reef.reefTags
+                                    || inputs.tagIDs.first() !in if(AutoBuilder.shouldFlip()) FieldConstants.redTagIDs else FieldConstants.blueTagIDs))
                             || abs(observation.pose.z) > maxZError
                             || observation.pose.x < 0.0
                             || observation.pose.x > FieldConstants.tagLayout.fieldLength

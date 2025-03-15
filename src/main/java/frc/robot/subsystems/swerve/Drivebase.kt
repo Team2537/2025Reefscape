@@ -452,6 +452,13 @@ class Drivebase : SubsystemBase("drivebase") {
             DegreesPerSecondPerSecond.of(2500.0)
         )
 
+        val autoLimits = PathConstraints(
+            MetersPerSecond.of(3.0),
+            MetersPerSecondPerSecond.of(14.5),
+            DegreesPerSecond.of(540.0),
+            DegreesPerSecondPerSecond.of(720.0)
+        )
+
         val bluePerspective = Rotation2d.fromDegrees(0.0)
         val redPerspective = Rotation2d.fromDegrees(180.0)
 
