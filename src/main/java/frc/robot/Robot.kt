@@ -156,7 +156,7 @@ object Robot : LoggedRobot() {
             Commands.either(
                 superstructure.getScoreCommand(),
                 superstructure.getDealgaefyCommand(),
-                { drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
+                { drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL || driverController.hid.aButton }
             )
                 .onlyIf {
                     drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL
@@ -186,7 +186,7 @@ object Robot : LoggedRobot() {
 
     override fun teleopInit() {
         CommandScheduler.getInstance().cancelAll()
-//        superstructure.getSendToStateCommand({ SuperstructureGoals.STOW }).schedule()
+        superstructure.getSendToStateCommand({ SuperstructureGoals.STOW }).schedule()
     }
 
     override fun teleopPeriodic() {}
