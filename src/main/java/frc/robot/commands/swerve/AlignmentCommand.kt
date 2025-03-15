@@ -111,7 +111,7 @@ class AlignmentCommand(
                                 && !rightSupplier.asBoolean
                                 && !centerSupplier.asBoolean -> {
                             targetPose = targetPose.nudge(
-                                y = (FieldConstants.Reef.sideOffset + leftOffset).into(Meters)
+                                y = (FieldConstants.Reef.sideOffset + manipulatorOffset + leftOffset).into(Meters)
                             )
                         }
 
@@ -119,7 +119,7 @@ class AlignmentCommand(
                                 && !leftSupplier.asBoolean
                                 && !centerSupplier.asBoolean -> {
                             targetPose = targetPose.nudge(
-                                y = (-FieldConstants.Reef.sideOffset + rightOffset).into(Meters)
+                                y = (-FieldConstants.Reef.sideOffset + manipulatorOffset + rightOffset).into(Meters)
                             )
                         }
 
@@ -169,8 +169,8 @@ class AlignmentCommand(
             ).withName("SourceAlignmentCommand").withTimeout(3.0)
         }
 
-        val leftOffset: Distance = Inches.of(-12.0)
-        val rightOffset: Distance = Inches.of(2.0)
+        val leftOffset: Distance = Inches.of(-16.0)
+        val rightOffset: Distance = Inches.of(-2.5)
         val centerOffset: Distance = Inches.of(-6.0)
         val backupL4: Distance = Inches.of(3.0)
 

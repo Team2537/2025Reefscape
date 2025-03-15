@@ -17,7 +17,7 @@ object RobotType {
         REPLAY(Type.ROBOT_2025_COMP)
     }
     
-    val isReplay: Boolean = true
+    val isReplay: Boolean = false
     val mode: Mode = if(RobotBase.isReal()) Mode.REAL else if(isReplay) Mode.REPLAY else Mode.SIMULATION
     val type: Type = mode.defaultRobotType
     

@@ -103,7 +103,7 @@ object Robot : LoggedRobot() {
         CommandScheduler.getInstance()
             .onCommandFinish { command -> Logger.recordOutput("commands/${command.name}", false) }
 
-//        CameraServer.startAutomaticCapture()
+        CameraServer.startAutomaticCapture()
 
         drivebase = Drivebase()
         vision = Vision(drivebase::addVisionMeasurement)
