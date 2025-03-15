@@ -12,6 +12,7 @@ import com.pathplanner.lib.util.swerve.SwerveSetpoint
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.Vector
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
@@ -40,10 +41,13 @@ import frc.robot.subsystems.swerve.gyro.GyroIOSim
 import frc.robot.subsystems.swerve.module.SwerveModule
 import lib.math.units.into
 import lib.math.units.measuredIn
+import lib.math.units.rotations
 import org.littletonrobotics.junction.Logger
+import java.util.*
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
 import java.util.function.Supplier
+import javax.swing.text.html.Option
 import kotlin.jvm.optionals.getOrDefault
 import kotlin.math.*
 
@@ -206,6 +210,8 @@ class Drivebase : SubsystemBase("drivebase") {
         }
     }
 
+    private val headingPID = PIDController(5.0, 0.0, 0.0).apply { enableContinuousInput(0.0, 1.0) }
+
     fun applyChassisSpeeds(speeds: ChassisSpeeds, moduleForces: List<Vector<N2>>) {
         lastSetpoint =
             setpointGenerator.generateSetpoint(
@@ -268,19 +274,32 @@ class Drivebase : SubsystemBase("drivebase") {
         rotation: DoubleSupplier,
         shouldFieldOrient: BooleanSupplier,
         shouldBoostSupplier: BooleanSupplier,
+        headingTarget: Supplier<Rotation2d?>,
         exponent: Int
     ): Command {
         return run {
             val speeds: ChassisSpeeds
             val magnitude = hypot(strafe.asDouble, forward.asDouble).pow(exponent)
             val direction = Rotation2d.fromRadians(atan2(forward.asDouble, strafe.asDouble))
-            var rotationSpeed = rotation.asDouble
+            var rotationSpeed = 0.0
+
+            val target = headingTarget.get()
+
+            if (target != null || rotation.asDouble < 0.05) {
+                rotationSpeed = headingPID.calculate(
+                    pose.rotation.rotations,
+                    target
+                        .let { if (AutoBuilder.shouldFlip()) it!!.rotateBy(Rotation2d.k180deg) else it }!!.rotations
+                )
+            } else {
+                rotationSpeed = rotation.asDouble
+            }
 
             val forwardS = magnitude * direction.sin
             val strafeS = magnitude * direction.cos
 
             // If alignment state isn't set to driving, and we're trying to drive more than 0.5in/s, set alignment state to driving
-            if(alignmentState != AlignmentState.DRIVING && magnitude > Units.inchesToMeters(2.0)) {
+            if (alignmentState != AlignmentState.DRIVING && magnitude > Units.inchesToMeters(2.0)) {
                 alignmentState = AlignmentState.DRIVING
                 println("Alignment state set to DRIVING")
             }
@@ -300,7 +319,7 @@ class Drivebase : SubsystemBase("drivebase") {
                 )
             }
 
-            applyChassisSpeeds(speeds, if (!shouldBoostSupplier.asBoolean) slowmodeLimits else limits)
+            applyChassisSpeeds(speeds, if (!shouldBoostSupplier.asBoolean) slowmodeLimits else defaultLimits)
         }
     }
 

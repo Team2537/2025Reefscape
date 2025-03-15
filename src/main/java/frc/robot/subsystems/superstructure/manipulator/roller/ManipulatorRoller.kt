@@ -36,7 +36,7 @@ class ManipulatorRoller: SubsystemBase("roller") {
 
     fun getScoreCommand(): Command {
         return Commands.sequence(
-            runOnce { io.setVoltage(Volts.of(2.0)) },
+            runOnce { io.setVoltage(Volts.of(3.0)) },
             Commands.waitUntil({ inputs.coralDistance > 0.2 }).withTimeout(0.4),
             runOnce { io.setVoltage(Volts.zero() )}
         )

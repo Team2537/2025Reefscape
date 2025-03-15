@@ -7,6 +7,7 @@ import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.hal.HALUtil
 import edu.wpi.first.math.MathUtil
+import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.PowerDistribution
@@ -35,6 +36,7 @@ import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.NT4Publisher
 import org.littletonrobotics.junction.wpilog.WPILOGReader
 import org.littletonrobotics.junction.wpilog.WPILOGWriter
+import java.util.*
 import kotlin.math.pow
 
 object Robot : LoggedRobot() {
@@ -124,6 +126,12 @@ object Robot : LoggedRobot() {
             { (MathUtil.applyDeadband(driverController.rightX, 0.05)) },
             !driverController.leftBumper(),
             driverController.leftTrigger(),
+            {
+                if (driverController.povLeft().asBoolean)
+                    Rotation2d.fromDegrees(-55.0)
+                else if (driverController.povRight().asBoolean) Rotation2d.fromDegrees(55.0)
+                else null
+            },
             3
         )
 
