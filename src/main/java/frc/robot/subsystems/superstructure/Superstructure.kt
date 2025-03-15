@@ -20,6 +20,7 @@ import lib.math.units.degrees
 import lib.math.units.epsilonEquals
 import lib.math.units.inches
 import org.littletonrobotics.junction.Logger
+import java.util.function.BooleanSupplier
 import java.util.function.Supplier
 
 class Superstructure {
@@ -91,7 +92,7 @@ class Superstructure {
     }
 
 
-    fun getScoreCommand(): Command {
+    fun getScoreCommand(readyToScore: BooleanSupplier): Command {
         return Commands.sequence(
             Commands.either(
                 Commands.sequence(
@@ -113,6 +114,7 @@ class Superstructure {
                 ),
                 { lastRequest == L4 }
             ),
+            Commands.waitUntil(readyToScore),
             rollers.getScoreCommand(),
             getSendToStateCommand { STOW }
         )

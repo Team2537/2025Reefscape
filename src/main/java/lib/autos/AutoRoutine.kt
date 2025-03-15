@@ -61,7 +61,7 @@ class AutoRoutine(
                 ),
                 drivebase.getStopCmd(),
                 Commands.waitSeconds(0.75),
-                superstructure.getScoreCommand(),
+                superstructure.getScoreCommand({true}),
             )
 
             if (index != actions.size - 1) {

@@ -162,7 +162,7 @@ object Robot : LoggedRobot() {
 
         operatorController.getActionButton().onTrue(
             Commands.either(
-                superstructure.getScoreCommand(),
+                superstructure.getScoreCommand(!operatorController.getActionButton()),
                 superstructure.getDealgaefyCommand(),
                 { drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL || driverController.hid.aButton }
             )
