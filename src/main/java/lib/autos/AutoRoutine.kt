@@ -15,6 +15,11 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.subsystems.climb.Climb
 import frc.robot.subsystems.superstructure.Superstructure
+import frc.robot.subsystems.superstructure.SuperstructureGoals.L1
+import frc.robot.subsystems.superstructure.SuperstructureGoals.L2
+import frc.robot.subsystems.superstructure.SuperstructureGoals.L3
+import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
+import frc.robot.subsystems.superstructure.SuperstructureGoals.STOW
 import frc.robot.subsystems.swerve.Drivebase
 import lib.math.geometry.FieldConstants.Reef
 import lib.math.geometry.flipped
@@ -29,68 +34,51 @@ class AutoRoutine(
     private val superstructure: Superstructure,
 ) {
     
-//    fun build(): Command {
-//        val sequence = SequentialCommandGroup()
-//
-//        if (actions.isEmpty()) {
-//            sequence.addCommands(
-//                Commands.sequence(
-//                    climb.getVoltageControlCommand(Supplier<Double> { 12.0 }).withTimeout(2.5),
-//                    climb.getVoltageControlCommand(Supplier<Double> {0.0}),
-//                    superstructure.getSendToStateCommand(STOW),
-//                    AutoBuilder.resetOdom(Pose2d())
-//
-//                )
-//            )
-//            return sequence
-//        }
-//
-//        val startPath = getPathFromStart(actions.first().first)
-//
-//        sequence.addCommands(
-//            Commands.sequence(
-//                AutoBuilder.resetOdom(startPath.startingHolonomicPose.getOrDefault(Pose2d())),
-//                climb.getVoltageControlCommand(Supplier<Double> { 12.0 }).withTimeout(2.5),
-//                climb.getVoltageControlCommand(Supplier<Double> {0.0}).withTimeout(0.5),
-//                superstructure.getStowCommand(),
-//                drivebase.followPath(startPath),
-//            )
-//        )
-//
-//        actions.forEachIndexed { index, (branch, level, isTop) ->
-//            sequence.addCommands(
-//                Commands.parallel(
-//                    drivebase.followPath(getPathToBranch(branch, isTop)).onlyIf({ index != 0 }),
-//                    when (level) {
-//                        Reef.Level.L1 -> superstructure.getPrepL1Command()
-//                        Reef.Level.L2 -> superstructure.getPrepL2Command()
-//                        Reef.Level.L3 -> superstructure.getPrepL3Command()
-//                        Reef.Level.L4 -> Commands.sequence(superstructure.getStowCommand(), superstructure.getPrepL4Command())
-//                        Reef.Level.FLOOR -> TODO()
-//                    }
-//                ),
-//                PrintCommand("here"),
-//                Commands.waitSeconds(0.75),
-//                superstructure.getScoreCommand(),
-//            )
-//
-//            if (index != actions.size - 1) {
-//                sequence.addCommands(
-//                    Commands.parallel(
-//                        drivebase.followPath(getPathToSource(branch)),
-//                        superstructure.getStowCommand(),
-//                    ),
-//                    drivebase.getStopCmd(),
-//                    superstructure.getSourceIntakeCommand(),
-//                    Commands.waitSeconds(0.75),
-//                    superstructure.getStowCommand()
-//                )
-//            }
-//        }
-//
-//        return sequence
-//    }
-//
+    fun build(): Command {
+        val sequence = SequentialCommandGroup()
+
+        val startPath = getPathFromStart(actions.first().first)
+
+        sequence.addCommands(
+            Commands.sequence(
+                AutoBuilder.resetOdom(startPath.startingHolonomicPose.getOrDefault(Pose2d())),
+                superstructure.getSendToStateCommand { STOW },
+                drivebase.followPath(startPath),
+            )
+        )
+
+        actions.forEachIndexed { index, (branch, level, isTop) ->
+            sequence.addCommands(
+                Commands.parallel(
+                    drivebase.followPath(getPathToBranch(branch, isTop)).onlyIf({ index != 0 }),
+                    when (level) {
+                        Reef.Level.L1 -> superstructure.getForceStateCommand { L1 }
+                        Reef.Level.L2 -> superstructure.getForceStateCommand { L2 }
+                        Reef.Level.L3 -> superstructure.getForceStateCommand { L3 }
+                        Reef.Level.L4 -> superstructure.getForceStateCommand { L4 }
+                        else -> superstructure.getForceStateCommand { STOW }
+                    }
+                ),
+                drivebase.getStopCmd(),
+                Commands.waitSeconds(0.75),
+                superstructure.getScoreCommand(),
+            )
+
+            if (index != actions.size - 1) {
+                sequence.addCommands(
+                    Commands.parallel(
+                        drivebase.followPath(getPathToSource(branch)),
+                        superstructure.getSendToStateCommand({ STOW }),
+                    ),
+                    drivebase.getStopCmd(),
+                    Commands.waitSeconds(2.0),
+                )
+            }
+        }
+
+        return sequence
+    }
+
     
     private fun getPathToBranch(branch: Reef.Branch, top: Boolean): PathPlannerPath {
         return if (top) {

@@ -42,8 +42,8 @@ class Autos(
     }
 
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
-//        addOption("IJ", { IJ_Routine.build() })
-//        addDefaultOption("I4", { I4_Routine.build() })
+        addDefaultOption("IJ", { IJ_Routine.build() })
+        addOption("I4", { I4_Routine.build() })
 //        addOption("FE", { FE_Routine.build() })
 //        addOption("F4", { F4_Routine.build() })
 //        addOption("B - L2, L3", { bL2_L3() })

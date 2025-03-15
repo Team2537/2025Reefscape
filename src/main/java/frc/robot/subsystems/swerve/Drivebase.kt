@@ -181,8 +181,8 @@ class Drivebase : SubsystemBase("drivebase") {
             ::chassisSpeeds,
             { speeds: ChassisSpeeds, feedforward: DriveFeedforwards -> applyChassisSpeeds(speeds) },
             PPHolonomicDriveController(
+                PIDConstants(7.0),
                 PIDConstants(5.0),
-                PIDConstants(1.0),
             ),
             robotConfig,
             {
