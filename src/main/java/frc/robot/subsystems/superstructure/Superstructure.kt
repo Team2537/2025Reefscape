@@ -96,7 +96,6 @@ class Superstructure {
         return Commands.sequence(
             Commands.either(
                 Commands.sequence(
-
                     elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
                     Commands.waitUntil(
                         elevator.getPositionInToleranceTrigger(Inches.of(3.0))
@@ -117,7 +116,7 @@ class Superstructure {
             Commands.waitUntil(readyToScore),
             rollers.getScoreCommand(),
             getSendToStateCommand { STOW }
-        )
+        ).onlyIf{ lastRequest != STOW } // if last request was stow, return command that does nothing
     }
 
     fun periodic() {
