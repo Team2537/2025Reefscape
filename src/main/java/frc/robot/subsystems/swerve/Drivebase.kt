@@ -285,7 +285,7 @@ class Drivebase : SubsystemBase("drivebase") {
 
             val target = headingTarget.get()
 
-            if (target != null || rotation.asDouble < 0.05) {
+            if (target != null && rotation.asDouble < 0.1) {
                 rotationSpeed = headingPID.calculate(
                     pose.rotation.rotations,
                     target
