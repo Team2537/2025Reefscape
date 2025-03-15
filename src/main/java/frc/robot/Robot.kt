@@ -137,7 +137,7 @@ object Robot : LoggedRobot() {
 
         FieldConstants.Reef.ReefFace.entries.forEach { face ->
             FieldConstants.Reef.Side.entries.forEach { side ->
-                operatorController.getReefButton(face, side).onTrue(
+                operatorController.getReefButton(face, side).whileTrue(
                     AlignmentCommand.buttonBoardAlign(
                         drivebase,
                         face,
