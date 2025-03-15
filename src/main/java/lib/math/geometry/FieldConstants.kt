@@ -15,12 +15,14 @@ import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.measure.Distance
+import edu.wpi.first.wpilibj.Filesystem
 import lib.math.units.centi
 import lib.math.units.inches
 import lib.math.units.into
 import lib.math.units.measuredIn
 import lib.math.units.meters
 import org.littletonrobotics.junction.Logger
+import kotlin.io.path.Path
 
 /**
  * Constants for the field
@@ -38,7 +40,7 @@ object FieldConstants {
     /** Center of the field */
     val fieldCenter = Pose2d(fieldLength / 2.0, fieldWidth / 2.0, Rotation2d())
 
-    val tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark)
+    val tagLayout = AprilTagFieldLayout(Filesystem.getDeployDirectory().resolve("2025-reefscape-andymark-nobarge.json").toPath())
 
     // Access the reef and processor constants to initialize them
     init {
