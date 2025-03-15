@@ -44,6 +44,7 @@ object FieldConstants {
 
     // Access the reef and processor constants to initialize them
     init {
+        tagLayout.tags.forEach { print("${it.ID} - ") }
         Reef
         Processor
         Barge
