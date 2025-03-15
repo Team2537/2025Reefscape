@@ -52,6 +52,8 @@ class Superstructure {
     val isL2: Trigger = Trigger { lastRequest == L2 }
     val isL3: Trigger = Trigger { lastRequest == L3 }
     val isL4: Trigger = Trigger { lastRequest == L4 }
+    
+    val isHoldingCoral: Trigger = Trigger { rollers.inputs.coralDistance > 0.2 }
 
     fun getSendToStateCommand(superstructureState: Supplier<SuperstructureState>): Command {
         return Commands.sequence(
