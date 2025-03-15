@@ -98,6 +98,14 @@ object FieldConstants {
             Pose2d(Translation2d(3.80, 5.21), Rotation2d.fromDegrees(300.0))
         ).map { it.nudge(x = Units.inchesToMeters(0.0)) }
 
+        val betterFloorPoses = listOf(
+            listOf(Pose2d(3.16, 4.05, Rotation2d()), Pose2d(3.16, 3.67, Rotation2d())),
+            listOf(Pose2d(3.78, 2.89, Rotation2d.fromDegrees(60.0)), Pose2d(4.11, 2.71, Rotation2d.fromDegrees(60.0))),
+            listOf(Pose2d(5.14, 2.85, Rotation2d.fromDegrees(120.0)), Pose2d(5.44, 3.04, Rotation2d.fromDegrees(120.0))),
+            listOf(Pose2d(5.82, 4.00, Rotation2d.k180deg), Pose2d(5.81, 4.33, Rotation2d.k180deg)),
+            listOf(Pose2d(5.22, 5.15, Rotation2d.fromDegrees(-120.0)), Pose2d(4.88, 5.32, Rotation2d.fromDegrees(-120.0)))
+        )
+
         /**
          * Represents the different levels of the reef
          *
