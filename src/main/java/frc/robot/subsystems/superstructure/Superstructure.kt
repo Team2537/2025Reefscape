@@ -24,19 +24,38 @@ import java.util.function.BooleanSupplier
 import java.util.function.Supplier
 
 class Superstructure {
-    val elevator: Elevator = Elevator()
-    val wrist: ManipulatorWrist = ManipulatorWrist()
-    val rollers: ManipulatorRoller = ManipulatorRoller().apply {
-        defaultCommand = this.run {
-            if (inputs.coralDistance > 0.2) {
-                io.setVoltage(Volts.of(1.0))
-            } else {
-                io.setVoltage(Volts.zero())
-            }
-        }.onlyIf { lastRequest == STOW }.handleInterrupt { io.setVoltage(Volts.zero()) }
-    }
+    val elevator: Elevator
+    val wrist: ManipulatorWrist
+    val rollers: ManipulatorRoller
 
     var lastRequest: SuperstructureState = SuperstructureGoals.STOW
+
+    init {
+        elevator = Elevator()
+        wrist = ManipulatorWrist()
+        rollers = ManipulatorRoller()
+
+        rollers.apply {
+            defaultCommand = this.run {
+                if (inputs.coralDistance > 0.2) {
+                    io.setVoltage(Volts.of(1.0))
+                } else {
+                    io.setVoltage(Volts.zero())
+                }
+            }.onlyIf { lastRequest == STOW }.handleInterrupt { io.setVoltage(Volts.zero()) }
+        }
+
+        elevator.apply {
+            defaultCommand = this.run {
+                if(lastRequest == STOW && rollers.inputs.coralDistance < 0.2) {
+                    io.setElevatorHeightTarget(STOW.elevatorHeight + 12.0.inches)
+                } else {
+                    io.setElevatorHeightTarget(STOW.elevatorHeight)
+                }
+            }
+        }
+    }
+
 
     fun getElevatorSysIDCommand(): Command {
         return Commands.sequence(
@@ -53,7 +72,7 @@ class Superstructure {
     val isL2: Trigger = Trigger { lastRequest == L2 }
     val isL3: Trigger = Trigger { lastRequest == L3 }
     val isL4: Trigger = Trigger { lastRequest == L4 }
-    
+
     val isHoldingCoral: Trigger = Trigger { rollers.inputs.coralDistance > 0.2 }
 
     fun getSendToStateCommand(superstructureState: Supplier<SuperstructureState>): Command {
@@ -116,7 +135,7 @@ class Superstructure {
             Commands.waitUntil(readyToScore),
             rollers.getScoreCommand(),
             getSendToStateCommand { STOW }
-        ).onlyIf{ lastRequest != STOW } // if last request was stow, return command that does nothing
+        ).onlyIf { lastRequest != STOW } // if last request was stow, return command that does nothing
     }
 
     fun periodic() {
