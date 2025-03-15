@@ -42,7 +42,8 @@ class Autos(
     }
 
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
-        addDefaultOption("IJ", { IJ_Routine.build() })
+        addDefaultOption("IDLE", { Commands.idle() })
+        addOption("IJ", { IJ_Routine.build() })
         addOption("I4", { I4_Routine.build() })
 //        addOption("FE", { FE_Routine.build() })
 //        addOption("F4", { F4_Routine.build() })
@@ -68,8 +69,8 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        
-    )
+
+        )
 
     val I4_Routine: AutoRoutine = AutoRoutine(
         listOf(
@@ -77,8 +78,8 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        
-    )
+
+        )
 
     val FE_Routine: AutoRoutine = AutoRoutine(
         listOf(
@@ -87,8 +88,8 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        
-    )
+
+        )
 
     val F4_Routine: AutoRoutine = AutoRoutine(
         listOf(
@@ -96,8 +97,8 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        
-    )
+
+        )
 
     val idle_Routine: AutoRoutine = AutoRoutine(
         listOf(
@@ -106,8 +107,8 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        
-    )
+
+        )
 
     val selectedRoutine: Command
         get() = chooser.get().get()

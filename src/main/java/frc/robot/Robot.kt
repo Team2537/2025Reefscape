@@ -121,7 +121,7 @@ object Robot : LoggedRobot() {
         drivebase.defaultCommand = drivebase.getDriveCmd(
             { -(MathUtil.applyDeadband(driverController.leftY, 0.05)) },
             { -(MathUtil.applyDeadband(driverController.leftX, 0.05)) },
-            { -(MathUtil.applyDeadband(driverController.rightX, 0.05)) },
+            { (MathUtil.applyDeadband(driverController.rightX, 0.05)) },
             !driverController.leftBumper(),
             driverController.leftTrigger(),
             3
@@ -160,7 +160,7 @@ object Robot : LoggedRobot() {
             )
                 .onlyIf {
                     drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL
-                            || drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_ALGAE
+                            || drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_ALGAE || driverController.hid.aButton
                 }
         )
 
