@@ -133,7 +133,7 @@ class AlignmentCommand(
 
                     targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) <= 1.5 }
                 },
-                PIDGains(kP = 10.0),
+                PIDGains(kP = 5.0, kI = 0.5),
                 PIDGains(kP = 5.0),
                 {
                     when {
