@@ -166,34 +166,31 @@ object Robot : LoggedRobot() {
 
         driverController.x().onTrue(
             AlignmentCommand(
-            drivebase,
-            { drivebase.pose.nudge(y=Units.inchesToMeters(-1.0)) },
-            PIDGains(7.0, 0.0, 0.01),
-            PIDGains(5.0, 0.0, 0.01),
-            { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
-        ))
+                drivebase,
+                { drivebase.pose.nudge(y = Units.inchesToMeters(-1.0)) },
+                PIDGains(7.0, 0.0, 0.01),
+                PIDGains(5.0, 0.0, 0.01),
+                { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
+            ))
+
+        driverController.rightTrigger().onTrue(superstructure.getDealgaefyCommand())
 
         driverController.x().onTrue(
             AlignmentCommand(
                 drivebase,
-                { drivebase.pose.nudge(y= Units.inchesToMeters(1.0)) },
+                { drivebase.pose.nudge(y = Units.inchesToMeters(1.0)) },
                 PIDGains(7.0, 0.0, 0.01),
                 PIDGains(5.0, 0.0, 0.01),
                 { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
             ))
 
         operatorController.getActionButton().onTrue(
-            Commands.either(
-                superstructure.getScoreCommand(!operatorController.getActionButton()),
-                superstructure.getDealgaefyCommand(),
-                { drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL || driverController.hid.aButton }
-            )
+            superstructure.getScoreCommand(!operatorController.getActionButton())
+        )
 //                .onlyIf {
 //                    drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL
 //                            || drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_ALGAE || driverController.hid.aButton
 //                }
-
-        )
 
         operatorController.getStowButton().onTrue(
             superstructure.getSendToStateCommand { SuperstructureGoals.STOW }
