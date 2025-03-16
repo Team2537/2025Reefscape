@@ -112,7 +112,7 @@ class AlignmentCommand(
                                 && !rightSupplier.asBoolean
                                 && !centerSupplier.asBoolean -> {
                             targetPose = targetPose.nudge(
-                                y = (FieldConstants.Reef.sideOffset + manipulatorOffset + leftOffset).into(Meters)
+                                y = ((FieldConstants.Reef.sideOffset / 2.0) - manipulatorOffset).into(Meters)
                             )
                         }
 
@@ -120,7 +120,7 @@ class AlignmentCommand(
                                 && !leftSupplier.asBoolean
                                 && !centerSupplier.asBoolean -> {
                             targetPose = targetPose.nudge(
-                                y = (-FieldConstants.Reef.sideOffset + manipulatorOffset + rightOffset).into(Meters)
+                                y = (-(FieldConstants.Reef.sideOffset / 2.0) - manipulatorOffset).into(Meters)
                             )
                         }
 
@@ -134,7 +134,7 @@ class AlignmentCommand(
 
                     targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) <= 1.5 }
                 },
-                PIDGains(kP = 10.0),
+                PIDGains(kP = 10.0, kD = 0.01),
                 PIDGains(kP = 5.0),
                 {
                     when {
@@ -172,10 +172,10 @@ class AlignmentCommand(
 
         val leftOffset: Distance = Inches.of(-13.0)
         val rightOffset: Distance = Inches.of(-4.5)
-        val centerOffset: Distance = Inches.of(-6.0)
+        val centerOffset: Distance = Inches.of(-5.0)
         val backupL4: Distance = Inches.of(3.0)
 
-        val manipulatorOffset = Inches.of(4.75)
+        val manipulatorOffset = Inches.of(6.0)
 
         val alignLimits: PathConstraints = PathConstraints(
             MetersPerSecond.of(1.5),
