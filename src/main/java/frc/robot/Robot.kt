@@ -8,6 +8,7 @@ import edu.wpi.first.hal.HAL
 import edu.wpi.first.hal.HALUtil
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.PowerDistribution
@@ -29,7 +30,9 @@ import frc.robot.subsystems.swerve.Drivebase
 import frc.robot.subsystems.vision.Vision
 import lib.commands.not
 import lib.controllers.CommandButtonBoard
+import lib.math.controllers.gains.PIDGains
 import lib.math.geometry.FieldConstants
+import lib.math.geometry.nudge
 import lib.math.units.degrees
 import org.littletonrobotics.junction.LogFileUtil
 import org.littletonrobotics.junction.LoggedRobot
@@ -161,10 +164,30 @@ object Robot : LoggedRobot() {
 //        operatorController.getL3Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(18.0) })
 //        operatorController.getL4Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(24.0) })
 
-        driverController.x().whileTrue(WheelRadiusCharacterization(
+        driverController.x().whileTrue(
+            WheelRadiusCharacterization(
+                drivebase,
+                WheelRadiusCharacterization.Direction.COUNTERCLOCKWISE,
+            )
+        )
+
+        driverController.x().onTrue(
+            AlignmentCommand(
             drivebase,
-            WheelRadiusCharacterization.Direction.COUNTERCLOCKWISE,
+            { drivebase.pose.nudge(Units.inchesToMeters(1.0)) },
+            PIDGains(7.0, 0.0, 0.01),
+            PIDGains(5.0, 0.0, 0.01),
+            { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
         ))
+
+        driverController.x().onTrue(
+            AlignmentCommand(
+                drivebase,
+                { drivebase.pose.nudge(Units.inchesToMeters(-1.0)) },
+                PIDGains(7.0, 0.0, 0.01),
+                PIDGains(5.0, 0.0, 0.01),
+                { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
+            ))
 
         operatorController.getActionButton().onTrue(
             Commands.either(
@@ -176,6 +199,7 @@ object Robot : LoggedRobot() {
 //                    drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL
 //                            || drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_ALGAE || driverController.hid.aButton
 //                }
+
         )
 
         operatorController.getStowButton().onTrue(
