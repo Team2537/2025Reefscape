@@ -32,13 +32,13 @@ class AlignmentCommand(
         translationPID.kP,
         translationPID.kI,
         translationPID.kD
-    ).apply { setTolerance(Units.inchesToMeters(0.5)) }
+    ).apply { setTolerance(Units.inchesToMeters(0.1)) }
 
     private val yPid = PIDController(
         translationPID.kP,
         translationPID.kI,
         translationPID.kD
-    ).apply { setTolerance(Units.inchesToMeters(0.5)) }
+    ).apply { setTolerance(Units.inchesToMeters(0.1)) }
     private val rotPid =
         PIDController(rotationPID.kP, rotationPID.kI, rotationPID.kD).apply {
             enableContinuousInput(0.0, 2 * PI)
@@ -134,7 +134,7 @@ class AlignmentCommand(
 
                     targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) <= 1.5 }
                 },
-                PIDGains(kP = 5.0),
+                PIDGains(kP = 10.0),
                 PIDGains(kP = 5.0),
                 {
                     when {
