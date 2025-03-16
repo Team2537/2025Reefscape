@@ -164,7 +164,7 @@ object Robot : LoggedRobot() {
 //        operatorController.getL3Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(18.0) })
 //        operatorController.getL4Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(24.0) })
 
-        driverController.x().whileTrue(
+        driverController.y().whileTrue(
             WheelRadiusCharacterization(
                 drivebase,
                 WheelRadiusCharacterization.Direction.COUNTERCLOCKWISE,
