@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.AlignmentCommand
+import frc.robot.commands.swerve.WheelRadiusCharacterization
 import frc.robot.subsystems.climb.Climb
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.superstructure.SuperstructureGoals
@@ -159,6 +160,11 @@ object Robot : LoggedRobot() {
 //        operatorController.getL2Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(12.0) })
 //        operatorController.getL3Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(18.0) })
 //        operatorController.getL4Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(24.0) })
+
+        driverController.x().whileTrue(WheelRadiusCharacterization(
+            drivebase,
+            WheelRadiusCharacterization.Direction.COUNTERCLOCKWISE,
+        ))
 
         operatorController.getActionButton().onTrue(
             Commands.either(
