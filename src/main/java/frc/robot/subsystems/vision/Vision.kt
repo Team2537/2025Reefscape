@@ -84,7 +84,7 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
                     observation.tagCount == 0
                             || (observation.tagCount == 1 && (
                             observation.ambiguity > maxAmbiguity
-                                    || inputs.tagIDs.first() !in FieldConstants.Reef.reefTags))
+                                    || inputs.tagIDs.first() !in FieldConstants.Reef.reefTags.flatten()))
                             || abs(observation.pose.z) > maxZError
                             || observation.pose.x < 0.0
                             || observation.pose.x > FieldConstants.tagLayout.fieldLength

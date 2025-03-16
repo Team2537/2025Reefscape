@@ -9,23 +9,25 @@ import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj2.command.Command
-import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.subsystems.swerve.Drivebase
 import frc.robot.subsystems.vision.Vision
+import frc.robot.subsystems.vision.VisionIO
 import lib.math.controllers.gains.PIDGains
 import lib.math.geometry.FieldConstants
+import lib.math.geometry.FieldConstants.tagLayout
 import lib.math.geometry.flipped
 import lib.math.geometry.nudge
 import lib.math.units.into
 import org.littletonrobotics.junction.Logger
-import java.util.*
 import java.util.function.Supplier
+import kotlin.jvm.optionals.getOrNull
 import kotlin.math.PI
 
 class AlignmentCommand(
     val drivebase: Drivebase,
-    val poseSupplier: Supplier<Pose2d?>,
+    val targetSupplier: Supplier<Pose2d?>,
+    val currentSupplier: Supplier<Pose2d> = Supplier { drivebase.pose },
     val translationPID: PIDGains,
     val rotationPID: PIDGains,
     val endStateSupplier: Supplier<Drivebase.Constants.AlignmentState>
@@ -63,7 +65,7 @@ class AlignmentCommand(
         yPid.reset()
         rotPid.reset()
 
-        pose = poseSupplier.get()
+        pose = targetSupplier.get()
         Logger.recordOutput("commands/$name/Target Pose", Pose2d.struct, pose)
     }
 
@@ -97,9 +99,78 @@ class AlignmentCommand(
         fun nodeAlign(
             drivebase: Drivebase,
             vision: Vision,
-            side: FieldConstants.Reef.Side
+            side: FieldConstants.Reef.Side,
+            face: FieldConstants.Reef.ReefFace
         ): Command {
-            return Commands.idle()        }
+            return AlignmentCommand(
+                drivebase = drivebase,
+                currentSupplier = {
+                    when (side) {
+                        FieldConstants.Reef.Side.LEFT -> vision.inputs[0].poseObservations[0].pose.transformBy(Vision.robotToCameras[0])
+                            .toPose2d()
+
+                        FieldConstants.Reef.Side.RIGHT -> vision.inputs[1].poseObservations[1].pose.transformBy(Vision.robotToCameras[1])
+                            .toPose2d()
+
+                        else -> drivebase.pose
+                    }
+                },
+                targetSupplier = {
+                    var targetPose: Pose2d? = null
+
+                    val targetID = if(AutoBuilder.shouldFlip()) FieldConstants.Reef.reefTags[1][face.ordinal]
+
+                    val inputs: VisionIO.VisionInputs =
+                        when(side){
+                            FieldConstants.Reef.Side.LEFT -> vision.inputs[0]
+                            FieldConstants.Reef.Side.RIGHT -> vision.inputs[1]
+                            else -> vision.inputs[0]
+                        }
+
+
+                    if (inputs.tagIDs.size != 1) targetPose = null
+                    if (inputs.tagIDs.first() !in FieldConstants.Reef.reefTags) targetPose =
+                        null
+
+                    if (side == FieldConstants.Reef.Side.LEFT) {
+                        targetPose =
+                            tagLayout.getTagPose(inputs.tagIDs.first())
+                                .getOrNull()
+                                ?.toPose2d()
+
+                        if (targetPose != null) {
+                            targetPose = targetPose.nudge(
+                                x = Units.inchesToMeters(-13.0)
+                            )
+                        }
+                    } else if (side == FieldConstants.Reef.Side.RIGHT) {
+                        targetPose =
+                            tagLayout.getTagPose(inputs.tagIDs.first())
+                                .getOrNull()
+                                ?.toPose2d()
+
+                        if (targetPose != null) {
+                            targetPose = targetPose.nudge(
+                                x = Units.inchesToMeters(-13.0)
+                            )
+                        }
+                    }
+
+                    Logger.recordOutput("AlignmentCommand($side)/target", targetPose)
+                    Logger.recordOutput(
+                        "AlignmentCommand($side)/current", inputs.poseObservations[0].pose.transformBy(
+                            Vision.robotToCameras[0]
+                        ).toPose2d()
+                    )
+
+                    targetPose
+                },
+                translationPID = PIDGains(7.0, 0.0, kD = 0.01),
+                rotationPID = PIDGains(5.0),
+                endStateSupplier =
+                    { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
+            )
+        }
 
         fun buttonBoardAlign(
             drivebase: Drivebase,
@@ -110,10 +181,10 @@ class AlignmentCommand(
             centerSupplier: Trigger,
         ): Command {
             return AlignmentCommand(
-                drivebase,
-                {
+                drivebase = drivebase,
+                targetSupplier = {
                     var targetPose = FieldConstants.Reef.floorAlignmentPoses[side.ordinal].let {
-                        if(AutoBuilder.shouldFlip()) it.flipped() else it
+                        if (AutoBuilder.shouldFlip()) it.flipped() else it
                     }
 
                     when {
@@ -143,12 +214,13 @@ class AlignmentCommand(
 
                     targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) <= 1.5 }
                 },
-                PIDGains(kP = 10.0, kD = 0.01),
-                PIDGains(kP = 5.0),
-                {
+                translationPID = PIDGains(kP = 10.0, kD = 0.01),
+                rotationPID = PIDGains(kP = 5.0),
+                endStateSupplier = {
                     when {
                         (rightSupplier.asBoolean || leftSupplier.asBoolean) && !centerSupplier.asBoolean ->
                             Drivebase.Constants.AlignmentState.ALIGNED_CORAL
+
                         centerSupplier.asBoolean -> Drivebase.Constants.AlignmentState.ALIGNED_ALGAE
                         else -> Drivebase.Constants.AlignmentState.DRIVING
                     }
@@ -160,8 +232,8 @@ class AlignmentCommand(
             drivebase: Drivebase,
         ): Command {
             return AlignmentCommand(
-                drivebase,
-                {
+                drivebase = drivebase,
+                targetSupplier = {
                     val currPose = drivebase.pose.let { if (AutoBuilder.shouldFlip()) it.flipped() else it }
                     val targetPose = currPose.nearest(
                         listOf(
@@ -175,7 +247,7 @@ class AlignmentCommand(
                 },
                 translationPID = PIDGains(5.0, 0.0, 0.05),
                 rotationPID = PIDGains(5.0, 0.0, 0.0),
-                { Drivebase.Constants.AlignmentState.ALIGNED_SOURCE }
+                endStateSupplier = { Drivebase.Constants.AlignmentState.ALIGNED_SOURCE }
             ).withName("SourceAlignmentCommand").withTimeout(3.0)
         }
 

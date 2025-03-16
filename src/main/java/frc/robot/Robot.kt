@@ -164,25 +164,15 @@ object Robot : LoggedRobot() {
 //        operatorController.getL3Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(18.0) })
 //        operatorController.getL4Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(24.0) })
 
-        driverController.x().onTrue(
-            AlignmentCommand(
-                drivebase,
-                { drivebase.pose.nudge(y = Units.inchesToMeters(-1.0)) },
-                PIDGains(7.0, 0.0, 0.01),
-                PIDGains(5.0, 0.0, 0.01),
-                { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
-            ))
-
         driverController.rightTrigger().onTrue(superstructure.getDealgaefyCommand())
 
-        driverController.x().onTrue(
-            AlignmentCommand(
-                drivebase,
-                { drivebase.pose.nudge(y = Units.inchesToMeters(1.0)) },
-                PIDGains(7.0, 0.0, 0.01),
-                PIDGains(5.0, 0.0, 0.01),
-                { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
-            ))
+        driverController.x().onTrue(AlignmentCommand.nodeAlign(
+            drivebase, vision, FieldConstants.Reef.Side.LEFT
+        ))
+
+        driverController.b().onTrue(AlignmentCommand.nodeAlign(
+            drivebase, vision, FieldConstants.Reef.Side.RIGHT
+        ))
 
         operatorController.getActionButton().onTrue(
             superstructure.getScoreCommand(!operatorController.getActionButton())

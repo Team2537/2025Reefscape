@@ -201,9 +201,9 @@ object FieldConstants {
         }
 
         val reefTags = listOf(
-            17..22,
-            6..11
-        ).flatten()
+           ( 6..11).toList(),
+            (17..22).toList(),
+        )
 
         init {
             Logger.recordOutput("field/reef/reefCenterBlue", Translation2d.struct, reefCenterBlue)
