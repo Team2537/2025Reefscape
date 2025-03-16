@@ -21,6 +21,7 @@ import lib.math.controllers.gains.FeedforwardGains
 import lib.math.controllers.gains.PIDGains
 import lib.math.units.into
 import lib.math.units.measuredIn
+import lib.math.units.meters
 import lib.math.vector
 import org.littletonrobotics.junction.Logger
 
@@ -182,7 +183,7 @@ class SwerveModule(
     }
 
     private companion object {
-        val wheelRadius = 1.91 measuredIn Inches
+        val wheelRadius = 0.049.meters
         val turnGearing: Double = 150.0/7.0
         val driveGearing: Double = 6.75
 
