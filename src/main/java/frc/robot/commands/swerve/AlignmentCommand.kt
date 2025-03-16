@@ -170,8 +170,8 @@ class AlignmentCommand(
             ).withName("SourceAlignmentCommand").withTimeout(3.0)
         }
 
-        val leftOffset: Distance = Inches.of(-16.0)
-        val rightOffset: Distance = Inches.of(-2.5)
+        val leftOffset: Distance = Inches.of(-13.0)
+        val rightOffset: Distance = Inches.of(-4.5)
         val centerOffset: Distance = Inches.of(-6.0)
         val backupL4: Distance = Inches.of(3.0)
 

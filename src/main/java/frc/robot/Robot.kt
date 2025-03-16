@@ -172,10 +172,10 @@ object Robot : LoggedRobot() {
                 superstructure.getDealgaefyCommand(),
                 { drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL || driverController.hid.aButton }
             )
-                .onlyIf {
-                    drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL
-                            || drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_ALGAE || driverController.hid.aButton
-                }
+//                .onlyIf {
+//                    drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL
+//                            || drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_ALGAE || driverController.hid.aButton
+//                }
         )
 
         operatorController.getStowButton().onTrue(
