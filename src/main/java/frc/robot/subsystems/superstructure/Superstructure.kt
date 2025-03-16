@@ -94,7 +94,7 @@ class Superstructure {
 
     fun getDealgaefyCommand(): Command {
         return Commands.sequence(
-            elevator.getMoveToHeightCommand { Inches.of(9.0) },
+            elevator.getMoveToHeightCommand { Inches.of(12.0) },
             Commands.waitUntil(elevator.getPositionInToleranceTrigger(0.5.inches)),
             wrist.getSendToAngleCmd { Degrees.of(140.0) },
             Commands.waitUntil { wrist.inputs.angle.epsilonEquals(140.0.degrees, 5.0.degrees) },
