@@ -35,10 +35,12 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
                 VisionIOPhotonVision("front_mod_cam", robotToCameras[0]),
                 VisionIOPhotonVision("back_mod_cam", robotToCameras[1]),
             )
+
             RobotType.Mode.SIMULATION -> listOf(
                 VisionIOPhotonVisionSim("front_left_cam", robotToCameras[0], robotPoseSupplier),
                 VisionIOPhotonVisionSim("back_left_cam", robotToCameras[1], robotPoseSupplier),
             )
+
             else -> listOf(
                 object : VisionIO {},
                 object : VisionIO {},
@@ -82,8 +84,7 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
                     observation.tagCount == 0
                             || (observation.tagCount == 1 && (
                             observation.ambiguity > maxAmbiguity
-                                    || inputs.tagIDs.first() !in FieldConstants.Reef.reefTags
-                                    || inputs.tagIDs.first() !in if(AutoBuilder.shouldFlip()) FieldConstants.redTagIDs else FieldConstants.blueTagIDs))
+                                    || inputs.tagIDs.first() !in FieldConstants.Reef.reefTags))
                             || abs(observation.pose.z) > maxZError
                             || observation.pose.x < 0.0
                             || observation.pose.x > FieldConstants.tagLayout.fieldLength
