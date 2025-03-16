@@ -167,7 +167,7 @@ object Robot : LoggedRobot() {
         driverController.x().onTrue(
             AlignmentCommand(
             drivebase,
-            { drivebase.pose.nudge(y=Units.inchesToMeters(1.0)) },
+            { drivebase.pose.nudge(y=Units.inchesToMeters(-1.0)) },
             PIDGains(7.0, 0.0, 0.01),
             PIDGains(5.0, 0.0, 0.01),
             { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
@@ -176,7 +176,7 @@ object Robot : LoggedRobot() {
         driverController.x().onTrue(
             AlignmentCommand(
                 drivebase,
-                { drivebase.pose.nudge(y= Units.inchesToMeters(-1.0)) },
+                { drivebase.pose.nudge(y= Units.inchesToMeters(1.0)) },
                 PIDGains(7.0, 0.0, 0.01),
                 PIDGains(5.0, 0.0, 0.01),
                 { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
