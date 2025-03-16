@@ -9,8 +9,10 @@ import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.subsystems.swerve.Drivebase
+import frc.robot.subsystems.vision.Vision
 import lib.math.controllers.gains.PIDGains
 import lib.math.geometry.FieldConstants
 import lib.math.geometry.flipped
@@ -92,6 +94,14 @@ class AlignmentCommand(
     }
 
     companion object {
+        fun nodeAlign(
+            drivebase: Drivebase,
+            vision: Vision,
+            side: FieldConstants.Reef.Side
+        ): Command {
+            return AlignmentCommand
+        }
+
         fun buttonBoardAlign(
             drivebase: Drivebase,
             side: FieldConstants.Reef.ReefFace,

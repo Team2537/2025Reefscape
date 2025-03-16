@@ -32,8 +32,8 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
     val io: List<VisionIO> =
         when (RobotType.mode) {
             RobotType.Mode.REAL -> listOf(
-                VisionIOPhotonVision("front_mod_cam", robotToCameras[0]),
-                VisionIOPhotonVision("back_mod_cam", robotToCameras[1]),
+                VisionIOPhotonVision("right_mod_cam", robotToCameras[0]),
+                VisionIOPhotonVision("left_mod_cam", robotToCameras[1]),
             )
 
             RobotType.Mode.SIMULATION -> listOf(
