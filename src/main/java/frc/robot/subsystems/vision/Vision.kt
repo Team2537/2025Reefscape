@@ -37,8 +37,8 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
             )
 
             RobotType.Mode.SIMULATION -> listOf(
-                VisionIOPhotonVisionSim("front_left_cam", robotToCameras[0], robotPoseSupplier),
-                VisionIOPhotonVisionSim("back_left_cam", robotToCameras[1], robotPoseSupplier),
+                VisionIOPhotonVisionSim("right_mod_cam", robotToCameras[0], robotPoseSupplier),
+                VisionIOPhotonVisionSim("left_mod_cam", robotToCameras[1], robotPoseSupplier),
             )
 
             else -> listOf(

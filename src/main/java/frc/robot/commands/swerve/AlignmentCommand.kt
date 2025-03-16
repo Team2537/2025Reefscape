@@ -99,7 +99,7 @@ class AlignmentCommand(
             vision: Vision,
             side: FieldConstants.Reef.Side
         ): Command {
-            return AlignmentCommand
+//            return AlignmentCommand
         }
 
         fun buttonBoardAlign(
