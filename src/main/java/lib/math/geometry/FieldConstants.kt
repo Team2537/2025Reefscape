@@ -96,7 +96,7 @@ object FieldConstants {
             Pose2d(Translation2d(5.86, 4.03), Rotation2d.fromDegrees(180.0)),
             Pose2d(Translation2d(5.17, 5.21), Rotation2d.fromDegrees(240.0)),
             Pose2d(Translation2d(3.80, 5.21), Rotation2d.fromDegrees(300.0))
-        ).map { it.nudge(x = Units.inchesToMeters(0.0)) }
+        ).map { it.nudge(x = Units.inchesToMeters(1.5)) }
 
         val betterFloorPoses = listOf(
             listOf(Pose2d(3.16, 4.05, Rotation2d()), Pose2d(3.16, 3.67, Rotation2d())),
