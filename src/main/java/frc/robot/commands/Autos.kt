@@ -5,6 +5,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto
 import com.pathplanner.lib.path.PathPlannerPath
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
@@ -42,12 +43,24 @@ class Autos(
     }
 
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
-//        addOption("IJ", { IJ_Routine.build() })
-//        addDefaultOption("I4", { I4_Routine.build() })
+        addDefaultOption("IDLE", { Commands.idle() })
+        addOption("IJ", { IJ_Routine.build() })
+        addOption("I4", { I4_Routine.build() })
+        addOption("DRIVE_FORWARDS", {driveForwards()})
 //        addOption("FE", { FE_Routine.build() })
 //        addOption("F4", { F4_Routine.build() })
 //        addOption("B - L2, L3", { bL2_L3() })
 //        addOption("idle", { idle_Routine.build()})
+    }
+
+    fun driveForwards(): Command {
+        return Commands.sequence(
+            Commands.run({
+                drivebase.applyChassisSpeeds(ChassisSpeeds(0.1, 0.0, 0.0))
+            }, drivebase),
+            Commands.waitSeconds(0.5),
+            drivebase.getStopCmd()
+        )
     }
 
     val ABC_Routine: AutoRoutine = AutoRoutine(
@@ -68,8 +81,8 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        
-    )
+
+        )
 
     val I4_Routine: AutoRoutine = AutoRoutine(
         listOf(
@@ -77,8 +90,8 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        
-    )
+
+        )
 
     val FE_Routine: AutoRoutine = AutoRoutine(
         listOf(
@@ -87,8 +100,8 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        
-    )
+
+        )
 
     val F4_Routine: AutoRoutine = AutoRoutine(
         listOf(
@@ -96,8 +109,8 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        
-    )
+
+        )
 
     val idle_Routine: AutoRoutine = AutoRoutine(
         listOf(
@@ -106,8 +119,8 @@ class Autos(
         ),
         drivebase,
         superstructure,
-        
-    )
+
+        )
 
     val selectedRoutine: Command
         get() = chooser.get().get()

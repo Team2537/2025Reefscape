@@ -47,7 +47,7 @@ object MechanismVisualizer {
                 Units.inchesToMeters(12.150963),
                 0.0,
                 Units.inchesToMeters(15.75) + carriageHeight
-            ), Rotation3d(0.0, -angleRadians, 0.0)
+            ), Rotation3d(0.0, angleRadians, 0.0)
         )
     }
     

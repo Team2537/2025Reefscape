@@ -20,22 +20,42 @@ import lib.math.units.degrees
 import lib.math.units.epsilonEquals
 import lib.math.units.inches
 import org.littletonrobotics.junction.Logger
+import java.util.function.BooleanSupplier
 import java.util.function.Supplier
 
 class Superstructure {
-    val elevator: Elevator = Elevator()
-    val wrist: ManipulatorWrist = ManipulatorWrist()
-    val rollers: ManipulatorRoller = ManipulatorRoller().apply {
-        defaultCommand = this.run {
-            if (inputs.coralDistance > 0.2) {
-                io.setVoltage(Volts.of(1.0))
-            } else {
-                io.setVoltage(Volts.zero())
-            }
-        }.onlyIf { lastRequest == STOW }.handleInterrupt { io.setVoltage(Volts.zero()) }
-    }
+    val elevator: Elevator
+    val wrist: ManipulatorWrist
+    val rollers: ManipulatorRoller
 
     var lastRequest: SuperstructureState = SuperstructureGoals.STOW
+
+    init {
+        elevator = Elevator()
+        wrist = ManipulatorWrist()
+        rollers = ManipulatorRoller()
+
+        rollers.apply {
+            defaultCommand = this.run {
+                if (inputs.coralDistance > 0.2) {
+                    io.setVoltage(Volts.of(1.0))
+                } else {
+                    io.setVoltage(Volts.zero())
+                }
+            }.onlyIf { lastRequest == STOW }.handleInterrupt { io.setVoltage(Volts.zero()) }
+        }
+
+        elevator.apply {
+            defaultCommand = this.run {
+                if(lastRequest == STOW && rollers.inputs.coralDistance < 0.2) {
+                    io.setElevatorHeightTarget(STOW.elevatorHeight + 12.0.inches)
+                } else {
+                    io.setElevatorHeightTarget(STOW.elevatorHeight)
+                }
+            }
+        }
+    }
+
 
     fun getElevatorSysIDCommand(): Command {
         return Commands.sequence(
@@ -52,6 +72,8 @@ class Superstructure {
     val isL2: Trigger = Trigger { lastRequest == L2 }
     val isL3: Trigger = Trigger { lastRequest == L3 }
     val isL4: Trigger = Trigger { lastRequest == L4 }
+
+    val isHoldingCoral: Trigger = Trigger { rollers.inputs.coralDistance > 0.2 }
 
     fun getSendToStateCommand(superstructureState: Supplier<SuperstructureState>): Command {
         return Commands.sequence(
@@ -72,7 +94,7 @@ class Superstructure {
 
     fun getDealgaefyCommand(): Command {
         return Commands.sequence(
-            elevator.getMoveToHeightCommand { Inches.of(9.0) },
+            elevator.getMoveToHeightCommand { Inches.of(12.0) },
             Commands.waitUntil(elevator.getPositionInToleranceTrigger(0.5.inches)),
             wrist.getSendToAngleCmd { Degrees.of(140.0) },
             Commands.waitUntil { wrist.inputs.angle.epsilonEquals(140.0.degrees, 5.0.degrees) },
@@ -89,11 +111,10 @@ class Superstructure {
     }
 
 
-    fun getScoreCommand(): Command {
+    fun getScoreCommand(readyToScore: BooleanSupplier): Command {
         return Commands.sequence(
             Commands.either(
                 Commands.sequence(
-
                     elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
                     Commands.waitUntil(
                         elevator.getPositionInToleranceTrigger(Inches.of(3.0))
@@ -111,9 +132,10 @@ class Superstructure {
                 ),
                 { lastRequest == L4 }
             ),
+            Commands.waitUntil(readyToScore),
             rollers.getScoreCommand(),
             getSendToStateCommand { STOW }
-        )
+        ).onlyIf { lastRequest != STOW } // if last request was stow, return command that does nothing
     }
 
     fun periodic() {

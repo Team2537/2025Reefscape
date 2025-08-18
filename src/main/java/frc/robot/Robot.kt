@@ -7,6 +7,8 @@ import edu.wpi.first.hal.FRCNetComm.tResourceType
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.hal.HALUtil
 import edu.wpi.first.math.MathUtil
+import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.PowerDistribution
@@ -19,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.AlignmentCommand
+import frc.robot.commands.swerve.WheelRadiusCharacterization
 import frc.robot.subsystems.climb.Climb
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.superstructure.SuperstructureGoals
@@ -27,7 +30,9 @@ import frc.robot.subsystems.swerve.Drivebase
 import frc.robot.subsystems.vision.Vision
 import lib.commands.not
 import lib.controllers.CommandButtonBoard
+import lib.math.controllers.gains.PIDGains
 import lib.math.geometry.FieldConstants
+import lib.math.geometry.nudge
 import lib.math.units.degrees
 import org.littletonrobotics.junction.LogFileUtil
 import org.littletonrobotics.junction.LoggedRobot
@@ -35,6 +40,7 @@ import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.networktables.NT4Publisher
 import org.littletonrobotics.junction.wpilog.WPILOGReader
 import org.littletonrobotics.junction.wpilog.WPILOGWriter
+import java.util.*
 import kotlin.math.pow
 
 object Robot : LoggedRobot() {
@@ -101,7 +107,7 @@ object Robot : LoggedRobot() {
         CommandScheduler.getInstance()
             .onCommandFinish { command -> Logger.recordOutput("commands/${command.name}", false) }
 
-//        CameraServer.startAutomaticCapture()
+        CameraServer.startAutomaticCapture()
 
         drivebase = Drivebase()
         vision = Vision(drivebase::addVisionMeasurement)
@@ -121,15 +127,21 @@ object Robot : LoggedRobot() {
         drivebase.defaultCommand = drivebase.getDriveCmd(
             { -(MathUtil.applyDeadband(driverController.leftY, 0.05)) },
             { -(MathUtil.applyDeadband(driverController.leftX, 0.05)) },
-            { -(MathUtil.applyDeadband(driverController.rightX, 0.05)) },
+            { (MathUtil.applyDeadband(driverController.rightX, 0.05)) },
             !driverController.leftBumper(),
             driverController.leftTrigger(),
+            {
+                if (driverController.povLeft().asBoolean)
+                    Rotation2d.fromDegrees(-55.0)
+                else if (driverController.povRight().asBoolean) Rotation2d.fromDegrees(55.0)
+                else null
+            },
             3
         )
 
         FieldConstants.Reef.ReefFace.entries.forEach { face ->
             FieldConstants.Reef.Side.entries.forEach { side ->
-                operatorController.getReefButton(face, side).onTrue(
+                operatorController.getReefButton(face, side).whileTrue(
                     AlignmentCommand.buttonBoardAlign(
                         drivebase,
                         face,
@@ -152,17 +164,33 @@ object Robot : LoggedRobot() {
 //        operatorController.getL3Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(18.0) })
 //        operatorController.getL4Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(24.0) })
 
+        driverController.x().onTrue(
+            AlignmentCommand(
+                drivebase,
+                { drivebase.pose.nudge(y = Units.inchesToMeters(-1.0)) },
+                PIDGains(7.0, 0.0, 0.01),
+                PIDGains(5.0, 0.0, 0.01),
+                { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
+            ))
+
+        driverController.rightTrigger().onTrue(superstructure.getDealgaefyCommand())
+
+        driverController.x().onTrue(
+            AlignmentCommand(
+                drivebase,
+                { drivebase.pose.nudge(y = Units.inchesToMeters(1.0)) },
+                PIDGains(7.0, 0.0, 0.01),
+                PIDGains(5.0, 0.0, 0.01),
+                { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
+            ))
+
         operatorController.getActionButton().onTrue(
-            Commands.either(
-                superstructure.getScoreCommand(),
-                superstructure.getDealgaefyCommand(),
-                { drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
-            )
-                .onlyIf {
-                    drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL
-                            || drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_ALGAE
-                }
+            superstructure.getScoreCommand(!operatorController.getActionButton())
         )
+//                .onlyIf {
+//                    drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL
+//                            || drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_ALGAE || driverController.hid.aButton
+//                }
 
         operatorController.getStowButton().onTrue(
             superstructure.getSendToStateCommand { SuperstructureGoals.STOW }
@@ -186,7 +214,7 @@ object Robot : LoggedRobot() {
 
     override fun teleopInit() {
         CommandScheduler.getInstance().cancelAll()
-//        superstructure.getSendToStateCommand({ SuperstructureGoals.STOW }).schedule()
+        superstructure.getSendToStateCommand({ SuperstructureGoals.STOW }).schedule()
     }
 
     override fun teleopPeriodic() {}

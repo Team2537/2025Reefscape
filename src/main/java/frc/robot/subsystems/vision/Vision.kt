@@ -1,5 +1,6 @@
 package frc.robot.subsystems.vision
 
+import com.pathplanner.lib.auto.AutoBuilder
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.VecBuilder
@@ -31,13 +32,15 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
     val io: List<VisionIO> =
         when (RobotType.mode) {
             RobotType.Mode.REAL -> listOf(
-                VisionIOPhotonVision("front_mod_cam", robotToCameras[0]),
-                VisionIOPhotonVision("back_mod_cam", robotToCameras[1]),
+                VisionIOPhotonVision("right_mod_cam", robotToCameras[0]),
+                VisionIOPhotonVision("left_mod_cam", robotToCameras[1]),
             )
+
             RobotType.Mode.SIMULATION -> listOf(
-                VisionIOPhotonVisionSim("front_left_cam", robotToCameras[0], robotPoseSupplier),
-                VisionIOPhotonVisionSim("back_left_cam", robotToCameras[1], robotPoseSupplier),
+                VisionIOPhotonVisionSim("right_mod_cam", robotToCameras[0], robotPoseSupplier),
+                VisionIOPhotonVisionSim("left_mod_cam", robotToCameras[1], robotPoseSupplier),
             )
+
             else -> listOf(
                 object : VisionIO {},
                 object : VisionIO {},
@@ -79,7 +82,9 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
             for (observation in inputs.poseObservations) {
                 val rejectPose: Boolean =
                     observation.tagCount == 0
-                            || (observation.tagCount == 1 && (observation.ambiguity > maxAmbiguity || inputs.tagIDs.first() !in FieldConstants.Reef.reefTags))
+                            || (observation.tagCount == 1 && (
+                            observation.ambiguity > maxAmbiguity
+                                    || inputs.tagIDs.first() !in FieldConstants.Reef.reefTags))
                             || abs(observation.pose.z) > maxZError
                             || observation.pose.x < 0.0
                             || observation.pose.x > FieldConstants.tagLayout.fieldLength
@@ -131,12 +136,12 @@ class Vision(val consumer: VisionConsumer) : SubsystemBase("vision") {
     companion object {
         val robotToCameras = listOf(
             Transform3d(
-                Translation3d(Inches.of(-12.875), Inches.of(11.875000), Inches.of(6.261304)),
-                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(180.0 + 25.0))
+                Translation3d(Inches.of(12.875), Inches.of(-11.875000), Inches.of(6.261304)),
+                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(35.0))
             ),
             Transform3d(
                 Translation3d(Inches.of(12.875), Inches.of(11.875000), Inches.of(6.261304)),
-                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(-15.0))
+                Rotation3d(0.0, Units.degreesToRadians(-20.0), Units.degreesToRadians(-20.0))
             ),
         )
 

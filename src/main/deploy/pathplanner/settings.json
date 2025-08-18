@@ -4,7 +4,7 @@
   "holonomicMode": true,
   "pathFolders": [],
   "autoFolders": [],
-  "defaultMaxVel": 4.5,
+  "defaultMaxVel": 3.0,
   "defaultMaxAccel": 14.5,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
@@ -29,6 +29,8 @@
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.0,\"y\":-0.154},\"size\":{\"width\":0.2286,\"length\":0.36195},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
+    "{\"name\":\"elevator\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.0,\"y\":-0.050673},\"size\":{\"width\":0.05,\"length\":0.454025},\"borderRadius\":0.005,\"strokeWidth\":0.02,\"filled\":true}}",
+    "{\"name\":\"coral exit\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.345,\"y\":0.121},\"size\":{\"width\":0.2,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Funnel\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.35,\"y\":0.215},\"size\":{\"width\":0.4318,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
   ]
 }

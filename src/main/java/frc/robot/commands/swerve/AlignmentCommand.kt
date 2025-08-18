@@ -9,8 +9,10 @@ import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.subsystems.swerve.Drivebase
+import frc.robot.subsystems.vision.Vision
 import lib.math.controllers.gains.PIDGains
 import lib.math.geometry.FieldConstants
 import lib.math.geometry.flipped
@@ -32,13 +34,13 @@ class AlignmentCommand(
         translationPID.kP,
         translationPID.kI,
         translationPID.kD
-    ).apply { setTolerance(Units.inchesToMeters(0.5)) }
+    ).apply { setTolerance(Units.inchesToMeters(0.1)) }
 
     private val yPid = PIDController(
         translationPID.kP,
         translationPID.kI,
         translationPID.kD
-    ).apply { setTolerance(Units.inchesToMeters(0.5)) }
+    ).apply { setTolerance(Units.inchesToMeters(0.1)) }
     private val rotPid =
         PIDController(rotationPID.kP, rotationPID.kI, rotationPID.kD).apply {
             enableContinuousInput(0.0, 2 * PI)
@@ -87,10 +89,18 @@ class AlignmentCommand(
     }
 
     override fun end(interrupted: Boolean) {
+        drivebase.applyChassisSpeeds(ChassisSpeeds())
         drivebase.alignmentState = endState
     }
 
     companion object {
+        fun nodeAlign(
+            drivebase: Drivebase,
+            vision: Vision,
+            side: FieldConstants.Reef.Side
+        ): Command {
+            return Commands.idle()        }
+
         fun buttonBoardAlign(
             drivebase: Drivebase,
             side: FieldConstants.Reef.ReefFace,
@@ -102,14 +112,16 @@ class AlignmentCommand(
             return AlignmentCommand(
                 drivebase,
                 {
-                    var targetPose = FieldConstants.Reef.floorAlignmentPoses[side.ordinal]
+                    var targetPose = FieldConstants.Reef.floorAlignmentPoses[side.ordinal].let {
+                        if(AutoBuilder.shouldFlip()) it.flipped() else it
+                    }
 
                     when {
                         leftSupplier.asBoolean
                                 && !rightSupplier.asBoolean
                                 && !centerSupplier.asBoolean -> {
                             targetPose = targetPose.nudge(
-                                y = (FieldConstants.Reef.sideOffset + leftOffset).into(Meters)
+                                y = ((FieldConstants.Reef.sideOffset / 2.0) - manipulatorOffset).into(Meters)
                             )
                         }
 
@@ -117,7 +129,7 @@ class AlignmentCommand(
                                 && !leftSupplier.asBoolean
                                 && !centerSupplier.asBoolean -> {
                             targetPose = targetPose.nudge(
-                                y = (-FieldConstants.Reef.sideOffset + rightOffset).into(Meters)
+                                y = (-(FieldConstants.Reef.sideOffset / 2.0) - manipulatorOffset).into(Meters)
                             )
                         }
 
@@ -131,7 +143,7 @@ class AlignmentCommand(
 
                     targetPose.takeIf { it.translation.getDistance(drivebase.pose.translation) <= 1.5 }
                 },
-                PIDGains(kP = 5.0),
+                PIDGains(kP = 10.0, kD = 0.01),
                 PIDGains(kP = 5.0),
                 {
                     when {
@@ -167,12 +179,12 @@ class AlignmentCommand(
             ).withName("SourceAlignmentCommand").withTimeout(3.0)
         }
 
-        val leftOffset: Distance = Inches.of(-15.0)
-        val rightOffset: Distance = Inches.of(1.0)
-        val centerOffset: Distance = Inches.of(-6.0)
+        val leftOffset: Distance = Inches.of(-13.0)
+        val rightOffset: Distance = Inches.of(-4.5)
+        val centerOffset: Distance = Inches.of(-5.0)
         val backupL4: Distance = Inches.of(3.0)
 
-        val manipulatorOffset = Inches.of(4.75)
+        val manipulatorOffset = Inches.of(6.0)
 
         val alignLimits: PathConstraints = PathConstraints(
             MetersPerSecond.of(1.5),

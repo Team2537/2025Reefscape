@@ -15,12 +15,14 @@ import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.measure.Distance
+import edu.wpi.first.wpilibj.Filesystem
 import lib.math.units.centi
 import lib.math.units.inches
 import lib.math.units.into
 import lib.math.units.measuredIn
 import lib.math.units.meters
 import org.littletonrobotics.junction.Logger
+import kotlin.io.path.Path
 
 /**
  * Constants for the field
@@ -38,10 +40,19 @@ object FieldConstants {
     /** Center of the field */
     val fieldCenter = Pose2d(fieldLength / 2.0, fieldWidth / 2.0, Rotation2d())
 
-    val tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark)
+    val tagLayout = AprilTagFieldLayout(Filesystem.getDeployDirectory().resolve("2025-reefscape-andymark-nobarge.json").toPath())
+
+    val blueTagIDs = listOf(
+        12, 13, 16, 17, 18, 19, 20, 21, 22
+    )
+
+    val redTagIDs = listOf(
+        1, 2, 3, 6, 7, 8, 9, 10, 11
+    )
 
     // Access the reef and processor constants to initialize them
     init {
+        tagLayout.tags.forEach { print("${it.ID} - ") }
         Reef
         Processor
         Barge
@@ -85,7 +96,15 @@ object FieldConstants {
             Pose2d(Translation2d(5.86, 4.03), Rotation2d.fromDegrees(180.0)),
             Pose2d(Translation2d(5.17, 5.21), Rotation2d.fromDegrees(240.0)),
             Pose2d(Translation2d(3.80, 5.21), Rotation2d.fromDegrees(300.0))
-        ).map { it.nudge(x = Units.inchesToMeters(0.0)) }
+        ).map { it.nudge(x = Units.inchesToMeters(1.5)) }
+
+        val betterFloorPoses = listOf(
+            listOf(Pose2d(3.16, 4.05, Rotation2d()), Pose2d(3.16, 3.67, Rotation2d())),
+            listOf(Pose2d(3.78, 2.89, Rotation2d.fromDegrees(60.0)), Pose2d(4.11, 2.71, Rotation2d.fromDegrees(60.0))),
+            listOf(Pose2d(5.14, 2.85, Rotation2d.fromDegrees(120.0)), Pose2d(5.44, 3.04, Rotation2d.fromDegrees(120.0))),
+            listOf(Pose2d(5.82, 4.00, Rotation2d.k180deg), Pose2d(5.81, 4.33, Rotation2d.k180deg)),
+            listOf(Pose2d(5.22, 5.15, Rotation2d.fromDegrees(-120.0)), Pose2d(4.88, 5.32, Rotation2d.fromDegrees(-120.0)))
+        )
 
         /**
          * Represents the different levels of the reef
