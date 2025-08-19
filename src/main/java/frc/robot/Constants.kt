@@ -63,19 +63,15 @@ object Constants {
         val ROLLER_INVERTED = true
         val PIVOT_GEARING = 1.0
         val ROLLER_GEARING = 1.0
+    }
 
-        object PivotConstants {
-
-        }
-
-        object RollerConstants {
-            val MOTOR_ID: Int = 0 // TODO: Set actual motor ID
-            val IS_MOTOR_INVERTED: Boolean = false
-            val GEARING: Double = 1.0 // TODO: Set actual gearing ratio
-            val MOI: MomentOfInertia = KilogramSquareMeters.of(0.0) // TODO: Set actual moment of inertia
-            val ROLLER_VOLTAGE: Voltage = Volts.of(12.0) // TODO: Set actual voltage
-            val MINIMUM_ROLLER_VELOCITY: AngularVelocity = RotationsPerSecond.of(5.0) // TODO: Set actual minimum velocity
-        }
+    object TransferConstants {
+        val MOTOR_ID = 0 // TODO: set actual values here
+        val IS_MOTOR_INVERTED = false
+        val GEARING = 1.0
+        val MOI = KilogramSquareMeters.of(0.0)
+        val TRANSFER_VOLTAGE = Volts.of(4.0)
+        val MINIMUM_TRANSFER_VELOCITY = RotationsPerSecond.of(5.0)
     }
 
     // still may need to add constants for other parts of the robot
