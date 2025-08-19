@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.commands.swerve.WheelRadiusCharacterization
-import frc.robot.subsystems.climb.Climb
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.superstructure.SuperstructureGoals
 import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
