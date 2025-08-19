@@ -36,6 +36,11 @@ class Intake : SubsystemBase() {
         )
 
         RobotType.Mode.SIMULATION -> IntakeIOSim(
+            gearing = Constants.IntakeConstants.PIVOT_GEARING,
+            moi = KilogramSquareMeters.of(0.09),
+            pidGains = PIDGains(kP = 30.0), // TODO: tune
+            ffGains = FeedforwardGains(kV = 0.0, kA = 0.0), // TODO: tune
+            kG = 0.0, // TODO: tune
         )
 
         RobotType.Mode.REPLAY -> object : IntakeIO {}
