@@ -49,6 +49,21 @@ object Constants {
     }
 
     object IntakeConstants {
+
+        val PIVOT_DEPLOYED_ANGLE: Angle = Degrees.of(0.0) // TODO: Set actual angles
+        val PIVOT_RETRACTED_ANGLE: Angle = Degrees.of(130.0)
+        val ROLLER_VOLTAGE: Voltage = Volts.of(3.0)
+
+        val LEFT_PIVOT_MOTOR_ID = 0 // TODO: set actual values here
+        val RIGHT_PIVOT_MOTOR_ID = 1
+        val CANANDCOLOR_ID = 2
+        val ROLLER_MOTOR_ID = 3
+        val LEFT_PIVOT_INVERTED = false
+        val RIGHT_PIVOT_INVERTED = true
+        val ROLLER_INVERTED = true
+        val PIVOT_GEARING = 1.0
+        val ROLLER_GEARING = 1.0
+
         object PivotConstants {
 
         }
