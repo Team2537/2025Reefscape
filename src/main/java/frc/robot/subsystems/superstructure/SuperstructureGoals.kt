@@ -10,6 +10,7 @@ import lib.math.units.into
 import java.nio.ByteBuffer
 import java.util.Optional
 
+// TODO: these need to be tuned significantly
 object SuperstructureGoals {
     val stowAngle = Degrees.of(90.0)
     val scoreAngle = Degrees.of(35.0)

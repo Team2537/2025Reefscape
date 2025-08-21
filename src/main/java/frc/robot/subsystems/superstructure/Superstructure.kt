@@ -14,8 +14,7 @@ import frc.robot.subsystems.superstructure.SuperstructureGoals.L3
 import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
 import frc.robot.subsystems.superstructure.SuperstructureGoals.STOW
 import frc.robot.subsystems.superstructure.elevator.Elevator
-import frc.robot.subsystems.superstructure.manipulator.roller.ManipulatorRoller
-import frc.robot.subsystems.superstructure.manipulator.wrist.ManipulatorWrist
+import frc.robot.subsystems.superstructure.manipulator.Manipulator
 import lib.math.units.degrees
 import lib.math.units.epsilonEquals
 import lib.math.units.inches
@@ -25,29 +24,27 @@ import java.util.function.Supplier
 
 class Superstructure {
     val elevator: Elevator
-    val wrist: ManipulatorWrist
-    val rollers: ManipulatorRoller
+    val manipulator: Manipulator
 
     var lastRequest: SuperstructureState = SuperstructureGoals.STOW
 
     init {
         elevator = Elevator()
-        wrist = ManipulatorWrist()
-        rollers = ManipulatorRoller()
+        manipulator = Manipulator()
 
-        rollers.apply {
+        manipulator.apply {
             defaultCommand = this.run {
-                if (inputs.coralDistance > 0.2) {
-                    io.setVoltage(Volts.of(1.0))
+                if (inputs.coralDistance > Meters.of(0.2)) {
+                    io.setRollerVoltage(Volts.of(1.0))
                 } else {
-                    io.setVoltage(Volts.zero())
+                    io.setRollerVoltage(Volts.zero())
                 }
-            }.onlyIf { lastRequest == STOW }.handleInterrupt { io.setVoltage(Volts.zero()) }
+            }.onlyIf { lastRequest == STOW }.handleInterrupt { io.setRollerVoltage(Volts.zero()) }
         }
 
         elevator.apply {
             defaultCommand = this.run {
-                if(lastRequest == STOW && rollers.inputs.coralDistance < 0.2) {
+                if(lastRequest == STOW && manipulator.inputs.coralDistance < Meters.of(0.2)) {
                     io.setElevatorHeightTarget(STOW.elevatorHeight + 12.0.inches)
                 } else {
                     io.setElevatorHeightTarget(STOW.elevatorHeight)
@@ -73,14 +70,14 @@ class Superstructure {
     val isL3: Trigger = Trigger { lastRequest == L3 }
     val isL4: Trigger = Trigger { lastRequest == L4 }
 
-    val isHoldingCoral: Trigger = Trigger { rollers.inputs.coralDistance > 0.2 }
+    val isHoldingCoral: Trigger = Trigger { manipulator.inputs.coralDistance > Meters.of(0.2) }
 
     fun getSendToStateCommand(superstructureState: Supplier<SuperstructureState>): Command {
         return Commands.sequence(
             getForceStateCommand(superstructureState),
             Commands.parallel(
                 elevator.getMoveToHeightCommand { superstructureState.get().elevatorHeight },
-                wrist.getSendToAngleCmd { superstructureState.get().armAngle }
+                manipulator.getSendToAngleCommand(superstructureState.get().armAngle)
             )
         )
     }
@@ -92,25 +89,26 @@ class Superstructure {
         })
     }
 
+    // TODO: this will need to get tuned significantly, i.e. the angles are all wrong
     fun getDealgaefyCommand(): Command {
         return Commands.sequence(
             elevator.getMoveToHeightCommand { Inches.of(12.0) },
             Commands.waitUntil(elevator.getPositionInToleranceTrigger(0.5.inches)),
-            wrist.getSendToAngleCmd { Degrees.of(140.0) },
-            Commands.waitUntil { wrist.inputs.angle.epsilonEquals(140.0.degrees, 5.0.degrees) },
+            manipulator.getSendToAngleCommand(Degrees.of(140.0)),
+            Commands.waitUntil { manipulator.inputs.pivotAngularPosition.epsilonEquals(140.0.degrees, 5.0.degrees) },
             Commands.parallel(
-                wrist.getSendToAngleCmd { Degrees.of(170.0) },
+                manipulator.getSendToAngleCommand(Degrees.of(170.0)),
                 elevator.getMoveToHeightCommand {
                     if (lastRequest == L3) Inches.of(29.0)
                     else Inches.of(12.0)
                 },
-                rollers.getDealgaefyCommand()
+                manipulator.getSpinRollersInCommand()
             ).onlyIf { lastRequest == L3 || lastRequest == L2 },
 
             )
     }
 
-
+    // TODO: this will need to get tuned significantly, i.e. the angles are all wrong
     fun getScoreCommand(readyToScore: BooleanSupplier): Command {
         return Commands.sequence(
             Commands.either(
@@ -119,21 +117,21 @@ class Superstructure {
                     Commands.waitUntil(
                         elevator.getPositionInToleranceTrigger(Inches.of(3.0))
                             .and { elevator.inputs.carriageHeight > 3.0.inches }),
-                    wrist.getSendToAngleCmd { lastRequest.armAngle },
-                    Commands.waitUntil { wrist.inputs.angle.epsilonEquals(lastRequest.armAngle, Degrees.of(5.0)) },
+                    manipulator.getSendToAngleCommand(lastRequest.armAngle),
+                    Commands.waitUntil { manipulator.inputs.pivotAngularPosition.epsilonEquals(lastRequest.armAngle, Degrees.of(5.0)) },
                     Commands.waitSeconds(0.4)
                 ),
                 Commands.sequence(
                     getSendToStateCommand { lastRequest },
                     Commands.waitUntil(
                         elevator.getPositionInToleranceTrigger(Inches.of(0.5))
-                            .and { wrist.inputs.angle.epsilonEquals(lastRequest.armAngle, Degrees.of(5.0)) }
+                            .and { manipulator.inputs.pivotAngularPosition.epsilonEquals(lastRequest.armAngle, Degrees.of(5.0)) }
                     ),
                 ),
                 { lastRequest == L4 }
             ),
             Commands.waitUntil(readyToScore),
-            rollers.getScoreCommand(),
+            manipulator.getSpinRollersOutCommand(),
             getSendToStateCommand { STOW }
         ).onlyIf { lastRequest != STOW } // if last request was stow, return command that does nothing
     }
