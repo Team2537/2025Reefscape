@@ -34,42 +34,81 @@ class IntakeIOKraken(
     accelerationLimit: AngularAcceleration,
     jerkLimit: Velocity<AngularAccelerationUnit> = RotationsPerSecondPerSecond.per(Second).of(0.0)
 ) : IntakeIO {
-    private val leftMotor = TalonFX(leftMotorID).apply {
-        val config = TalonFXConfiguration()
 
-        config.MotorOutput.Inverted =
-            if (leftInverted) InvertedValue.Clockwise_Positive else InvertedValue.CounterClockwise_Positive
+    private fun configureMotor(
+        motorId: Int,
+        isInverted: Boolean,
+        pidGains: PIDGains,
+        ffGains: FeedforwardGains,
+        kG: Double,
+        velocityLimit: AngularVelocity,
+        accelerationLimit: AngularAcceleration,
+        jerkLimit: Velocity<AngularAccelerationUnit>,
+        gearing: Double,
+        isRoller: Boolean = false
+    ): TalonFX {
+        return TalonFX(motorId, "canivore").apply {
+            val config = TalonFXConfiguration()
 
-        config.MotorOutput.NeutralMode = NeutralModeValue.Brake
+            config.MotorOutput.Inverted =
+                if (isInverted) InvertedValue.Clockwise_Positive else InvertedValue.CounterClockwise_Positive
 
-        config.Slot0.kP = pidGains.kP
-        config.Slot0.kI = pidGains.kI
-        config.Slot0.kD = pidGains.kD
-        config.Slot0.kV = ffGains.kV
-        config.Slot0.kA = ffGains.kA
-        config.Slot0.kS = ffGains.kS
-        config.Slot0.kG = kG
+            config.MotorOutput.NeutralMode = if (isRoller) NeutralModeValue.Coast else NeutralModeValue.Brake
 
-        config.Slot0.GravityType = GravityTypeValue.Arm_Cosine
+            if (!isRoller) {
+                config.Slot0.kP = pidGains.kP
+                config.Slot0.kI = pidGains.kI
+                config.Slot0.kD = pidGains.kD
+                config.Slot0.kV = ffGains.kV
+                config.Slot0.kA = ffGains.kA
+                config.Slot0.kS = ffGains.kS
+                config.Slot0.kG = kG
 
-        config.Feedback.SensorToMechanismRatio = gearing
+                config.Slot0.GravityType = GravityTypeValue.Arm_Cosine
 
-        config.ClosedLoopGeneral.ContinuousWrap = true
+                config.Feedback.SensorToMechanismRatio = gearing
 
-        config.CurrentLimits.StatorCurrentLimit = 60.0
-        config.CurrentLimits.StatorCurrentLimitEnable = true
+                config.ClosedLoopGeneral.ContinuousWrap = true
 
-        config.MotionMagic.withMotionMagicCruiseVelocity(velocityLimit)
-        config.MotionMagic.withMotionMagicAcceleration(accelerationLimit)
-        config.MotionMagic.withMotionMagicJerk(jerkLimit)
+                config.MotionMagic.withMotionMagicCruiseVelocity(velocityLimit)
+                config.MotionMagic.withMotionMagicAcceleration(accelerationLimit)
+                config.MotionMagic.withMotionMagicJerk(jerkLimit)
+            }
 
-        configurator.apply(config)
+            config.CurrentLimits.StatorCurrentLimit = 60.0
+            config.CurrentLimits.StatorCurrentLimitEnable = true
 
+            configurator.apply(config)
+        }
+    }
+
+    private val leftMotor = configureMotor(
+        leftMotorID,
+        leftInverted,
+        pidGains,
+        ffGains,
+        kG,
+        velocityLimit,
+        accelerationLimit,
+        jerkLimit,
+        gearing
+    ).apply {
         // start at retracted position
         setPosition(Constants.IntakeConstants.PIVOT_RETRACTED_ANGLE)
     }
 
-    private val rightMotor = TalonFX(rightMotorID).apply {
+    private val rightMotor = configureMotor(
+        rightMotorID,
+        rightInverted,
+        pidGains,
+        ffGains,
+        kG,
+        velocityLimit,
+        accelerationLimit,
+        jerkLimit,
+        gearing
+    ).apply {
+        setPosition(Constants.IntakeConstants.PIVOT_RETRACTED_ANGLE)
         setControl(Follower(leftMotorID, true)) // true means invert the left motor
     }
     
@@ -89,18 +128,18 @@ class IntakeIOKraken(
     private val canandcolor = Canandcolor(canandcolorID)
 
     // kraken x44 for rolling motors
-    private val rollerMotor = TalonFX(rollerMotorID).apply {
-        val config = TalonFXConfiguration()
-        config.MotorOutput.Inverted = if (rollerInverted) InvertedValue.Clockwise_Positive else InvertedValue.CounterClockwise_Positive
-        config.MotorOutput.NeutralMode = NeutralModeValue.Coast
-
-        // other settings omitted as I don't think we need them... not sure
-
-        config.CurrentLimits.StatorCurrentLimit = 60.0
-        config.CurrentLimits.StatorCurrentLimitEnable = true
-
-        configurator.apply(config)
-    }
+    private val rollerMotor = configureMotor(
+        rollerMotorID,
+        rollerInverted,
+        pidGains, // These will be ignored for roller motor
+        ffGains,  // These will be ignored for roller motor
+        kG,       // These will be ignored for roller motor
+        velocityLimit, // These will be ignored for roller motor
+        accelerationLimit, // These will be ignored for roller motor
+        jerkLimit, // These will be ignored for roller motor
+        gearing,
+        true // isRoller
+    )
 
     private val rollerVoltageRequest = VoltageOut(0.0)
 
