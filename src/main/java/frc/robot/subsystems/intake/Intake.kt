@@ -27,20 +27,20 @@ class Intake : SubsystemBase() {
             rightInverted = Constants.IntakeConstants.RIGHT_PIVOT_INVERTED,
             rollerInverted = Constants.IntakeConstants.ROLLER_INVERTED,
             gearing = Constants.IntakeConstants.PIVOT_GEARING,
-            pidGains = PIDGains(kP = 30.0), // TODO: tune
-            ffGains = FeedforwardGains(kV = 0.0, kA = 0.0), // TODO: tune
-            kG = 0.0, // TODO: tune
-            velocityLimit = RotationsPerSecond.of(10.0), // TODO: tune
-            accelerationLimit = RotationsPerSecondPerSecond.of(10.0), // TODO: tune
-            jerkLimit = RotationsPerSecondPerSecond.per(Second).of(10.0) // TODO: tune
+            pidGains = PIDGains(kP = Constants.IntakeConstants.REAL_PIVOT_KP),
+            ffGains = FeedforwardGains(kV = Constants.IntakeConstants.REAL_PIVOT_KV, kA = Constants.IntakeConstants.REAL_PIVOT_KA),
+            kG = Constants.IntakeConstants.REAL_PIVOT_KG,
+            velocityLimit = Constants.IntakeConstants.REAL_PIVOT_VELOCITY_LIMIT,
+            accelerationLimit = Constants.IntakeConstants.REAL_PIVOT_ACCELERATION_LIMIT,
+            jerkLimit = Constants.IntakeConstants.REAL_PIVOT_JERK_LIMIT
         )
 
         RobotType.Mode.SIMULATION -> IntakeIOSim(
             gearing = Constants.IntakeConstants.PIVOT_GEARING,
-            moi = KilogramSquareMeters.of(0.09),
-            pidGains = PIDGains(kP = 30.0), // TODO: tune
-            ffGains = FeedforwardGains(kV = 0.0, kA = 0.0), // TODO: tune
-            kG = 0.0, // TODO: tune
+            moi = Constants.IntakeConstants.SIM_MOI,
+            pidGains = PIDGains(kP = Constants.IntakeConstants.SIM_PIVOT_KP),
+            ffGains = FeedforwardGains(kV = Constants.IntakeConstants.SIM_PIVOT_KV, kA = Constants.IntakeConstants.SIM_PIVOT_KA),
+            kG = Constants.IntakeConstants.SIM_PIVOT_KG,
         )
 
         RobotType.Mode.REPLAY -> object : IntakeIO {}

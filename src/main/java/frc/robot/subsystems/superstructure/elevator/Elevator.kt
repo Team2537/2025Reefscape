@@ -27,25 +27,25 @@ class Elevator : SubsystemBase("elevator") {
     
     val io: ElevatorIO = when (RobotType.mode) {
         RobotType.Mode.SIMULATION -> ElevatorIOSim(
-            gearing = 5.0,
-            drumRadius = Inches.of(1.76),
+            gearing = Constants.ElevatorConstants.GEAR_RATIO,
+            drumRadius = Constants.ElevatorConstants.DRUM_RADIUS,
             maxHeight = Constants.ElevatorConstants.maxHeight,
-            mass = 10.0 measuredIn Pounds,
-            pidGains = PIDGains(kP = 10.0),
-            ffGains = FeedforwardGains(kV = 1.77),
-            kG = 0.19,
+            mass = Constants.ElevatorConstants.SIM_MASS,
+            pidGains = PIDGains(kP = Constants.ElevatorConstants.SIM_KP),
+            ffGains = FeedforwardGains(kV = Constants.ElevatorConstants.SIM_KV),
+            kG = Constants.ElevatorConstants.SIM_KG,
         )
         RobotType.Mode.REAL -> ElevatorIOKraken(
-            gearRatio = 5.0,
-            drumRadius = Inches.of(1.76),
-            leftMotorId = 21,
-            rightMotorId = 20,
-            pidGains = PIDGains(kP = 10.0),
-            ffGains = FeedforwardGains(kS = 0.082337, kV = 0.015551),
-            kG = 0.44098,
-            motionMagicCruiseVelocity = MetersPerSecond.of(0.75),
-            motionMagicAcceleration = MetersPerSecondPerSecond.of(20.0),
-            motionMagicJerk = 0.0
+            gearRatio = Constants.ElevatorConstants.GEAR_RATIO,
+            drumRadius = Constants.ElevatorConstants.DRUM_RADIUS,
+            leftMotorId = Constants.ElevatorConstants.LEFT_MOTOR_ID,
+            rightMotorId = Constants.ElevatorConstants.RIGHT_MOTOR_ID,
+            pidGains = PIDGains(kP = Constants.ElevatorConstants.KP),
+            ffGains = FeedforwardGains(kS = Constants.ElevatorConstants.KS, kV = Constants.ElevatorConstants.KV),
+            kG = Constants.ElevatorConstants.KG,
+            motionMagicCruiseVelocity = Constants.ElevatorConstants.MOTION_MAGIC_CRUISE_VELOCITY,
+            motionMagicAcceleration = Constants.ElevatorConstants.MOTION_MAGIC_ACCELERATION,
+            motionMagicJerk = Constants.ElevatorConstants.MOTION_MAGIC_JERK
         )
         
         else -> object : ElevatorIO {}

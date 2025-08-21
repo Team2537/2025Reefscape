@@ -42,6 +42,22 @@ object Constants {
 
     object ElevatorConstants {
         val maxHeight = 1.302 measuredIn Meters
+        val GEAR_RATIO = 5.0
+        val DRUM_RADIUS = Inches.of(1.76)
+        val LEFT_MOTOR_ID = 21
+        val RIGHT_MOTOR_ID = 20
+        val KP = 10.0
+        val KS = 0.082337
+        val KV = 0.015551
+        val KG = 0.44098
+        val MOTION_MAGIC_CRUISE_VELOCITY = MetersPerSecond.of(0.75)
+        val MOTION_MAGIC_ACCELERATION = MetersPerSecondPerSecond.of(20.0)
+        val MOTION_MAGIC_JERK = 0.0
+
+        val SIM_MASS = 10.0 measuredIn Pounds
+        val SIM_KP = 10.0
+        val SIM_KV = 1.77
+        val SIM_KG = 0.19
     }
 
     object GripperConstants {
@@ -63,6 +79,20 @@ object Constants {
         val ROLLER_INVERTED = true
         val PIVOT_GEARING = 1.0
         val ROLLER_GEARING = 1.0
+
+        val REAL_PIVOT_KP = 30.0
+        val REAL_PIVOT_KV = 0.0
+        val REAL_PIVOT_KA = 0.0
+        val REAL_PIVOT_KG = 0.0
+        val REAL_PIVOT_VELOCITY_LIMIT = RotationsPerSecond.of(10.0)
+        val REAL_PIVOT_ACCELERATION_LIMIT = RotationsPerSecondPerSecond.of(10.0)
+        val REAL_PIVOT_JERK_LIMIT = RotationsPerSecondPerSecond.per(Second).of(10.0)
+
+        val SIM_MOI = KilogramSquareMeters.of(0.09)
+        val SIM_PIVOT_KP = 30.0
+        val SIM_PIVOT_KV = 0.0
+        val SIM_PIVOT_KA = 0.0
+        val SIM_PIVOT_KG = 0.0
     }
 
     object TransferConstants {
