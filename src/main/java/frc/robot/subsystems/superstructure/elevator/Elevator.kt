@@ -89,10 +89,10 @@ class Elevator : SubsystemBase("elevator") {
     
     fun getMoveToHeightCommand(height: Supplier<Distance>): Command {
         return runOnce {
-            val height = height.get()
-            setpoint.mut_replace(height)
+            val targetHeight = height.get()
+            setpoint.mut_replace(targetHeight)
             io.setElevatorHeightTarget(
-                height
+                targetHeight
             )
         }
     }
