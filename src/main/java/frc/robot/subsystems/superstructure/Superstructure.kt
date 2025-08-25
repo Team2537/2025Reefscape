@@ -97,14 +97,13 @@ class Superstructure {
             manipulator.getSendToAngleCommand(Degrees.of(140.0)),
             Commands.waitUntil { manipulator.inputs.pivotAngularPosition.epsilonEquals(140.0.degrees, 5.0.degrees) },
             Commands.parallel(
-                manipulator.getSendToAngleCommand(Degrees.of(170.0)),
+                Commands.sequence(manipulator.getSendToAngleCommand(Degrees.of(170.0)), manipulator.getSpinRollersInCommand()),
                 elevator.getMoveToHeightCommand {
                     if (lastRequest == L3) Inches.of(29.0)
                     else Inches.of(12.0)
                 },
-                manipulator.getSpinRollersInCommand()
             ).onlyIf { lastRequest == L3 || lastRequest == L2 },
-
+            Commands.waitSeconds(0.4)
             )
     }
 
