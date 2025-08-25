@@ -93,7 +93,7 @@ class ManipulatorIOKraken(
         pivotGearing
     ).apply {
         // start at retracted position
-        setPosition(Constants.ManipulatorConstants.PIVOT_RETRACTED_ANGLE)
+        setPosition(Constants.ManipulatorConstants.PIVOT_START_ANGLE)
     }
 
     private val pivotPosition = pivotMotor.position.clone()
