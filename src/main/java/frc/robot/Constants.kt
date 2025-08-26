@@ -41,7 +41,7 @@ object Constants {
     }
 
     object ElevatorConstants {
-        val maxHeight = 1.302 measuredIn Meters
+        val maxHeight = 1.9 measuredIn Meters
         val GEAR_RATIO = 5.0
         val DRUM_RADIUS = Inches.of(1.76)
         val LEFT_MOTOR_ID = 21
@@ -113,7 +113,7 @@ object Constants {
         val PIVOT_GEARING = 1.0
         val ROLLER_GEARING = 1.0
 
-        val REAL_PIVOT_KP = 30.0
+        val REAL_PIVOT_KP = 10.0
         val REAL_PIVOT_KV = 0.0
         val REAL_PIVOT_KA = 0.0
         val REAL_PIVOT_KG = 0.0
@@ -123,7 +123,7 @@ object Constants {
 
         val SIM_PIVOT_MOI = KilogramSquareMeters.of(0.09)
         val SIM_ROLLER_MOI = KilogramSquareMeters.of(0.01)
-        val SIM_PIVOT_KP = 30.0
+        val SIM_PIVOT_KP = 10.0
         val SIM_PIVOT_KV = 0.0
         val SIM_PIVOT_KA = 0.0
         val SIM_PIVOT_KG = 0.0
