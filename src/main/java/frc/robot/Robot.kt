@@ -223,7 +223,7 @@ object Robot : LoggedRobot() {
             // wrist
             Pose3d(
                 -0.325374, 0.0, 0.2437638+elevatorHeight,
-                Rotation3d(0.0, pivotAngle, 0.0)
+                Rotation3d(0.0, pivotAngle + 1.7, 0.0)
             ),
             // no wrist
             Pose3d(
