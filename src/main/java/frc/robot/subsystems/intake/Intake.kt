@@ -46,7 +46,7 @@ class Intake : SubsystemBase() {
         RobotType.Mode.REPLAY -> object : IntakeIO {}
     }
     
-    private val inputs: IntakeInputs = IntakeInputs()
+    val inputs: IntakeInputs = IntakeInputs()
 
     // for pivot only
     // https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/wpilib-integration/sysid-integration/plumbing-and-running-sysid.html
