@@ -8,6 +8,9 @@ import edu.wpi.first.hal.HAL
 import edu.wpi.first.hal.HALUtil
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Pose3d
+import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.Inches
 import edu.wpi.first.wpilibj.DriverStation
@@ -197,6 +200,27 @@ object Robot : LoggedRobot() {
     }
 
     override fun robotPeriodic() {
+        // AdvantageScope setup
+        Logger.recordOutput("RobotPose", Pose2d())
+        // java: Logger.recordOutput("ZeroedComponentPoses", new Pose3d[] { new Pose3d(), new Pose3d() })
+        Logger.recordOutput("ZeroedComponentPoses", Pose3d(), Pose3d(), Pose3d())
+        Logger.recordOutput(
+            "FinalComponentPoses",
+            Pose3d(
+                0.33655, 0.0, 0.24765,
+                Rotation3d(0.0, 0.0, 0.0)
+            ),
+            Pose3d(
+                -0.325374, 0.0, 0.2437638,
+                Rotation3d(0.0, 0.0, 0.0)
+            ),
+            Pose3d(
+                -0.325374, 0.0, 0.2437638,
+                Rotation3d(0.0, 0.0, 0.0)
+            )
+        )
+
+
         CommandScheduler.getInstance().run()
         superstructure.periodic()
     }

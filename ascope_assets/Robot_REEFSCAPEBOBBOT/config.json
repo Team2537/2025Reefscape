@@ -1,0 +1,73 @@
+{
+    "name": "ReefscapeBobBot",
+    "sourceUrl": "",
+    "disableSimplification": false,
+    "rotations": [
+        {
+            "axis": "x",
+            "degrees": 90
+        },
+        {
+            "axis": "z",
+            "degrees": 270
+        }
+    ],
+    "position": [
+        0.0,
+        0.0,
+        -0.04445
+    ],
+    "components": [
+        {
+            "zeroedRotations": [
+                {
+                    "axis": "x",
+                    "degrees": 90
+                },
+                {
+                    "axis": "z",
+                    "degrees": 270
+                }
+            ],
+            "zeroedPosition": [
+                -0.335,
+                0.0,
+                -0.29
+            ]
+        },
+        {
+            "zeroedRotations": [
+                {
+                    "axis": "x",
+                    "degrees": 90
+                },
+                {
+                    "axis": "z",
+                    "degrees": 270
+                }
+            ],
+            "zeroedPosition": [
+                0.195,
+                0.0,
+                0.085
+            ]
+        },
+        {
+            "zeroedRotations": [
+                {
+                    "axis": "x",
+                    "degrees": 90
+                },
+                {
+                    "axis": "z",
+                    "degrees": 270
+                }
+            ],
+            "zeroedPosition": [
+                0.195,
+                0.0,
+                0.085
+            ]
+        }
+    ]
+}
