@@ -12,7 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.util.Units
-import edu.wpi.first.units.Units.Inches
+import edu.wpi.first.units.Units.*
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.util.WPILibVersion
@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.commands.swerve.WheelRadiusCharacterization
+import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.superstructure.SuperstructureGoals
 import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
@@ -45,6 +46,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter
 import java.util.*
 import kotlin.math.pow
 import edu.wpi.first.wpilibj.Timer;
+import lib.math.units.into
 
 object Robot : LoggedRobot() {
     val updateRateSec = 0.02
@@ -57,6 +59,7 @@ object Robot : LoggedRobot() {
     val drivebase: Drivebase
     val vision: Vision
     val superstructure: Superstructure
+    val intake: Intake
 
     val autos: Autos
 
@@ -115,6 +118,7 @@ object Robot : LoggedRobot() {
         drivebase = Drivebase()
         vision = Vision(drivebase::addVisionMeasurement)
         superstructure = Superstructure()
+        intake = Intake()
 
         autos = Autos(drivebase, superstructure)
 
@@ -202,21 +206,28 @@ object Robot : LoggedRobot() {
 
     override fun robotPeriodic() {
         // AdvantageScope setup
-        Logger.recordOutput("RobotPose", Pose2d(3.0, 2.0, Rotation2d(0.0)))
-        // java: Logger.recordOutput("ZeroedComponentPoses", new Pose3d[] { new Pose3d(), new Pose3d() })
-        Logger.recordOutput("ZeroedComponentPoses", Pose3d(), Pose3d(), Pose3d())
+        // Logger.recordOutput("RobotPose", Pose2d(3.0, 2.0, Rotation2d(0.0)))
+        // Logger.recordOutput("ZeroedComponentPoses", Pose3d(), Pose3d(), Pose3d())
+
+        val elevatorHeight: Double = superstructure.elevator.inputs.carriageHeight into Meters
+        val pivotAngle: Double = superstructure.manipulator.inputs.pivotAngularPosition into Radians
+        val intakeAngle: Double = intake.inputs.pivotLeftPosition into Radians
+
         Logger.recordOutput(
             "FinalComponentPoses",
+            // intake
             Pose3d(
                 0.33655, 0.0, 0.24765,
-                Rotation3d(0.0, Math.sin(Timer.getTimestamp()) - 0.6, 0.0)
+                Rotation3d(0.0, intakeAngle - 1.5, 0.0)
             ),
+            // wrist
             Pose3d(
-                -0.325374, 0.0, (0.2437638+Math.sin(Timer.getTimestamp())+1.3)*0.6,
-                Rotation3d(0.0, Math.sin(Timer.getTimestamp()), 0.0)
+                -0.325374, 0.0, 0.2437638+elevatorHeight,
+                Rotation3d(0.0, pivotAngle, 0.0)
             ),
+            // no wrist
             Pose3d(
-                -0.325374, 0.0, (0.2437638+Math.sin(Timer.getTimestamp())+1.3)*0.6,
+                -0.325374, 0.0, 0.2437638+elevatorHeight,
                 Rotation3d(0.0, 0.0, 0.0)
             )
         )
