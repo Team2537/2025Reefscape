@@ -68,8 +68,8 @@ object Constants {
 
     object IntakeConstants {
 
-        val PIVOT_DEPLOYED_ANGLE: Angle = Degrees.of(0.0) // TODO: Set actual angles
-        val PIVOT_RETRACTED_ANGLE: Angle = Degrees.of(130.0)
+        val PIVOT_DEPLOYED_ANGLE: Angle = Degrees.of(110.0)
+        val PIVOT_RETRACTED_ANGLE: Angle = Degrees.of(0.0)
         val ROLLER_VOLTAGE: Voltage = Volts.of(3.0)
 
         val LEFT_PIVOT_MOTOR_ID = 0 // TODO: set actual values here
@@ -82,7 +82,7 @@ object Constants {
         val PIVOT_GEARING = 1.0
         val ROLLER_GEARING = 1.0
 
-        val REAL_PIVOT_KP = 30.0
+        val REAL_PIVOT_KP = 5.0
         val REAL_PIVOT_KV = 0.0
         val REAL_PIVOT_KA = 0.0
         val REAL_PIVOT_KG = 0.0
@@ -135,7 +135,7 @@ object Constants {
         val MOTOR_ID = 0 // TODO: set actual values here
         val IS_MOTOR_INVERTED = false
         val GEARING = 1.0
-        val MOI = KilogramSquareMeters.of(0.0)
+        val MOI = KilogramSquareMeters.of(0.01)
         val TRANSFER_VOLTAGE = Volts.of(4.0)
         val MINIMUM_TRANSFER_VELOCITY = RotationsPerSecond.of(5.0)
     }

@@ -26,6 +26,7 @@ import frc.robot.commands.Autos
 import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.commands.swerve.WheelRadiusCharacterization
 import frc.robot.subsystems.intake.Intake
+import frc.robot.subsystems.transfer.Transfer
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.superstructure.SuperstructureGoals
 import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
@@ -60,6 +61,7 @@ object Robot : LoggedRobot() {
     val vision: Vision
     val superstructure: Superstructure
     val intake: Intake
+    val transfer: Transfer
 
     val autos: Autos
 
@@ -119,6 +121,7 @@ object Robot : LoggedRobot() {
         vision = Vision(drivebase::addVisionMeasurement)
         superstructure = Superstructure()
         intake = Intake()
+        transfer = Transfer()
 
         autos = Autos(drivebase, superstructure)
 
@@ -190,6 +193,26 @@ object Robot : LoggedRobot() {
                 PIDGains(5.0, 0.0, 0.01),
                 { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
             ))
+        
+        // intake
+        driverController.a().onTrue(intake.toggleIntakeCommand())
+
+        // spin rollers
+        driverController.b().onTrue(
+            Commands.parallel(
+                intake.getSpinRollersCommand(),
+                superstructure.manipulator.getSpinRollersInCommand(),
+                transfer.getRollCommand()
+            )
+        )
+
+        driverController.b().onFalse(
+            Commands.parallel(
+                intake.getStopRollersCommand(),
+                superstructure.manipulator.getStopRollersCommand(),
+                transfer.getStopCommand()
+            )
+        )
 
         operatorController.getActionButton().onTrue(
             superstructure.getScoreCommand(!operatorController.getActionButton())

@@ -47,6 +47,7 @@ class Intake : SubsystemBase() {
     }
     
     val inputs: IntakeInputs = IntakeInputs()
+    var retracted = true
 
     // for pivot only
     // https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/wpilib-integration/sysid-integration/plumbing-and-running-sysid.html
@@ -76,20 +77,40 @@ class Intake : SubsystemBase() {
     }
 
     fun getDeployIntakeCommand(): Command {
+        retracted = false
         return runOnce {
             io.setPivotAngle(Constants.IntakeConstants.PIVOT_DEPLOYED_ANGLE)
         }
     }
 
     fun getRetractIntakeCommand(): Command {
+        retracted = true
         return runOnce {
             io.setPivotAngle(Constants.IntakeConstants.PIVOT_RETRACTED_ANGLE)
+        }
+    }
+
+    fun toggleIntakeCommand(): Command {
+        return runOnce {
+            if (retracted) {
+                retracted = false
+                io.setPivotAngle(Constants.IntakeConstants.PIVOT_DEPLOYED_ANGLE)
+            } else {
+                retracted = true
+                io.setPivotAngle(Constants.IntakeConstants.PIVOT_RETRACTED_ANGLE)
+            }
         }
     }
 
     fun getSpinRollersCommand(): Command {
         return runOnce {
             io.setRollerVoltage(Constants.IntakeConstants.ROLLER_VOLTAGE)
+        }
+    }
+
+    fun getStopRollersCommand(): Command {
+        return runOnce {
+            io.setRollerVoltage(Volts.zero())
         }
     }
 

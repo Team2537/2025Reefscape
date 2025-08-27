@@ -29,7 +29,7 @@ class IntakeIOSim(
             moi into KilogramSquareMeters,
             0.35, // arm length in meters (estimated from CAD)
             Radians.convertFrom(0.0, Degrees), // min angle in radians
-            Radians.convertFrom(130.0, Degrees), // max angle in radians
+            Radians.convertFrom(110.0, Degrees), // max angle in radians
             true,
             Radians.convertFrom(0.0, Degrees), // start angle in radians
         )
@@ -84,6 +84,8 @@ class IntakeIOSim(
         inputs.pivotRightVelocity.mut_replace(pivotSim.velocityRadPerSec, RadiansPerSecond)
         inputs.pivotRightAppliedVoltage.mut_replace(appliedPivotVoltage)
         inputs.pivotRightStatorCurrent.mut_replace(Amps.of(pivotSim.currentDrawAmps))
+
+        inputs.pivotSetAngle.mut_replace(targetAngle)
         
         // Update roller inputs using DCMotorSim
         inputs.rollerVelocity.mut_replace(rollerSim.angularVelocity)

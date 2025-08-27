@@ -121,6 +121,7 @@ class IntakeIOKraken(
     private val rightVelocity = rightMotor.velocity.clone()
     private val rightAppliedVoltage = rightMotor.motorVoltage.clone()
     private val rightStatorCurrent = rightMotor.statorCurrent.clone()
+    private var pivotSetAngle = Constants.IntakeConstants.PIVOT_RETRACTED_ANGLE
 
     private val motionMagicRequest = MotionMagicVoltage(0.0)
     private val pivotVoltageRequest = VoltageOut(0.0)
@@ -167,6 +168,7 @@ class IntakeIOKraken(
         inputs.pivotRightVelocity.mut_replace(rightVelocity.value)
         inputs.pivotRightAppliedVoltage.mut_replace(rightAppliedVoltage.value)
         inputs.pivotRightStatorCurrent.mut_replace(rightStatorCurrent.value)
+        inputs.pivotSetAngle.mut_replace(pivotSetAngle)
 
         inputs.rollerVelocity.mut_replace(rollerVelocity.value)
         inputs.rollerAppliedVoltage.mut_replace(rollerAppliedVoltage.value)
@@ -175,6 +177,7 @@ class IntakeIOKraken(
 
     override fun setPivotAngle(angle: Angle) {
         leftMotor.setControl(motionMagicRequest.withPosition(angle))
+        pivotSetAngle = angle
     }
 
     override fun setPivotVoltage(voltage: Voltage) {

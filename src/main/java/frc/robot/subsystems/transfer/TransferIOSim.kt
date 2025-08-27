@@ -6,6 +6,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.math.system.plant.DCMotor
 import frc.robot.subsystems.transfer.TransferIO.TransferInputs
 import edu.wpi.first.units.Units.*
+import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.units.measure.MomentOfInertia
 import lib.math.units.into
 
@@ -31,5 +32,9 @@ class TransferIOSim(
         inputs.statorCurrent.mut_replace(Amps.of(rollerSim.currentDrawAmps))
     }
     
-    
+    override fun setVoltage(voltage: Voltage) {
+        rollerSim.setInputVoltage(voltage into Volts)
+    }
+
+    override fun setBrakeMode(brake: Boolean) {}
 }

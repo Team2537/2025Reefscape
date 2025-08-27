@@ -21,6 +21,7 @@ interface IntakeIO {
         val pivotRightVelocity: MutAngularVelocity = RadiansPerSecond.zero().mutableCopy()
         val pivotRightAppliedVoltage: MutVoltage = Volts.zero().mutableCopy()
         val pivotRightStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
+        val pivotSetAngle: MutAngle = Radians.zero().mutableCopy()
 
         // rollers
         val rollerTargetVoltage: MutVoltage = Volts.zero().mutableCopy()
@@ -42,6 +43,7 @@ interface IntakeIO {
             table.put("pivotRightVelocity", pivotRightVelocity)
             table.put("pivotRightAppliedVoltage", pivotRightAppliedVoltage)
             table.put("pivotRightStatorCurrent", pivotRightStatorCurrent)
+            table.put("pivotSetAngle", pivotSetAngle)
 
             table.put("rollerVelocity", rollerVelocity)
             table.put("rollerAppliedVoltage", rollerAppliedVoltage)
@@ -61,7 +63,8 @@ interface IntakeIO {
             pivotRightVelocity.mut_replace(table.get("pivotRightVelocity", pivotRightVelocity))
             pivotRightAppliedVoltage.mut_replace(table.get("pivotRightAppliedVoltage", pivotRightAppliedVoltage))
             pivotRightStatorCurrent.mut_replace(table.get("pivotRightStatorCurrent", pivotRightStatorCurrent))
-
+            pivotSetAngle.mut_replace(table.get("pivotSetAngle", pivotSetAngle))
+            
             rollerVelocity.mut_replace(table.get("rollerVelocity", rollerVelocity))
             rollerAppliedVoltage.mut_replace(table.get("rollerAppliedVoltage", rollerAppliedVoltage))
             rollerStatorCurrent.mut_replace(table.get("rollerStatorCurrent", rollerStatorCurrent))
