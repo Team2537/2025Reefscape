@@ -32,15 +32,15 @@ class Superstructure {
         elevator = Elevator()
         manipulator = Manipulator()
 
-        manipulator.apply {
-            defaultCommand = this.run {
-                if (inputs.coralDistance > Meters.of(0.2)) {
-                    io.setRollerVoltage(Volts.of(1.0))
-                } else {
-                    io.setRollerVoltage(Volts.zero())
-                }
-            }.onlyIf { lastRequest == STOW }.handleInterrupt { io.setRollerVoltage(Volts.zero()) }
-        }
+        // manipulator.apply {
+        //     defaultCommand = this.run {
+        //         if (inputs.coralDistance > Meters.of(0.2)) {
+        //             io.setRollerVoltage(Volts.of(1.0))
+        //         } else {
+        //             io.setRollerVoltage(Volts.zero())
+        //         }
+        //     }.onlyIf { lastRequest == STOW }.handleInterrupt { io.setRollerVoltage(Volts.zero()) }
+        // }
 
         elevator.apply {
             defaultCommand = this.run {

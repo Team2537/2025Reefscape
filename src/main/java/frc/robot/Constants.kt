@@ -122,7 +122,7 @@ object Constants {
         val REAL_PIVOT_JERK_LIMIT = RotationsPerSecondPerSecond.per(Second).of(10.0)
 
         val SIM_PIVOT_MOI = KilogramSquareMeters.of(0.09)
-        val SIM_ROLLER_MOI = KilogramSquareMeters.of(0.01)
+        val SIM_ROLLER_MOI = KilogramSquareMeters.of(0.1)
         val SIM_PIVOT_KP = 10.0
         val SIM_PIVOT_KV = 0.0
         val SIM_PIVOT_KA = 0.0
@@ -135,7 +135,7 @@ object Constants {
         val MOTOR_ID = 0 // TODO: set actual values here
         val IS_MOTOR_INVERTED = false
         val GEARING = 1.0
-        val MOI = KilogramSquareMeters.of(0.01)
+        val MOI = KilogramSquareMeters.of(0.05)
         val TRANSFER_VOLTAGE = Volts.of(4.0)
         val MINIMUM_TRANSFER_VELOCITY = RotationsPerSecond.of(5.0)
     }
