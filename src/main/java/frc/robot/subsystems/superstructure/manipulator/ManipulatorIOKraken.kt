@@ -92,7 +92,6 @@ class ManipulatorIOKraken(
         pivotJerkLimit,
         pivotGearing
     ).apply {
-        // start at retracted position
         setPosition(Constants.ManipulatorConstants.PIVOT_START_ANGLE)
     }
 
@@ -103,7 +102,7 @@ class ManipulatorIOKraken(
 
     private val motionMagicRequest = MotionMagicVoltage(0.0)
     private val pivotVoltageRequest = VoltageOut(0.0)
-
+    private var targetPosition: Angle = Radians.of(0.0)
     private val canandcolor = Canandcolor(canandcolorID)
 
     // kraken x44 for rolling motors
@@ -139,6 +138,7 @@ class ManipulatorIOKraken(
         inputs.pivotAngularVelocity.mut_replace(pivotVelocity.value)
         inputs.pivotAppliedVoltage.mut_replace(pivotAppliedVoltage.value)
         inputs.pivotStatorCurrent.mut_replace(pivotStatorCurrent.value)
+        inputs.pivotTargetAngularPosition.mut_replace(targetPosition)
 
         inputs.rollerAngularVelocity.mut_replace(rollerVelocity.value)
         inputs.rollerAppliedVoltage.mut_replace(rollerAppliedVoltage.value)
@@ -146,6 +146,7 @@ class ManipulatorIOKraken(
     }
 
     override fun setPivotTargetAngle(angle: Angle) {
+        targetPosition = angle
         pivotMotor.setControl(motionMagicRequest.withPosition(angle))
     }
 

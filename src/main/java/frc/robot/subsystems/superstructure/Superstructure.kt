@@ -42,15 +42,15 @@ class Superstructure {
         //     }.onlyIf { lastRequest == STOW }.handleInterrupt { io.setRollerVoltage(Volts.zero()) }
         // }
 
-        elevator.apply {
-            defaultCommand = this.run {
-                if(lastRequest == STOW && manipulator.inputs.coralDistance < Meters.of(0.2)) {
-                    io.setElevatorHeightTarget(STOW.elevatorHeight + 12.0.inches)
-                } else {
-                    io.setElevatorHeightTarget(STOW.elevatorHeight)
-                }
-            }
-        }
+        // elevator.apply {
+        //     defaultCommand = this.run {
+        //         if(lastRequest == STOW && manipulator.inputs.coralDistance < Meters.of(0.2)) {
+        //             io.setElevatorHeightTarget(STOW.elevatorHeight + 12.0.inches)
+        //         } else {
+        //             io.setElevatorHeightTarget(STOW.elevatorHeight)
+        //         }
+        //     }
+        // }
     }
 
 
@@ -60,6 +60,15 @@ class Superstructure {
             elevator.getDynamicSysID(SysIdRoutine.Direction.kReverse),
             elevator.getQuasistaticSysID(SysIdRoutine.Direction.kForward),
             elevator.getQuasistaticSysID(SysIdRoutine.Direction.kReverse)
+        )
+    }
+
+    fun getManipulatorSysIDCommand(): Command {
+        return Commands.sequence(
+            manipulator.getDynamicTest(SysIdRoutine.Direction.kForward),
+            manipulator.getDynamicTest(SysIdRoutine.Direction.kReverse),
+            manipulator.getQuasistaticTest(SysIdRoutine.Direction.kForward),
+            manipulator.getQuasistaticTest(SysIdRoutine.Direction.kReverse)
         )
     }
 
@@ -89,50 +98,12 @@ class Superstructure {
         })
     }
 
-    // TODO: this will need to get tuned significantly, i.e. the angles are all wrong
-    fun getDealgaefyCommand(): Command {
-        return Commands.sequence(
-            elevator.getMoveToHeightCommand { Inches.of(12.0) },
-            Commands.waitUntil(elevator.getPositionInToleranceTrigger(0.5.inches)),
-            manipulator.getSendToAngleCommand(Degrees.of(140.0)),
-            Commands.waitUntil { manipulator.inputs.pivotAngularPosition.epsilonEquals(140.0.degrees, 5.0.degrees) },
-            Commands.parallel(
-                Commands.sequence(manipulator.getSendToAngleCommand(Degrees.of(170.0)), manipulator.getSpinRollersInCommand()),
-                elevator.getMoveToHeightCommand {
-                    if (lastRequest == L3) Inches.of(29.0)
-                    else Inches.of(12.0)
-                },
-            ).onlyIf { lastRequest == L3 || lastRequest == L2 },
-            Commands.waitSeconds(0.4)
-            )
+    fun getScoreCommand(shouldScore: BooleanSupplier): Command {
+        return Commands.waitSeconds(0.5) // do nothing for now
     }
 
-    // TODO: this will need to get tuned significantly, i.e. the angles are all wrong
-    fun getScoreCommand(readyToScore: BooleanSupplier): Command {
-        return Commands.sequence(
-            Commands.either(
-                Commands.sequence(
-                    elevator.getMoveToHeightCommand { lastRequest.elevatorHeight },
-                    Commands.waitUntil(
-                        elevator.getPositionInToleranceTrigger(Inches.of(3.0))
-                            .and { elevator.inputs.carriageHeight > 3.0.inches }),
-                    manipulator.getSendToAngleCommand(lastRequest.armAngle),
-                    Commands.waitUntil { manipulator.inputs.pivotAngularPosition.epsilonEquals(lastRequest.armAngle, Degrees.of(5.0)) },
-                    Commands.waitSeconds(0.4)
-                ),
-                Commands.sequence(
-                    getSendToStateCommand { lastRequest },
-                    Commands.waitUntil(
-                        elevator.getPositionInToleranceTrigger(Inches.of(0.5))
-                            .and { manipulator.inputs.pivotAngularPosition.epsilonEquals(lastRequest.armAngle, Degrees.of(5.0)) }
-                    ),
-                ),
-                { lastRequest == L4 }
-            ),
-            Commands.waitUntil(readyToScore),
-            manipulator.getSpinRollersOutCommand(),
-            getSendToStateCommand { STOW }
-        ).onlyIf { lastRequest != STOW } // if last request was stow, return command that does nothing
+    fun getDealgaefyCommand(): Command {
+        return Commands.waitSeconds(0.5) // do nothing for now
     }
 
     fun periodic() {

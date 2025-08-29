@@ -17,6 +17,7 @@ interface ManipulatorIO {
 
         val pivotAngularVelocity: MutAngularVelocity = RadiansPerSecond.zero().mutableCopy()
         val pivotAngularPosition: MutAngle = Radians.zero().mutableCopy()
+        val pivotTargetAngularPosition: MutAngle = Radians.zero().mutableCopy()
         val pivotAppliedVoltage: MutVoltage = Volts.zero().mutableCopy()
         val pivotStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
 
@@ -31,6 +32,7 @@ interface ManipulatorIO {
             table.put("rollerStatorCurrent", rollerStatorCurrent)
             table.put("pivotAngularVelocity", pivotAngularVelocity)
             table.put("pivotAngularPosition", pivotAngularPosition)
+            table.put("pivotTargetAngularPosition", pivotTargetAngularPosition)
             table.put("pivotAppliedVoltage", pivotAppliedVoltage)
             table.put("pivotStatorCurrent", pivotStatorCurrent)
             table.put("coralDistance", coralDistance)
@@ -45,6 +47,7 @@ interface ManipulatorIO {
             rollerStatorCurrent.mut_replace(table.get("rollerStatorCurrent", rollerStatorCurrent))
             pivotAngularVelocity.mut_replace(table.get("pivotAngularVelocity", pivotAngularVelocity))
             pivotAngularPosition.mut_replace(table.get("pivotAngularPosition", pivotAngularPosition))
+            pivotTargetAngularPosition.mut_replace(table.get("pivotTargetAngularPosition", pivotTargetAngularPosition))
             pivotAppliedVoltage.mut_replace(table.get("pivotAppliedVoltage", pivotAppliedVoltage))
             pivotStatorCurrent.mut_replace(table.get("pivotStatorCurrent", pivotStatorCurrent))
             coralDistance.mut_replace(table.get("coralDistance", coralDistance))

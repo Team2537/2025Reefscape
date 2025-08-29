@@ -99,9 +99,9 @@ object Constants {
 
     object ManipulatorConstants {
         val PIVOT_ARM_LENGTH: Distance = Meters.of(0.2)
-        val PIVOT_UP_MAX_ANGLE: Angle = Degrees.of(0.0) // TODO: Set actual angles
+        val PIVOT_UP_MAX_ANGLE: Angle = Degrees.of(-90.0)
         val PIVOT_DOWN_MAX_ANGLE: Angle = Degrees.of(130.0)
-        val PIVOT_START_ANGLE: Angle = Degrees.of(0.0) // TODO: Set actual angle
+        val PIVOT_START_ANGLE: Angle = Degrees.of(90.0)
         val ROLLER_IN_VOLTAGE: Voltage = Volts.of(3.0) // TODO: determine which sign is in and out, and set value
         val ROLLER_OUT_VOLTAGE: Voltage = Volts.of(-3.0)
 
@@ -124,9 +124,11 @@ object Constants {
         val SIM_PIVOT_MOI = KilogramSquareMeters.of(0.09)
         val SIM_ROLLER_MOI = KilogramSquareMeters.of(0.1)
         val SIM_PIVOT_KP = 10.0
+        val SIM_PIVOT_KI = 1.0
+        val SIM_PIVOT_KD = 1.5
         val SIM_PIVOT_KV = 0.0
         val SIM_PIVOT_KA = 0.0
-        val SIM_PIVOT_KG = 0.0
+        val SIM_PIVOT_KG = 5.7
 
         // see also SuperstructureGoals for pivot angle values for different levels
     }

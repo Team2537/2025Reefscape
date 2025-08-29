@@ -41,7 +41,7 @@ class Manipulator : SubsystemBase() {
             rollerGearing = Constants.ManipulatorConstants.ROLLER_GEARING,
             pivotMoi = Constants.ManipulatorConstants.SIM_PIVOT_MOI,
             rollerMoi = Constants.ManipulatorConstants.SIM_ROLLER_MOI,
-            pivotPIDGains = PIDGains(kP = Constants.ManipulatorConstants.SIM_PIVOT_KP),
+            pivotPIDGains = PIDGains(kP = Constants.ManipulatorConstants.SIM_PIVOT_KP, kI = Constants.ManipulatorConstants.SIM_PIVOT_KI, kD = Constants.ManipulatorConstants.SIM_PIVOT_KD),
             pivotFFGains = FeedforwardGains(kV = Constants.ManipulatorConstants.SIM_PIVOT_KV, kA = Constants.ManipulatorConstants.SIM_PIVOT_KA),
             pivotKG = Constants.ManipulatorConstants.SIM_PIVOT_KG,
         )

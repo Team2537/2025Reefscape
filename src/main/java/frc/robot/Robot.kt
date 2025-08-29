@@ -169,30 +169,25 @@ object Robot : LoggedRobot() {
         operatorController.getL3Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L3 })
         operatorController.getL4Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L4 })
 
-//        operatorController.getL1Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(6.0) })
-//        operatorController.getL2Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(12.0) })
-//        operatorController.getL3Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(18.0) })
-//        operatorController.getL4Button().onTrue(superstructure.elevator.getMoveToHeightCommand { Inches.of(24.0) })
+        // driverController.x().onTrue(
+        //     AlignmentCommand(
+        //         drivebase,
+        //         { drivebase.pose.nudge(y = Units.inchesToMeters(-1.0)) },
+        //         PIDGains(7.0, 0.0, 0.01),
+        //         PIDGains(5.0, 0.0, 0.01),
+        //         { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
+        //     ))
 
-        driverController.x().onTrue(
-            AlignmentCommand(
-                drivebase,
-                { drivebase.pose.nudge(y = Units.inchesToMeters(-1.0)) },
-                PIDGains(7.0, 0.0, 0.01),
-                PIDGains(5.0, 0.0, 0.01),
-                { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
-            ))
+        // driverController.x().onTrue(
+        //     AlignmentCommand(
+        //         drivebase,
+        //         { drivebase.pose.nudge(y = Units.inchesToMeters(1.0)) },
+        //         PIDGains(7.0, 0.0, 0.01),
+        //         PIDGains(5.0, 0.0, 0.01),
+        //         { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
+        //     ))
 
         driverController.rightTrigger().onTrue(superstructure.getDealgaefyCommand())
-
-        driverController.x().onTrue(
-            AlignmentCommand(
-                drivebase,
-                { drivebase.pose.nudge(y = Units.inchesToMeters(1.0)) },
-                PIDGains(7.0, 0.0, 0.01),
-                PIDGains(5.0, 0.0, 0.01),
-                { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
-            ))
         
         // intake
         driverController.a().onTrue(intake.toggleIntakeCommand())
@@ -214,17 +209,13 @@ object Robot : LoggedRobot() {
             )
         )
 
-        operatorController.getActionButton().onTrue(
-            superstructure.getScoreCommand(!operatorController.getActionButton())
-        )
-//                .onlyIf {
-//                    drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_CORAL
-//                            || drivebase.alignmentState == Drivebase.Constants.AlignmentState.ALIGNED_ALGAE || driverController.hid.aButton
-//                }
+        // driverController.rightBumper().onTrue(
+        //     superstructure.getScoreCommand(!driverController.rightBumper())
+        // )
 
-        operatorController.getStowButton().onTrue(
-            superstructure.getSendToStateCommand { SuperstructureGoals.STOW }
-        )
+        // driverController.leftBumper().onTrue(
+        //     superstructure.getSendToStateCommand { SuperstructureGoals.STOW }
+        // )
     }
 
     override fun robotPeriodic() {
@@ -246,7 +237,7 @@ object Robot : LoggedRobot() {
             // wrist
             Pose3d(
                 -0.325374, 0.0, 0.2437638+elevatorHeight,
-                Rotation3d(0.0, pivotAngle + 1.7, 0.0)
+                Rotation3d(0.0, pivotAngle-0.7, 0.0)
             ),
             // no wrist
             Pose3d(
@@ -272,7 +263,7 @@ object Robot : LoggedRobot() {
 
     override fun teleopInit() {
         CommandScheduler.getInstance().cancelAll()
-        superstructure.getSendToStateCommand({ SuperstructureGoals.STOW }).schedule()
+        // superstructure.getSendToStateCommand({ SuperstructureGoals.STOW }).schedule()
     }
 
     override fun teleopPeriodic() {}

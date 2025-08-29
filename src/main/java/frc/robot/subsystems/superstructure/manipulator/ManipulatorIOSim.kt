@@ -82,6 +82,7 @@ class ManipulatorIOSim(
         inputs.pivotAngularVelocity.mut_replace(pivotSim.velocityRadPerSec, RadiansPerSecond)
         inputs.pivotAppliedVoltage.mut_replace(appliedPivotVoltage)
         inputs.pivotStatorCurrent.mut_replace(Amps.of(pivotSim.currentDrawAmps))
+        inputs.pivotTargetAngularPosition.mut_replace(targetAngle)
         
         // Update roller inputs using DCMotorSim
         inputs.rollerAngularVelocity.mut_replace(rollerSim.angularVelocity)
