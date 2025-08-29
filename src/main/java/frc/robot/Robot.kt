@@ -263,7 +263,7 @@ object Robot : LoggedRobot() {
 
     override fun teleopInit() {
         CommandScheduler.getInstance().cancelAll()
-        // superstructure.getSendToStateCommand({ SuperstructureGoals.STOW }).schedule()
+        superstructure.getSendToStateCommand({ SuperstructureGoals.STOW }).schedule()
     }
 
     override fun teleopPeriodic() {}
