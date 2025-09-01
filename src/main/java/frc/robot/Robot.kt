@@ -188,7 +188,8 @@ object Robot : LoggedRobot() {
         //     ))
 
 
-        driverController.rightTrigger().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L2 }, superstructure.getDealgaefyCommand()))
+        // driverController.rightTrigger().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getDealgaefyCommand()))
+        driverController.rightTrigger().onTrue(superstructure.getDealgaefyCommand())
         
         // intake
         // driverController.a().onTrue(intake.toggleIntakeCommand())

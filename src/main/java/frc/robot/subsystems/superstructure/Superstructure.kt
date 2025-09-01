@@ -98,9 +98,9 @@ class Superstructure {
         })
     }
 
-    fun getStateAchievedTrigger(stateSupplier: Supplier<SuperstructureState>): Trigger {
+    fun getStateAchievedTrigger(): Trigger {
         return Trigger {
-            val target = stateSupplier.get()
+            val target = lastRequest
             val elevatorAtSetpoint = elevator.inputs.carriageHeight.epsilonEquals(
                 target.elevatorHeight,
                 1.0.inches
@@ -120,8 +120,9 @@ class Superstructure {
     fun getDealgaefyCommand(): Command {
         // when run, grab algae and return to ALGAE_STOW with manipulator rollers in brake mode
         return Commands.sequence(
-            getSendToStateCommand { if (lastRequest == SuperstructureGoals.L2) SuperstructureGoals.ALGAE_L2 else SuperstructureGoals.ALGAE_L3 },
-            Commands.waitUntil { getStateAchievedTrigger { if (lastRequest == SuperstructureGoals.L2) SuperstructureGoals.ALGAE_L2 else SuperstructureGoals.ALGAE_L3 }.asBoolean },
+            getSendToStateCommand { SuperstructureGoals.ALGAE_L2 }.onlyIf{lastRequest == SuperstructureGoals.L2},
+            getSendToStateCommand { SuperstructureGoals.ALGAE_L3 }.onlyIf{lastRequest == SuperstructureGoals.L3},
+            Commands.waitUntil { getStateAchievedTrigger().asBoolean },
             // manipulator.getSpinRollersOutCommand().until { manipulator.inputs.coralDistance < Inches.of(3.0) }), // could be in?
             Commands.deadline( // placeholder for sim
                 Commands.waitSeconds(3.0),
@@ -129,7 +130,7 @@ class Superstructure {
             ),
             manipulator.getStopRollersCommand(),
             getSendToStateCommand { SuperstructureGoals.ALGAE_STOW },
-            Commands.waitUntil { getStateAchievedTrigger { SuperstructureGoals.ALGAE_STOW }.asBoolean },
+            Commands.waitUntil { getStateAchievedTrigger().asBoolean },
         )
     }
 
