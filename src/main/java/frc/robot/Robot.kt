@@ -191,23 +191,29 @@ object Robot : LoggedRobot() {
         // driverController.rightTrigger().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getDealgaefyCommand()))
         driverController.rightTrigger().onTrue(superstructure.getDealgaefyCommand())
         
-        // intake
+        // deploy/retract intake
         driverController.a().onTrue(intake.toggleIntakeCommand())
 
-        // spin rollers
+        // full intake command
         driverController.b().onTrue(
-            Commands.parallel(
-                intake.getSpinRollersCommand(),
-                superstructure.manipulator.getSpinRollersInCommand(),
-                transfer.getRollCommand()
-            )
-        )
-
-        driverController.b().onFalse(
-            Commands.parallel(
+            Commands.sequence(
+                Commands.parallel(
+                    superstructure.getSendToStateCommand{SuperstructureGoals.STOW},
+                    intake.getDeployIntakeCommand(),
+                ),
+                Commands.waitUntil { superstructure.getStateAchievedTrigger().asBoolean },
+                Commands.parallel(
+                    intake.getSpinRollersCommand(),
+                    transfer.getRollCommand(),
+                ),
+                Commands.waitUntil { transfer.inputs.coralDistance < Meters.of(0.1) },
                 intake.getStopRollersCommand(),
+                intake.getRetractIntakeCommand(),
+                superstructure.manipulator.getSpinRollersInSlowCommand(),
+                Commands.waitUntil { superstructure.manipulator.inputs.coralDistance < Meters.of(0.1) },
+                Commands.waitSeconds(0.1),
+                transfer.getStopCommand(),
                 superstructure.manipulator.getStopRollersCommand(),
-                transfer.getStopCommand()
             )
         )
 

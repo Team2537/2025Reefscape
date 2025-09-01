@@ -90,6 +90,12 @@ class Manipulator : SubsystemBase() {
         }
     }
 
+    fun getSpinRollersInSlowCommand(): Command {
+        return runOnce {
+            io.setRollerVoltage(Constants.ManipulatorConstants.ROLLER_IN_VOLTAGE * 0.25)
+        }
+    }
+
     fun getSpinRollersOutCommand(): Command {
         return runOnce {
             io.setRollerVoltage(Constants.ManipulatorConstants.ROLLER_OUT_VOLTAGE)

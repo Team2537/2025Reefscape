@@ -12,7 +12,7 @@ import frc.robot.RobotType
 import edu.wpi.first.wpilibj2.command.Commands
 
 class Transfer : SubsystemBase() {
-    private val io: TransferIO = when (RobotType.mode) {
+    public val io: TransferIO = when (RobotType.mode) {
         RobotType.Mode.REAL -> TransferIOKraken(
             id = Constants.TransferConstants.MOTOR_ID,
             isInverted = Constants.TransferConstants.IS_MOTOR_INVERTED,
@@ -27,7 +27,7 @@ class Transfer : SubsystemBase() {
         RobotType.Mode.REPLAY -> object : TransferIO {}
     }
     
-    private val inputs: TransferInputs = TransferInputs()
+    public val inputs: TransferInputs = TransferInputs()
 
     init{
         io.setBrakeMode(true)
@@ -40,14 +40,14 @@ class Transfer : SubsystemBase() {
     }
 
     fun getRollCommand(): Command {
-        return run {
+        return runOnce {
             io.setBrakeMode(false)
             io.setVoltage(Constants.TransferConstants.TRANSFER_VOLTAGE)
         }
     }
 
     fun getStopCommand(): Command {
-        return run {
+        return runOnce {
             io.setVoltage(Volt.zero())
             io.setBrakeMode(true)
         }
