@@ -21,16 +21,23 @@ object SuperstructureGoals {
         name = "Stow"
     )
 
+    val ALGAE_STOW = SuperstructureState(
+        armAngle = Degrees.of(-20.0),
+        elevatorHeight = Inches.of(12.0),
+        driveLimits = Drivebase.defaultLimits,
+        name = "Algae Stow"
+    )
+
     val ALGAE_L2 = SuperstructureState(
-        armAngle = Degrees.of(40.0),
-        elevatorHeight = Inches.of(14.0),
+        armAngle = Degrees.of(-20.0),
+        elevatorHeight = Inches.of(20.0), // tune
         driveLimits = Drivebase.extendedLimits,
         name = "Algae L2"
     )
 
     val ALGAE_L3 = SuperstructureState(
-        armAngle = Degrees.of(180.0),
-        elevatorHeight = Inches.of(31.0),
+        armAngle = Degrees.of(-20.0),
+        elevatorHeight = Inches.of(36.0), // tune
         driveLimits = Drivebase.extendedLimits,
         name = "Algae L3"
     )

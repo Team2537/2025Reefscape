@@ -187,10 +187,11 @@ object Robot : LoggedRobot() {
         //         { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
         //     ))
 
-        driverController.rightTrigger().onTrue(superstructure.getDealgaefyCommand())
+
+        driverController.rightTrigger().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L2 }, superstructure.getDealgaefyCommand()))
         
         // intake
-        driverController.a().onTrue(intake.toggleIntakeCommand())
+        // driverController.a().onTrue(intake.toggleIntakeCommand())
 
         // spin rollers
         driverController.b().onTrue(
