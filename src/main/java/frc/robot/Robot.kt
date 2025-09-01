@@ -192,7 +192,7 @@ object Robot : LoggedRobot() {
         driverController.rightTrigger().onTrue(superstructure.getDealgaefyCommand())
         
         // intake
-        // driverController.a().onTrue(intake.toggleIntakeCommand())
+        driverController.a().onTrue(intake.toggleIntakeCommand())
 
         // spin rollers
         driverController.b().onTrue(
