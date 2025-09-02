@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands
 import lib.math.controllers.gains.PIDGains
 import lib.math.controllers.gains.FeedforwardGains
 import frc.robot.subsystems.superstructure.manipulator.*
+import java.util.function.Supplier
 
 class Manipulator : SubsystemBase() {
     public val io: ManipulatorIO = when (RobotType.mode) {
@@ -78,9 +79,9 @@ class Manipulator : SubsystemBase() {
 
     }
 
-    fun getSendToAngleCommand(angle: Angle): Command {
+    fun getSendToAngleCommand(angleSupplier: Supplier<Angle>): Command {
         return runOnce {
-            io.setPivotTargetAngle(angle)
+            io.setPivotTargetAngle(angleSupplier.get())
         }
     }
 

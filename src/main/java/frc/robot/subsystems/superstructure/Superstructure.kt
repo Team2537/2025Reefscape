@@ -16,6 +16,7 @@ import frc.robot.subsystems.superstructure.SuperstructureGoals.STOW
 import frc.robot.subsystems.superstructure.elevator.Elevator
 import frc.robot.subsystems.superstructure.manipulator.Manipulator
 import lib.math.units.degrees
+import lib.math.units.radians
 import lib.math.units.epsilonEquals
 import lib.math.units.inches
 import org.littletonrobotics.junction.Logger
@@ -83,10 +84,11 @@ class Superstructure {
 
     fun getSendToStateCommand(superstructureState: Supplier<SuperstructureState>): Command {
         return Commands.sequence(
+            runOnce ({ Logger.recordOutput("sending to state", superstructureState.get().name) }),
             getForceStateCommand(superstructureState),
             Commands.parallel(
                 elevator.getMoveToHeightCommand { superstructureState.get().elevatorHeight },
-                manipulator.getSendToAngleCommand(superstructureState.get().armAngle)
+                manipulator.getSendToAngleCommand { superstructureState.get().armAngle },
             )
         )
     }
@@ -98,23 +100,36 @@ class Superstructure {
         })
     }
 
-    fun getStateAchievedTrigger(): Trigger {
+    fun getStateAchievedTrigger(target: SuperstructureState): Trigger {
         return Trigger {
-            val target = lastRequest
+            Logger.recordOutput("target", target.name)
             val elevatorAtSetpoint = elevator.inputs.carriageHeight.epsilonEquals(
                 target.elevatorHeight,
                 1.0.inches
             )
             val armAtSetpoint = manipulator.inputs.pivotAngularPosition.epsilonEquals(
                 target.armAngle,
-                2.0.degrees
+                0.034906585.radians
             )
             elevatorAtSetpoint && armAtSetpoint
         }
     }
 
+    /// when shouldScore is true, coral will be released
     fun getScoreCommand(shouldScore: BooleanSupplier): Command {
-        return Commands.waitSeconds(0.5) // do nothing for now
+        return Commands.sequence(
+            runOnce ({ Logger.recordOutput("lastRequest", lastRequest.name) }),
+            getSendToStateCommand { lastRequest },
+            Commands.waitUntil { getStateAchievedTrigger(lastRequest).asBoolean },
+            runOnce ({ Logger.recordOutput("state achieved", lastRequest.name) }),
+            Commands.waitUntil { shouldScore.getAsBoolean() },
+            Commands.deadline(
+                Commands.waitSeconds(0.3),
+                manipulator.getSpinRollersOutCommand(),
+            ),
+            getSendToStateCommand { SuperstructureGoals.STOW },
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.STOW).asBoolean },
+        )
     }
 
     fun getDealgaefyCommand(): Command {
@@ -122,7 +137,8 @@ class Superstructure {
         return Commands.sequence(
             getSendToStateCommand { SuperstructureGoals.ALGAE_L2 }.onlyIf{lastRequest == SuperstructureGoals.L2},
             getSendToStateCommand { SuperstructureGoals.ALGAE_L3 }.onlyIf{lastRequest == SuperstructureGoals.L3},
-            Commands.waitUntil { getStateAchievedTrigger().asBoolean },
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L2).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.L2},
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L3).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.L3},
             // manipulator.getSpinRollersOutCommand().until { manipulator.inputs.coralDistance < Inches.of(3.0) }), // could be in?
             Commands.deadline( // placeholder for sim
                 Commands.waitSeconds(3.0),
@@ -130,7 +146,7 @@ class Superstructure {
             ),
             manipulator.getStopRollersCommand(),
             getSendToStateCommand { SuperstructureGoals.ALGAE_STOW },
-            Commands.waitUntil { getStateAchievedTrigger().asBoolean },
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_STOW).asBoolean },
         )
     }
 

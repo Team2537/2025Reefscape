@@ -190,6 +190,7 @@ object Robot : LoggedRobot() {
 
         // driverController.rightTrigger().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getDealgaefyCommand()))
         driverController.rightTrigger().onTrue(superstructure.getDealgaefyCommand())
+        driverController.x().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getScoreCommand(!driverController.x())))
         
         // deploy/retract intake
         driverController.a().onTrue(intake.toggleIntakeCommand())
@@ -201,7 +202,7 @@ object Robot : LoggedRobot() {
                     superstructure.getSendToStateCommand{SuperstructureGoals.STOW},
                     intake.getDeployIntakeCommand(),
                 ),
-                Commands.waitUntil { superstructure.getStateAchievedTrigger().asBoolean },
+                Commands.waitUntil { superstructure.getStateAchievedTrigger(SuperstructureGoals.STOW).asBoolean },
                 Commands.parallel(
                     intake.getSpinRollersCommand(),
                     transfer.getRollCommand(),
