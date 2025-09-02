@@ -41,6 +41,13 @@ object SuperstructureGoals {
         driveLimits = Drivebase.extendedLimits,
         name = "Algae L3"
     )
+
+    val BARGE = SuperstructureState(
+        armAngle = Degrees.of(-20.0),
+        elevatorHeight = Inches.of(74.0), // tune
+        driveLimits = Drivebase.extendedLimits,
+        name = "Barge"
+    )
     
     val L1 = SuperstructureState(
         armAngle = scoreAngle,

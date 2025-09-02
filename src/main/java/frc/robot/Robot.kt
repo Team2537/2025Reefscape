@@ -189,7 +189,13 @@ object Robot : LoggedRobot() {
 
 
         // driverController.rightTrigger().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getDealgaefyCommand()))
-        driverController.rightTrigger().onTrue(superstructure.getDealgaefyCommand())
+        driverController.rightTrigger().onTrue(
+            Commands.sequence(
+                // superstructure.getDealgaefyCommand().onlyIf(!superstructure.manipulator.isDetectingGamePiece()), // assume game piece is algae
+                superstructure.getForceStateCommand { SuperstructureGoals.BARGE },
+                superstructure.getReleaseAlgaeCommand(),
+            )
+        )
         driverController.x().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getScoreCommand(!driverController.x())))
         
         // deploy/retract intake
@@ -207,13 +213,13 @@ object Robot : LoggedRobot() {
                     intake.getSpinRollersCommand(),
                     transfer.getRollCommand(),
                 ),
-                Commands.waitUntil { transfer.inputs.coralDistance < Meters.of(0.1) },
+                Commands.waitUntil(transfer.isDetectingCoral()),
                 intake.getStopRollersCommand(),
                 intake.getRetractIntakeCommand(),
                 superstructure.manipulator.getSpinRollersInSlowCommand(),
                 Commands.deadline( // this deadline is for sim to avoid infinitely waiting
                     Commands.waitSeconds(5.0),
-                    Commands.waitUntil { superstructure.manipulator.inputs.coralDistance < Meters.of(0.1) },
+                    Commands.waitUntil(superstructure.manipulator.isDetectingGamePiece()),
                 ),
                 Commands.waitSeconds(0.1),
                 transfer.getStopCommand(),

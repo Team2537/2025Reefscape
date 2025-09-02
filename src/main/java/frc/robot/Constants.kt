@@ -130,6 +130,8 @@ object Constants {
         val SIM_PIVOT_KA = 0.0
         val SIM_PIVOT_KG = 5.7
 
+        val DETECTION_DISTANCE_THRESHOLD = Meters.of(0.1) // tune
+
         // see also SuperstructureGoals for pivot angle values for different levels
     }
 
@@ -140,6 +142,8 @@ object Constants {
         val MOI = KilogramSquareMeters.of(0.05)
         val TRANSFER_VOLTAGE = Volts.of(4.0)
         val MINIMUM_TRANSFER_VELOCITY = RotationsPerSecond.of(5.0)
+
+        val DETECTION_DISTANCE_THRESHOLD = Meters.of(0.1) // tune
     }
 
     // still may need to add constants for other parts of the robot

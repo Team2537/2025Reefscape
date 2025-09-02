@@ -146,6 +146,19 @@ class Superstructure {
         )
     }
 
+    // todo, will need to release while moving up to throw algae
+    fun getReleaseAlgaeCommand(): Command {
+        return Commands.sequence(
+            getSendToStateCommand { lastRequest },
+            Commands.waitUntil { getStateAchievedTrigger(lastRequest).asBoolean },
+            manipulator.getSpinRollersInCommand(),
+            Commands.waitSeconds(10.0),
+            manipulator.getStopRollersCommand(),
+            getSendToStateCommand { SuperstructureGoals.STOW },
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.STOW).asBoolean },
+        )
+    }
+
     fun periodic() {
         Logger.recordOutput("superstructure/setpoint", SuperstructureState.struct, lastRequest)
         Logger.recordOutput("superstructure/setpoint/name", lastRequest.name)

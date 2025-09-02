@@ -14,6 +14,7 @@ import edu.wpi.first.units.measure.*
 import edu.wpi.first.wpilibj2.command.Command
 import frc.robot.RobotType
 import edu.wpi.first.wpilibj2.command.Commands
+import edu.wpi.first.wpilibj2.command.button.Trigger
 import lib.math.controllers.gains.PIDGains
 import lib.math.controllers.gains.FeedforwardGains
 import frc.robot.subsystems.superstructure.manipulator.*
@@ -107,6 +108,10 @@ class Manipulator : SubsystemBase() {
         return runOnce {
             io.stopRoller()
         }
+    }
+
+    fun isDetectingGamePiece(): Trigger {
+        return Trigger { inputs.coralDistance < Constants.ManipulatorConstants.DETECTION_DISTANCE_THRESHOLD }
     }
 
     fun getDynamicTest(direction: SysIdRoutine.Direction): Command {

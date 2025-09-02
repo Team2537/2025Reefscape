@@ -10,6 +10,7 @@ import edu.wpi.first.units.Units.*
 import edu.wpi.first.wpilibj2.command.Command
 import frc.robot.RobotType
 import edu.wpi.first.wpilibj2.command.Commands
+import edu.wpi.first.wpilibj2.command.button.Trigger
 
 class Transfer : SubsystemBase() {
     public val io: TransferIO = when (RobotType.mode) {
@@ -51,5 +52,9 @@ class Transfer : SubsystemBase() {
             io.setVoltage(Volt.zero())
             io.setBrakeMode(true)
         }
+    }
+
+    fun isDetectingCoral(): Trigger {
+        return Trigger { inputs.coralDistance < Constants.TransferConstants.DETECTION_DISTANCE_THRESHOLD }
     }
 }
