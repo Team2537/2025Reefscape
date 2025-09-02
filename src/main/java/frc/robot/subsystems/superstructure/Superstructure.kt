@@ -135,7 +135,7 @@ class Superstructure {
             getSendToStateCommand { SuperstructureGoals.ALGAE_L3 }.onlyIf{lastRequest == SuperstructureGoals.L3},
             Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L2).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.L2},
             Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L3).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.L3},
-            // manipulator.getSpinRollersOutCommand().until { manipulator.inputs.coralDistance < Inches.of(3.0) }), // could be in?
+            // manipulator.getSpinRollersOutCommand().until(!manipulator.isDetectingGamePiece())), // could be in?
             Commands.deadline( // placeholder for sim
                 Commands.waitSeconds(3.0),
                 manipulator.getSpinRollersOutCommand(),
