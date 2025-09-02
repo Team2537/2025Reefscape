@@ -121,7 +121,7 @@ class Superstructure {
             Commands.waitUntil { getStateAchievedTrigger(lastRequest).asBoolean },
             Commands.waitUntil { shouldScore.getAsBoolean() },
             Commands.deadline(
-                Commands.waitSeconds(0.3),
+                Commands.waitSeconds(0.5),
                 manipulator.getSpinRollersOutCommand(),
             ),
             getSendToStateCommand { SuperstructureGoals.STOW },
