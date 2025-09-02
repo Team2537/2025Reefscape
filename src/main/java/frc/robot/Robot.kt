@@ -211,7 +211,10 @@ object Robot : LoggedRobot() {
                 intake.getStopRollersCommand(),
                 intake.getRetractIntakeCommand(),
                 superstructure.manipulator.getSpinRollersInSlowCommand(),
-                Commands.waitUntil { superstructure.manipulator.inputs.coralDistance < Meters.of(0.1) },
+                Commands.deadline( // this deadline is for sim to avoid infinitely waiting
+                    Commands.waitSeconds(5.0),
+                    Commands.waitUntil { superstructure.manipulator.inputs.coralDistance < Meters.of(0.1) },
+                ),
                 Commands.waitSeconds(0.1),
                 transfer.getStopCommand(),
                 superstructure.manipulator.getStopRollersCommand(),
