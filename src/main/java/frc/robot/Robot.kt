@@ -192,8 +192,7 @@ object Robot : LoggedRobot() {
         driverController.rightTrigger().onTrue(
             Commands.sequence(
                 superstructure.getDealgaefyCommand().onlyIf(!superstructure.manipulator.isDetectingGamePiece()), // assume game piece is algae
-                superstructure.getForceStateCommand { SuperstructureGoals.BARGE },
-                superstructure.getReleaseAlgaeCommand(),
+                superstructure.getReleaseAlgaeCommand().onlyIf(superstructure.manipulator.isDetectingGamePiece()),
             )
         )
         driverController.x().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getScoreCommand(!driverController.x())))
