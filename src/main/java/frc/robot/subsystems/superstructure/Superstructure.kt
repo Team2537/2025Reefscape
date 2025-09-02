@@ -84,7 +84,6 @@ class Superstructure {
 
     fun getSendToStateCommand(superstructureState: Supplier<SuperstructureState>): Command {
         return Commands.sequence(
-            runOnce ({ Logger.recordOutput("sending to state", superstructureState.get().name) }),
             getForceStateCommand(superstructureState),
             Commands.parallel(
                 elevator.getMoveToHeightCommand { superstructureState.get().elevatorHeight },
@@ -118,10 +117,8 @@ class Superstructure {
     /// when shouldScore is true, coral will be released
     fun getScoreCommand(shouldScore: BooleanSupplier): Command {
         return Commands.sequence(
-            runOnce ({ Logger.recordOutput("lastRequest", lastRequest.name) }),
             getSendToStateCommand { lastRequest },
             Commands.waitUntil { getStateAchievedTrigger(lastRequest).asBoolean },
-            runOnce ({ Logger.recordOutput("state achieved", lastRequest.name) }),
             Commands.waitUntil { shouldScore.getAsBoolean() },
             Commands.deadline(
                 Commands.waitSeconds(0.3),
