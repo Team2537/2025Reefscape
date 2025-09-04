@@ -17,6 +17,54 @@
         0.0,
         -0.04445
     ],
+    "cameras": [
+        {
+            "name": "Front Right",
+            "rotations": [
+                {
+                    "axis": "y",
+                    "degrees": -20.0
+                },
+                {
+                    "axis": "z",
+                    "degrees": 210.0
+                }
+            ],
+            "position": [
+                -0.325145,
+                0.299705,
+                0.254330
+            ],
+            "resolution": [
+                1920,
+                1080
+            ],
+            "fov": 70
+        },
+        {
+            "name": "Front Left",
+            "rotations": [
+                {
+                    "axis": "y",
+                    "degrees": -20.0
+                },
+                {
+                    "axis": "z",
+                    "degrees": 150.0
+                }
+            ],
+            "position": [
+                -0.325145,
+                -0.299705,
+                0.254330
+            ],
+            "resolution": [
+                1920,
+                1080
+            ],
+            "fov": 70
+        }
+    ],
     "components": [
         {
             "zeroedRotations": [

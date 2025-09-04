@@ -14,6 +14,7 @@ open class VisionIOPhotonVision(name: String, val robotToCamera: Transform3d) : 
 
         var tagIDs: MutableSet<Short> = mutableSetOf()
         val poseObservations: MutableList<VisionIO.PoseObservation> = mutableListOf()
+        val targetTransforms: MutableList<VisionIO.TargetTransform> = mutableListOf()
 
         camera.allUnreadResults.forEach { result ->
             if(result.hasTargets()){
@@ -24,6 +25,20 @@ open class VisionIOPhotonVision(name: String, val robotToCamera: Transform3d) : 
                     )
             } else {
                 inputs.latestTargetObservation = VisionIO.TargetObservation(Rotation2d(), Rotation2d())
+            }
+
+            // Collect per-target relative transforms (camera -> tag) for tag-relative alignment
+            result.targets.forEach { t ->
+                val dist = t.bestCameraToTarget.translation.norm
+                targetTransforms.add(
+                    VisionIO.TargetTransform(
+                        timestamp = result.timestampSeconds,
+                        fiducialId = t.fiducialId,
+                        cameraToTarget = t.bestCameraToTarget,
+                        ambiguity = t.poseAmbiguity,
+                        distance = dist,
+                    )
+                )
             }
 
             if(result.multitagResult.isPresent) {
@@ -82,5 +97,6 @@ open class VisionIOPhotonVision(name: String, val robotToCamera: Transform3d) : 
 
         inputs.poseObservations = poseObservations.toTypedArray()
         inputs.tagIDs = IntArray(tagIDs.size) { tagIDs.elementAt(it).toInt() }
+        inputs.targetTransforms = targetTransforms.toTypedArray()
     }
 }

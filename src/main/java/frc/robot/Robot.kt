@@ -172,23 +172,7 @@ object Robot : LoggedRobot() {
         operatorController.getStowButton().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
         operatorController.getActionButton().onTrue(superstructure.getScoreCommand(operatorController.getActionButton()))
 
-        // driverController.x().onTrue(
-        //     AlignmentCommand(
-        //         drivebase,
-        //         { drivebase.pose.nudge(y = Units.inchesToMeters(-1.0)) },
-        //         PIDGains(7.0, 0.0, 0.01),
-        //         PIDGains(5.0, 0.0, 0.01),
-        //         { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
-        //     ))
-
-        // driverController.x().onTrue(
-        //     AlignmentCommand(
-        //         drivebase,
-        //         { drivebase.pose.nudge(y = Units.inchesToMeters(1.0)) },
-        //         PIDGains(7.0, 0.0, 0.01),
-        //         PIDGains(5.0, 0.0, 0.01),
-        //         { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
-        //     ))
+        driverController.x().onTrue(AlignmentCommand.tagRelativeAlign(drivebase, vision, 0.45, 0.0))
 
 
         // driverController.rightTrigger().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getDealgaefyCommand()))
@@ -198,7 +182,6 @@ object Robot : LoggedRobot() {
                 superstructure.getReleaseAlgaeCommand().onlyIf(superstructure.manipulator.isDetectingGamePiece()),
             )
         )
-        driverController.x().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getScoreCommand(!driverController.x())))
         
         // deploy/retract intake
         driverController.a().onTrue(intake.toggleIntakeCommand())

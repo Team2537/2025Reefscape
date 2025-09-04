@@ -100,7 +100,12 @@ class Drivebase : SubsystemBase("drivebase") {
         get() = modules.map { it.wheelForce }
 
     val chassisSpeeds: ChassisSpeeds
-        get() = kinematics.toChassisSpeeds(*wheelStates.toTypedArray())
+        get() = kinematics.toChassisSpeeds(
+            modules[0].state,
+            modules[1].state,
+            modules[2].state,
+            modules[3].state
+        )
 
     val pose: Pose2d
         get() = odometry.estimatedPosition
@@ -183,7 +188,7 @@ class Drivebase : SubsystemBase("drivebase") {
             ::pose,
             ::resetOdometry,
             ::chassisSpeeds,
-            { speeds: ChassisSpeeds, feedforward: DriveFeedforwards -> applyChassisSpeeds(speeds) },
+            { speeds: ChassisSpeeds, _: DriveFeedforwards -> applyChassisSpeeds(speeds) },
             PPHolonomicDriveController(
                 PIDConstants(7.0),
                 PIDConstants(5.0),
@@ -281,7 +286,7 @@ class Drivebase : SubsystemBase("drivebase") {
             val speeds: ChassisSpeeds
             val magnitude = hypot(strafe.asDouble, forward.asDouble).pow(exponent)
             val direction = Rotation2d.fromRadians(atan2(forward.asDouble, strafe.asDouble))
-            var rotationSpeed = 0.0
+            var rotationSpeed: Double
 
             val target = headingTarget.get()
 
@@ -289,7 +294,7 @@ class Drivebase : SubsystemBase("drivebase") {
                 rotationSpeed = headingPID.calculate(
                     pose.rotation.rotations,
                     target
-                        .let { if (AutoBuilder.shouldFlip()) it!!.rotateBy(Rotation2d.k180deg) else it }!!.rotations
+                        .let { if (AutoBuilder.shouldFlip()) it.rotateBy(Rotation2d.k180deg) else it }.rotations
                 )
             } else {
                 rotationSpeed = rotation.asDouble

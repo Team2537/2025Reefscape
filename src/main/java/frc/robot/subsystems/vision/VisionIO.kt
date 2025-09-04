@@ -2,6 +2,7 @@ package frc.robot.subsystems.vision
 
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Transform3d
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 
@@ -11,6 +12,7 @@ interface VisionIO {
         var latestTargetObservation: TargetObservation = TargetObservation(Rotation2d(), Rotation2d())
         var poseObservations: Array<PoseObservation> = emptyArray()
         var tagIDs = IntArray(0)
+        var targetTransforms: Array<TargetTransform> = emptyArray()
 
         override fun toLog(table: LogTable) {
             table.put("isConnected", isConnected)
@@ -37,6 +39,14 @@ interface VisionIO {
         val ambiguity: Double,
         val tagCount: Int,
         val averageTagDistance: Double,
+    )
+
+    data class TargetTransform(
+        val timestamp: Double,
+        val fiducialId: Int,
+        val cameraToTarget: Transform3d,
+        val ambiguity: Double,
+        val distance: Double,
     )
 
     fun updateInputs(inputs: VisionInputs) {}
