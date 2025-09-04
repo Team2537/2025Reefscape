@@ -169,6 +169,9 @@ object Robot : LoggedRobot() {
         operatorController.getL3Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L3 })
         operatorController.getL4Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L4 })
 
+        operatorController.getStowButton().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
+        operatorController.getActionButton().onTrue(superstructure.getScoreCommand(operatorController.getActionButton()))
+
         // driverController.x().onTrue(
         //     AlignmentCommand(
         //         drivebase,
