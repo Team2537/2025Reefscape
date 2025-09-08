@@ -131,6 +131,8 @@ object Constants {
         val SIM_PIVOT_KG = 5.7
 
         val DETECTION_DISTANCE_THRESHOLD = Meters.of(0.1) // tune
+        // represents distance when proximity is 1.0, or half of that when proximity is 0.5, etc.
+        val CANANDCOLOR_SCALING_FACTOR = Meters.of(5.0) // tune
 
         // see also SuperstructureGoals for pivot angle values for different levels
     }

@@ -131,8 +131,7 @@ class ManipulatorIOKraken(
             rollerVelocity, rollerAppliedVoltage, rollerStatorCurrent
         )
 
-        // TODO: convert getProximity to meters
-        inputs.coralDistance.mut_replace(Meters.of(0.0))
+        inputs.coralDistance.mut_replace(Constants.ManipulatorConstants.CANANDCOLOR_SCALING_FACTOR * canandcolor.getProximity())
 
         inputs.pivotAngularPosition.mut_replace(pivotPosition.value)
         inputs.pivotAngularVelocity.mut_replace(pivotVelocity.value)
