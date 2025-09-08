@@ -194,6 +194,11 @@ class AlignmentCommand(
             standoffMeters: Double = 0.40,
             lateralOffsetMeters: Double = 0.0,
         ): Command {
+            // Phased approach: 0) match rotation, 1) strafe to lateral, 2) final radial approach
+            var phase = 0
+            val yawTol = Math.toRadians(3.0)
+            val latTol = 0.03
+            val distTol = 0.02
             fun angleWrap(a: Double): Double {
                 var x = a
                 while (x > PI) x -= 2.0 * PI
@@ -238,15 +243,30 @@ class AlignmentCommand(
                     val currY = sumY / count
                     val currYaw = atan2(sumSin, sumCos)
 
-                    // Robot translation needed in robot frame to bring tag to desired standoff.
-                    // Move along the line-of-sight to the tag to avoid cutting corners into the reef.
+                    // Bearings and distances in robot frame
                     val bearingToTag = atan2(currY, currX)
                     val distanceToTag = kotlin.math.hypot(currX, currY)
+
+                    // Errors in robot frame relative to desired
                     val radialDelta = distanceToTag - standoffMeters
-                    val deltaX = radialDelta * kotlin.math.cos(bearingToTag)
-                    val deltaY = radialDelta * kotlin.math.sin(bearingToTag)
-                    // Desired heading parallel to the tag face (no extra 180° flip)
+                    val lateralDelta = currY - lateralOffsetMeters
                     val deltaYaw = angleWrap(currYaw)
+
+                    // Phase transitions
+                    if (phase == 0 && kotlin.math.abs(deltaYaw) < yawTol) phase = 1
+                    if (phase == 1 && kotlin.math.abs(lateralDelta) < latTol) phase = 2
+
+                    // Build desired robot-frame deltas for this phase
+                    val (deltaX, deltaY) = when (phase) {
+                        0 -> 0.0 to 0.0 // rotation only
+                        1 -> 0.0 to lateralDelta // strafe along face; avoid forward/back
+                        else -> {
+                            // final approach: move along radial bearing only
+                            val dx = radialDelta * kotlin.math.cos(bearingToTag)
+                            val dy = radialDelta * kotlin.math.sin(bearingToTag)
+                            dx to dy
+                        }
+                    }
 
                     // Build a "fake target" pose in field frame relative to current robot pose
                     // so existing AlignmentCommand PIDs can drive. We convert robot-frame errors
@@ -271,21 +291,22 @@ class AlignmentCommand(
                             edu.wpi.first.math.geometry.Rotation3d(0.0, 0.0, currYaw)
                         )
                     )
+                    Logger.recordOutput("commands/TagRelativeAlign/phase", phase)
                     Logger.recordOutput("commands/TagRelativeAlign/desiredPose", Pose2d.struct, fieldTarget)
                     Logger.recordOutput("commands/TagRelativeAlign/robotHeadingDeg", Math.toDegrees(robotPose.rotation.radians))
                     Logger.recordOutput("commands/TagRelativeAlign/bearingToTagDeg", Math.toDegrees(bearingToTag))
                     Logger.recordOutput("commands/TagRelativeAlign/tagYawDeg", Math.toDegrees(currYaw))
                     Logger.recordOutput("commands/TagRelativeAlign/deltaYawDeg", Math.toDegrees(dbYaw))
                     Logger.recordOutput("commands/TagRelativeAlign/desiredHeadingDeg", Math.toDegrees(desiredHeading.radians))
-                    println("[TagRelAlign] tagId=${best.fiducialId} curr=(%.2f, %.2f, %.2f) bearing=%.1f tagYaw=%.1f dYaw=%.1f delta=(%.2f, %.2f) target=(%.2f, %.2f, %.1f)".format(
-                        currX, currY, currYaw, Math.toDegrees(bearingToTag), Math.toDegrees(currYaw), Math.toDegrees(deltaYaw), deltaX, deltaY, fieldTarget.x, fieldTarget.y, Math.toDegrees(fieldTarget.rotation.radians)
+                    println("[TagRelAlign] phase=$phase tagId=${best.fiducialId} curr=(%.2f, %.2f, %.2f) bearing=%.1f tagYaw=%.1f dYaw=%.1f deltas=(%.2f, %.2f) r=%.2f latDelta=%.2f target=(%.2f, %.2f, %.1f)".format(
+                        currX, currY, currYaw, Math.toDegrees(bearingToTag), Math.toDegrees(currYaw), Math.toDegrees(deltaYaw), deltaX, deltaY, distanceToTag, lateralDelta, fieldTarget.x, fieldTarget.y, Math.toDegrees(fieldTarget.rotation.radians)
                     ))
                     fieldTarget
                 },
-                translationPID = PIDGains(3.0, 0.0, 0.02),
+                translationPID = PIDGains(3.5, 0.01, 0.02),
                 rotationPID = PIDGains(3.0, 0.0, 0.03),
                 { Drivebase.Constants.AlignmentState.ALIGNED_CORAL }
-            ).withName("TagRelativeAlign")
+            ).withName("TagRelativeAlign").beforeStarting(Runnable { phase = 0 })
         }
 
         val leftOffset: Distance = Inches.of(-13.0)
