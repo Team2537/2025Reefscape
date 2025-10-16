@@ -1,0 +1,87 @@
+{
+    "name": "ReefscapeRI3DBobBot",
+    "sourceUrl": "",
+    "disableSimplification": false,
+    "rotations": [
+        {
+            "axis": "x",
+            "degrees": 90
+        },
+        {
+            "axis": "z",
+            "degrees": 270
+        }
+    ],
+    "position": [
+        0.0,
+        0.0,
+        0.0
+    ],
+    "cameras": [
+        {
+            "name": "Front Right",
+            "rotations": [
+                {
+                    "axis": "y",
+                    "degrees": -10.0
+                },
+                {
+                    "axis": "z",
+                    "degrees": 220.0
+                }
+            ],
+            "position": [
+                -0.325145,
+                0.299705,
+                0.29878
+            ],
+            "resolution": [
+                1920,
+                1080
+            ],
+            "fov": 70
+        },
+        {
+            "name": "Front Left",
+            "rotations": [
+                {
+                    "axis": "y",
+                    "degrees": -10.0
+                },
+                {
+                    "axis": "z",
+                    "degrees": 140.0
+                }
+            ],
+            "position": [
+                -0.325145,
+                -0.299705,
+                0.29878
+            ],
+            "resolution": [
+                1920,
+                1080
+            ],
+            "fov": 70
+        }
+    ],
+    "components": [
+        {
+            "zeroedRotations": [
+                {
+                    "axis": "x",
+                    "degrees": 90
+                },
+                {
+                    "axis": "z",
+                    "degrees": 270
+                }
+            ],
+            "zeroedPosition": [
+                -0.28,
+                0.0,
+                -0.275
+            ]
+        }
+    ]
+}
