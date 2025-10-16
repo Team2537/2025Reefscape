@@ -15,9 +15,9 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.superstructure.SuperstructureGoals.L1
-import frc.robot.subsystems.superstructure.SuperstructureGoals.L2
-import frc.robot.subsystems.superstructure.SuperstructureGoals.L3
-import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
+// import frc.robot.subsystems.superstructure.SuperstructureGoals.L2
+// import frc.robot.subsystems.superstructure.SuperstructureGoals.L3
+// import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
 import frc.robot.subsystems.superstructure.SuperstructureGoals.STOW
 import frc.robot.subsystems.swerve.Drivebase
 import lib.math.geometry.FieldConstants.Reef
@@ -52,9 +52,9 @@ class AutoRoutine(
                     drivebase.followPath(getPathToBranch(branch, isTop)).onlyIf({ index != 0 }),
                     when (level) {
                         Reef.Level.L1 -> superstructure.getForceStateCommand { L1 }
-                        Reef.Level.L2 -> superstructure.getForceStateCommand { L2 }
-                        Reef.Level.L3 -> superstructure.getForceStateCommand { L3 }
-                        Reef.Level.L4 -> superstructure.getForceStateCommand { L4 }
+                        // Reef.Level.L2 -> superstructure.getForceStateCommand { L2 }
+                        // Reef.Level.L3 -> superstructure.getForceStateCommand { L3 }
+                        // Reef.Level.L4 -> superstructure.getForceStateCommand { L4 }
                         else -> superstructure.getForceStateCommand { STOW }
                     }
                 ),

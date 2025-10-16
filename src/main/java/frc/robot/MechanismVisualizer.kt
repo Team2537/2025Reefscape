@@ -8,7 +8,7 @@ import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.Radians
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
-import frc.robot.subsystems.superstructure.elevator.Elevator
+// import frc.robot.subsystems.superstructure.elevator.Elevator
 import lib.math.units.into
 import org.littletonrobotics.junction.Logger
 
@@ -25,19 +25,19 @@ object MechanismVisualizer {
         Pose3d()
     )
     
-    private var carriageHeight = 0.0
+    // private var carriageHeight = 0.0
     
-    fun setElevatorHeight(height: Distance) {
-        val heightMeters = (height into Meters).coerceIn(0.0, Constants.ElevatorConstants.maxHeight into Meters)
-        carriageHeight = heightMeters
+    // fun setElevatorHeight(height: Distance) {
+    //     val heightMeters = (height into Meters).coerceIn(0.0, Constants.ElevatorConstants.maxHeight into Meters)
+    //     carriageHeight = heightMeters
         
-        mechanismPoses[0] = Pose3d(
-            Translation3d(0.0, 0.0, heightMeters / 2.0), Rotation3d()
-        )
-        mechanismPoses[1] = Pose3d(
-            Translation3d(0.0, 0.0, heightMeters), Rotation3d()
-        )
-    }
+    //     mechanismPoses[0] = Pose3d(
+    //         Translation3d(0.0, 0.0, heightMeters / 2.0), Rotation3d()
+    //     )
+    //     mechanismPoses[1] = Pose3d(
+    //         Translation3d(0.0, 0.0, heightMeters), Rotation3d()
+    //     )
+    // }
     
     fun setArmAngle(angle: Angle) {
         val angleRadians = angle into Radians
@@ -46,7 +46,7 @@ object MechanismVisualizer {
             Translation3d(
                 Units.inchesToMeters(12.150963),
                 0.0,
-                Units.inchesToMeters(15.75) + carriageHeight
+                Units.inchesToMeters(15.75) // + carriageHeight
             ), Rotation3d(0.0, angleRadians, 0.0)
         )
     }

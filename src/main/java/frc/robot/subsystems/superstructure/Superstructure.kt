@@ -9,11 +9,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.Robot.drivebase
 import frc.robot.subsystems.superstructure.SuperstructureGoals.L1
-import frc.robot.subsystems.superstructure.SuperstructureGoals.L2
-import frc.robot.subsystems.superstructure.SuperstructureGoals.L3
-import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
+// import frc.robot.subsystems.superstructure.SuperstructureGoals.L2
+// import frc.robot.subsystems.superstructure.SuperstructureGoals.L3
+// import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
 import frc.robot.subsystems.superstructure.SuperstructureGoals.STOW
-import frc.robot.subsystems.superstructure.elevator.Elevator
+// import frc.robot.subsystems.superstructure.elevator.Elevator
+import frc.robot.subsystems.superstructure.arm.Arm
 import frc.robot.subsystems.superstructure.manipulator.Manipulator
 import lib.math.units.degrees
 import lib.math.units.radians
@@ -24,13 +25,13 @@ import java.util.function.BooleanSupplier
 import java.util.function.Supplier
 
 class Superstructure {
-    val elevator: Elevator
+    val arm: Arm
     val manipulator: Manipulator
 
     var lastRequest: SuperstructureState = SuperstructureGoals.STOW
 
     init {
-        elevator = Elevator()
+        arm = Arm()
         manipulator = Manipulator()
 
         // manipulator.apply {
@@ -55,40 +56,46 @@ class Superstructure {
     }
 
 
-    fun getElevatorSysIDCommand(): Command {
+    fun getArmSysIDCommand(): Command {
         return Commands.sequence(
-            elevator.getDynamicSysID(SysIdRoutine.Direction.kForward),
-            elevator.getDynamicSysID(SysIdRoutine.Direction.kReverse),
-            elevator.getQuasistaticSysID(SysIdRoutine.Direction.kForward),
-            elevator.getQuasistaticSysID(SysIdRoutine.Direction.kReverse)
+            arm.getDynamicSysID(SysIdRoutine.Direction.kForward),
+            arm.getDynamicSysID(SysIdRoutine.Direction.kReverse),
+            arm.getQuasistaticSysID(SysIdRoutine.Direction.kForward),
+            arm.getQuasistaticSysID(SysIdRoutine.Direction.kReverse)
         )
     }
 
-    fun getManipulatorSysIDCommand(): Command {
-        return Commands.sequence(
-            manipulator.getDynamicTest(SysIdRoutine.Direction.kForward),
-            manipulator.getDynamicTest(SysIdRoutine.Direction.kReverse),
-            manipulator.getQuasistaticTest(SysIdRoutine.Direction.kForward),
-            manipulator.getQuasistaticTest(SysIdRoutine.Direction.kReverse)
-        )
-    }
+    // fun getElevatorSysIDCommand(): Command {
+    //     return Commands.sequence(
+    //         elevator.getDynamicSysID(SysIdRoutine.Direction.kForward),
+    //         elevator.getDynamicSysID(SysIdRoutine.Direction.kReverse),
+    //         elevator.getQuasistaticSysID(SysIdRoutine.Direction.kForward),
+    //         elevator.getQuasistaticSysID(SysIdRoutine.Direction.kReverse)
+    //     )
+    // }
+
+    // fun getManipulatorSysIDCommand(): Command {
+    //     return Commands.sequence(
+    //         manipulator.getDynamicTest(SysIdRoutine.Direction.kForward),
+    //         manipulator.getDynamicTest(SysIdRoutine.Direction.kReverse),
+    //         manipulator.getQuasistaticTest(SysIdRoutine.Direction.kForward),
+    //         manipulator.getQuasistaticTest(SysIdRoutine.Direction.kReverse)
+    //     )
+    // }
 
     private val readyToScore: Trigger = Trigger { SmartDashboard.getBoolean("shouldScore", false) }
 
     val isL1: Trigger = Trigger { lastRequest == L1 }
-    val isL2: Trigger = Trigger { lastRequest == L2 }
-    val isL3: Trigger = Trigger { lastRequest == L3 }
-    val isL4: Trigger = Trigger { lastRequest == L4 }
+    // val isL2: Trigger = Trigger { lastRequest == L2 }
+    // val isL3: Trigger = Trigger { lastRequest == L3 }
+    // val isL4: Trigger = Trigger { lastRequest == L4 }
 
     val isHoldingCoral: Trigger = Trigger { manipulator.inputs.coralDistance > Meters.of(0.2) }
 
     fun getSendToStateCommand(superstructureState: Supplier<SuperstructureState>): Command {
         return Commands.sequence(
             getForceStateCommand(superstructureState),
-            Commands.parallel(
-                elevator.getMoveToHeightCommand { superstructureState.get().elevatorHeight },
-                manipulator.getSendToAngleCommand { superstructureState.get().armAngle },
-            )
+            arm.getMoveToAngleCommand { superstructureState.get().armAngle },
         )
     }
 
@@ -102,15 +109,11 @@ class Superstructure {
     fun getStateAchievedTrigger(target: SuperstructureState): Trigger {
         return Trigger {
             Logger.recordOutput("target", target.name)
-            val elevatorAtSetpoint = elevator.inputs.carriageHeight.epsilonEquals(
-                target.elevatorHeight,
-                1.0.inches
-            )
-            val armAtSetpoint = manipulator.inputs.pivotAngularPosition.epsilonEquals(
+            val armAtSetpoint = arm.inputs.angle.epsilonEquals(
                 target.armAngle,
-                0.034906585.radians
+                5.0.degrees
             )
-            elevatorAtSetpoint && armAtSetpoint
+            return@Trigger armAtSetpoint
         }
     }
 
@@ -128,36 +131,47 @@ class Superstructure {
         )
     }
 
-    fun getDealgaefyCommand(): Command {
-        // when run, grab algae and return to ALGAE_STOW with manipulator rollers in brake mode
+    // new intake command
+    fun getIntakeCommand(): Command {
         return Commands.sequence(
-            getSendToStateCommand { SuperstructureGoals.ALGAE_L2 }.onlyIf{lastRequest == SuperstructureGoals.L2},
-            getSendToStateCommand { SuperstructureGoals.ALGAE_L3 }.onlyIf{lastRequest == SuperstructureGoals.L3},
-            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L2).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.L2},
-            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L3).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.L3},
-            // manipulator.getSpinRollersOutCommand().until(!manipulator.isDetectingGamePiece())), // could be in?
-            Commands.deadline( // placeholder for sim
-                Commands.waitSeconds(3.0),
-                manipulator.getSpinRollersOutCommand(),
-            ),
+            getSendToStateCommand { SuperstructureGoals.GROUND },
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.GROUND).asBoolean },
+            manipulator.getSpinRollersInCommand(),
+            Commands.waitSeconds(3.0),
             manipulator.getStopRollersCommand(),
-            getSendToStateCommand { SuperstructureGoals.ALGAE_STOW },
-            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_STOW).asBoolean },
         )
     }
 
+    // fun getDealgaefyCommand(): Command {
+    //     // when run, grab algae and return to ALGAE_STOW with manipulator rollers in brake mode
+    //     return Commands.sequence(
+    //         getSendToStateCommand { SuperstructureGoals.ALGAE_L2 }.onlyIf{lastRequest == SuperstructureGoals.L2},
+    //         getSendToStateCommand { SuperstructureGoals.ALGAE_L3 }.onlyIf{lastRequest == SuperstructureGoals.L3},
+    //         Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L2).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.L2},
+    //         Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L3).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.L3},
+    //         // manipulator.getSpinRollersOutCommand().until(!manipulator.isDetectingGamePiece())), // could be in?
+    //         Commands.deadline( // placeholder for sim
+    //             Commands.waitSeconds(3.0),
+    //             manipulator.getSpinRollersOutCommand(),
+    //         ),
+    //         manipulator.getStopRollersCommand(),
+    //         getSendToStateCommand { SuperstructureGoals.ALGAE_STOW },
+    //         Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_STOW).asBoolean },
+    //     )
+    // }
+
     // todo, will need to release while moving up to throw algae
-    fun getReleaseAlgaeCommand(): Command {
-        return Commands.sequence(
-            getSendToStateCommand { lastRequest },
-            Commands.waitUntil { getStateAchievedTrigger(lastRequest).asBoolean },
-            manipulator.getSpinRollersInCommand(),
-            Commands.waitSeconds(10.0),
-            manipulator.getStopRollersCommand(),
-            getSendToStateCommand { SuperstructureGoals.STOW },
-            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.STOW).asBoolean },
-        )
-    }
+    // fun getReleaseAlgaeCommand(): Command {
+    //     return Commands.sequence(
+    //         getSendToStateCommand { lastRequest },
+    //         Commands.waitUntil { getStateAchievedTrigger(lastRequest).asBoolean },
+    //         manipulator.getSpinRollersInCommand(),
+    //         Commands.waitSeconds(10.0),
+    //         manipulator.getStopRollersCommand(),
+    //         getSendToStateCommand { SuperstructureGoals.STOW },
+    //         Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.STOW).asBoolean },
+    //     )
+    // }
 
     fun periodic() {
         Logger.recordOutput("superstructure/setpoint", SuperstructureState.struct, lastRequest)

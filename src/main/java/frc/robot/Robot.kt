@@ -25,11 +25,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.commands.swerve.WheelRadiusCharacterization
-import frc.robot.subsystems.intake.Intake
-import frc.robot.subsystems.transfer.Transfer
+// import frc.robot.subsystems.intake.Intake
+// import frc.robot.subsystems.transfer.Transfer
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.superstructure.SuperstructureGoals
-import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
+// import frc.robot.subsystems.superstructure.SuperstructureGoals.L4
 import frc.robot.subsystems.swerve.Drivebase
 import frc.robot.subsystems.vision.Vision
 import lib.commands.not
@@ -60,8 +60,8 @@ object Robot : LoggedRobot() {
     val drivebase: Drivebase
     val vision: Vision
     val superstructure: Superstructure
-    val intake: Intake
-    val transfer: Transfer
+    // val intake: Intake
+    // val transfer: Transfer
 
     val autos: Autos
 
@@ -120,8 +120,6 @@ object Robot : LoggedRobot() {
         drivebase = Drivebase()
         vision = Vision(drivebase::addVisionMeasurement)
         superstructure = Superstructure()
-        intake = Intake()
-        transfer = Transfer()
 
         autos = Autos(drivebase, superstructure)
 
@@ -149,25 +147,25 @@ object Robot : LoggedRobot() {
             3
         )
 
-        FieldConstants.Reef.ReefFace.entries.forEach { face ->
-            FieldConstants.Reef.Side.entries.forEach { side ->
-                operatorController.getReefButton(face, side).whileTrue(
-                    AlignmentCommand.buttonBoardAlign(
-                        drivebase,
-                        face,
-                        superstructure.isL4,
-                        leftSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.LEFT),
-                        rightSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.RIGHT),
-                        centerSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.CENTER)
-                    )
-                )
-            }
-        }
+        // FieldConstants.Reef.ReefFace.entries.forEach { face ->
+        //     FieldConstants.Reef.Side.entries.forEach { side ->
+        //         operatorController.getReefButton(face, side).whileTrue(
+        //             AlignmentCommand.buttonBoardAlign(
+        //                 drivebase,
+        //                 face,
+        //                 superstructure.isL4,
+        //                 leftSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.LEFT),
+        //                 rightSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.RIGHT),
+        //                 centerSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.CENTER)
+        //             )
+        //         )
+        //     }
+        // }
 
         operatorController.getL1Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L1 })
-        operatorController.getL2Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L2 })
-        operatorController.getL3Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L3 })
-        operatorController.getL4Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L4 })
+        // operatorController.getL2Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L2 })
+        // operatorController.getL3Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L3 })
+        // operatorController.getL4Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L4 })
 
         operatorController.getStowButton().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
         operatorController.getActionButton().onTrue(superstructure.getScoreCommand(operatorController.getActionButton()))
@@ -176,41 +174,41 @@ object Robot : LoggedRobot() {
 
 
         // driverController.rightTrigger().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getDealgaefyCommand()))
-        driverController.rightTrigger().onTrue(
-            Commands.sequence(
-                superstructure.getDealgaefyCommand().onlyIf(!superstructure.manipulator.isDetectingGamePiece()), // assume game piece is algae
-                superstructure.getReleaseAlgaeCommand().onlyIf(superstructure.manipulator.isDetectingGamePiece()),
-            )
-        )
+        // driverController.rightTrigger().onTrue(
+        //     Commands.sequence(
+        //         superstructure.getDealgaefyCommand().onlyIf(!superstructure.manipulator.isDetectingGamePiece()), // assume game piece is algae
+        //         superstructure.getReleaseAlgaeCommand().onlyIf(superstructure.manipulator.isDetectingGamePiece()),
+        //     )
+        // )
         
-        // deploy/retract intake
-        driverController.a().onTrue(intake.toggleIntakeCommand())
+        // intake
+        driverController.a().onTrue(superstructure.getIntakeCommand())
 
         // full intake command
-        driverController.b().onTrue(
-            Commands.sequence(
-                Commands.parallel(
-                    superstructure.getSendToStateCommand{SuperstructureGoals.STOW},
-                    intake.getDeployIntakeCommand(),
-                ),
-                Commands.waitUntil { superstructure.getStateAchievedTrigger(SuperstructureGoals.STOW).asBoolean },
-                Commands.parallel(
-                    intake.getSpinRollersCommand(),
-                    transfer.getRollCommand(),
-                ),
-                Commands.waitUntil(transfer.isDetectingCoral()),
-                intake.getStopRollersCommand(),
-                intake.getRetractIntakeCommand(),
-                superstructure.manipulator.getSpinRollersInSlowCommand(),
-                Commands.deadline( // this deadline is for sim to avoid infinitely waiting
-                    Commands.waitSeconds(5.0),
-                    Commands.waitUntil(superstructure.manipulator.isDetectingGamePiece()),
-                ),
-                Commands.waitSeconds(0.1),
-                transfer.getStopCommand(),
-                superstructure.manipulator.getStopRollersCommand(),
-            )
-        )
+        // driverController.b().onTrue(
+        //     Commands.sequence(
+        //         Commands.parallel(
+        //             superstructure.getSendToStateCommand{SuperstructureGoals.STOW},
+        //             intake.getDeployIntakeCommand(),
+        //         ),
+        //         Commands.waitUntil { superstructure.getStateAchievedTrigger(SuperstructureGoals.STOW).asBoolean },
+        //         Commands.parallel(
+        //             intake.getSpinRollersCommand(),
+        //             transfer.getRollCommand(),
+        //         ),
+        //         Commands.waitUntil(transfer.isDetectingCoral()),
+        //         intake.getStopRollersCommand(),
+        //         intake.getRetractIntakeCommand(),
+        //         superstructure.manipulator.getSpinRollersInSlowCommand(),
+        //         Commands.deadline( // this deadline is for sim to avoid infinitely waiting
+        //             Commands.waitSeconds(5.0),
+        //             Commands.waitUntil(superstructure.manipulator.isDetectingGamePiece()),
+        //         ),
+        //         Commands.waitSeconds(0.1),
+        //         transfer.getStopCommand(),
+        //         superstructure.manipulator.getStopRollersCommand(),
+        //     )
+        // )
 
         // driverController.rightBumper().onTrue(
         //     superstructure.getScoreCommand(!driverController.rightBumper())
@@ -226,28 +224,28 @@ object Robot : LoggedRobot() {
         // Logger.recordOutput("RobotPose", Pose2d(3.0, 2.0, Rotation2d(0.0)))
         // Logger.recordOutput("ZeroedComponentPoses", Pose3d(), Pose3d(), Pose3d())
 
-        val elevatorHeight: Double = superstructure.elevator.inputs.carriageHeight into Meters
-        val pivotAngle: Double = superstructure.manipulator.inputs.pivotAngularPosition into Radians
-        val intakeAngle: Double = intake.inputs.pivotLeftPosition into Radians
+        // val elevatorHeight: Double = superstructure.elevator.inputs.carriageHeight into Meters
+        // val pivotAngle: Double = superstructure.manipulator.inputs.pivotAngularPosition into Radians
+        // val intakeAngle: Double = intake.inputs.pivotLeftPosition into Radians
 
-        Logger.recordOutput(
-            "FinalComponentPoses",
-            // intake
-            Pose3d(
-                0.33655, 0.0, 0.24765,
-                Rotation3d(0.0, intakeAngle - 1.5, 0.0)
-            ),
-            // wrist
-            Pose3d(
-                -0.325374, 0.0, 0.2437638+elevatorHeight,
-                Rotation3d(0.0, pivotAngle-0.7, 0.0)
-            ),
-            // no wrist
-            Pose3d(
-                -0.325374, 0.0, 0.2437638+elevatorHeight,
-                Rotation3d(0.0, 0.0, 0.0)
-            )
-        )
+        // Logger.recordOutput(
+        //     "FinalComponentPoses",
+        //     // intake
+        //     Pose3d(
+        //         0.33655, 0.0, 0.24765,
+        //         Rotation3d(0.0, intakeAngle - 1.5, 0.0)
+        //     ),
+        //     // wrist
+        //     Pose3d(
+        //         -0.325374, 0.0, 0.2437638+elevatorHeight,
+        //         Rotation3d(0.0, pivotAngle-0.7, 0.0)
+        //     ),
+        //     // no wrist
+        //     Pose3d(
+        //         -0.325374, 0.0, 0.2437638+elevatorHeight,
+        //         Rotation3d(0.0, 0.0, 0.0)
+        //     )
+        // )
 
 
         CommandScheduler.getInstance().run()

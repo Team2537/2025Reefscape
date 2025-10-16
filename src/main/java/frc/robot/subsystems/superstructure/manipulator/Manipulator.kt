@@ -23,29 +23,17 @@ import java.util.function.Supplier
 class Manipulator : SubsystemBase() {
     public val io: ManipulatorIO = when (RobotType.mode) {
         RobotType.Mode.REAL -> ManipulatorIOKraken(
-            pivotMotorID = Constants.ManipulatorConstants.PIVOT_MOTOR_ID,
-            rollerMotorID = Constants.ManipulatorConstants.ROLLER_MOTOR_ID,
+            leftRollerMotorID = Constants.ManipulatorConstants.LEFT_ROLLER_MOTOR_ID,
+            rightRollerMotorID = Constants.ManipulatorConstants.RIGHT_ROLLER_MOTOR_ID,
             canandcolorID = Constants.ManipulatorConstants.CANANDCOLOR_ID,
-            pivotInverted = Constants.ManipulatorConstants.PIVOT_INVERTED,
-            rollerInverted = Constants.ManipulatorConstants.ROLLER_INVERTED,
-            pivotGearing = Constants.ManipulatorConstants.PIVOT_GEARING,
+            leftRollerInverted = Constants.ManipulatorConstants.LEFT_ROLLER_INVERTED,
+            rightRollerInverted = Constants.ManipulatorConstants.RIGHT_ROLLER_INVERTED,
             rollerGearing = Constants.ManipulatorConstants.ROLLER_GEARING,
-            pivotPIDGains = PIDGains(kP = Constants.ManipulatorConstants.REAL_PIVOT_KP),
-            pivotFFGains = FeedforwardGains(kV = Constants.ManipulatorConstants.REAL_PIVOT_KV, kA = Constants.ManipulatorConstants.REAL_PIVOT_KA),
-            pivotKG = Constants.ManipulatorConstants.REAL_PIVOT_KG,
-            pivotVelocityLimit = Constants.ManipulatorConstants.REAL_PIVOT_VELOCITY_LIMIT,
-            pivotAccelerationLimit = Constants.ManipulatorConstants.REAL_PIVOT_ACCELERATION_LIMIT,
-            pivotJerkLimit = Constants.ManipulatorConstants.REAL_PIVOT_JERK_LIMIT
         )
 
         RobotType.Mode.SIMULATION -> ManipulatorIOSim(
-            pivotGearing = Constants.ManipulatorConstants.PIVOT_GEARING,
             rollerGearing = Constants.ManipulatorConstants.ROLLER_GEARING,
-            pivotMoi = Constants.ManipulatorConstants.SIM_PIVOT_MOI,
             rollerMoi = Constants.ManipulatorConstants.SIM_ROLLER_MOI,
-            pivotPIDGains = PIDGains(kP = Constants.ManipulatorConstants.SIM_PIVOT_KP, kI = Constants.ManipulatorConstants.SIM_PIVOT_KI, kD = Constants.ManipulatorConstants.SIM_PIVOT_KD),
-            pivotFFGains = FeedforwardGains(kV = Constants.ManipulatorConstants.SIM_PIVOT_KV, kA = Constants.ManipulatorConstants.SIM_PIVOT_KA),
-            pivotKG = Constants.ManipulatorConstants.SIM_PIVOT_KG,
         )
 
         RobotType.Mode.REPLAY -> object : ManipulatorIO {}
@@ -53,37 +41,9 @@ class Manipulator : SubsystemBase() {
     
     public val inputs: ManipulatorInputs = ManipulatorInputs()
 
-    // for pivot only
-    // https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/wpilib-integration/sysid-integration/plumbing-and-running-sysid.html
-    val sysidRoutine: SysIdRoutine = SysIdRoutine(
-        SysIdRoutine.Config(
-            null,
-            Volts.of(4.0),
-            null,
-            { state -> Logger.recordOutput("manipulator/pivot/sysid", state.toString()) },
-        ),
-        SysIdRoutine.Mechanism(
-            { voltage: Voltage -> io.setPivotVoltage(voltage) },
-            null,
-            this
-        )
-    )
-
-    init{
-        io.setPivotBrakeMode(true)
-    }
-
     override fun periodic() {
         io.updateInputs(inputs)
-
         Logger.processInputs("Manipulator", inputs)
-
-    }
-
-    fun getSendToAngleCommand(angleSupplier: Supplier<Angle>): Command {
-        return runOnce {
-            io.setPivotTargetAngle(angleSupplier.get())
-        }
     }
 
     fun getSpinRollersInCommand(): Command {
@@ -112,13 +72,5 @@ class Manipulator : SubsystemBase() {
 
     fun isDetectingGamePiece(): Trigger {
         return Trigger { inputs.coralDistance < Constants.ManipulatorConstants.DETECTION_DISTANCE_THRESHOLD }
-    }
-
-    fun getDynamicTest(direction: SysIdRoutine.Direction): Command {
-        return sysidRoutine.dynamic(direction)
-    }
-
-    fun getQuasistaticTest(direction: Direction): Command {
-        return sysidRoutine.quasistatic(direction)
     }
 }

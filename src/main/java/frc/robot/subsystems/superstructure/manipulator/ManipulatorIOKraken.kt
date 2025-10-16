@@ -19,32 +19,19 @@ import com.ctre.phoenix6.controls.Follower
 import frc.robot.Constants
 
 class ManipulatorIOKraken(
-    pivotMotorID: Int,
+    leftRollerMotorID: Int,
+    rightRollerMotorID: Int,
     canandcolorID: Int,
-    rollerMotorID: Int,
-    pivotInverted: Boolean,
-    rollerInverted: Boolean,
-    pivotGearing: Double,
+    leftRollerInverted: Boolean,
+    rightRollerInverted: Boolean,
     rollerGearing: Double,
-    pivotPIDGains: PIDGains,
-    pivotFFGains: FeedforwardGains,
-    pivotKG: Double,
-    pivotVelocityLimit: AngularVelocity,
-    pivotAccelerationLimit: AngularAcceleration,
-    pivotJerkLimit: Velocity<AngularAccelerationUnit> = RotationsPerSecondPerSecond.per(Second).of(0.0)
 ) : ManipulatorIO {
 
     private fun configureMotor(
         motorId: Int,
         isInverted: Boolean,
-        pidGains: PIDGains,
-        ffGains: FeedforwardGains,
-        kG: Double,
-        velocityLimit: AngularVelocity,
-        accelerationLimit: AngularAcceleration,
-        jerkLimit: Velocity<AngularAccelerationUnit>,
         gearing: Double,
-        isRoller: Boolean = false
+        isRoller: Boolean = true
     ): TalonFX {
         return TalonFX(motorId, "canivore").apply {
             val config = TalonFXConfiguration()
@@ -54,25 +41,7 @@ class ManipulatorIOKraken(
 
             config.MotorOutput.NeutralMode = if (isRoller) NeutralModeValue.Coast else NeutralModeValue.Brake
 
-            if (!isRoller) {
-                config.Slot0.kP = pidGains.kP
-                config.Slot0.kI = pidGains.kI
-                config.Slot0.kD = pidGains.kD
-                config.Slot0.kV = ffGains.kV
-                config.Slot0.kA = ffGains.kA
-                config.Slot0.kS = ffGains.kS
-                config.Slot0.kG = kG
-
-                config.Slot0.GravityType = GravityTypeValue.Arm_Cosine
-
-                config.Feedback.SensorToMechanismRatio = gearing
-
-                config.ClosedLoopGeneral.ContinuousWrap = true
-
-                config.MotionMagic.withMotionMagicCruiseVelocity(velocityLimit)
-                config.MotionMagic.withMotionMagicAcceleration(accelerationLimit)
-                config.MotionMagic.withMotionMagicJerk(jerkLimit)
-            }
+            config.Feedback.SensorToMechanismRatio = gearing
 
             config.CurrentLimits.StatorCurrentLimit = 60.0
             config.CurrentLimits.StatorCurrentLimitEnable = true
@@ -81,87 +50,63 @@ class ManipulatorIOKraken(
         }
     }
 
-    private val pivotMotor = configureMotor(
-        pivotMotorID,
-        pivotInverted,
-        pivotPIDGains,
-        pivotFFGains,
-        pivotKG,
-        pivotVelocityLimit,
-        pivotAccelerationLimit,
-        pivotJerkLimit,
-        pivotGearing
-    ).apply {
-        setPosition(Constants.ManipulatorConstants.PIVOT_START_ANGLE)
-    }
-
-    private val pivotPosition = pivotMotor.position.clone()
-    private val pivotVelocity = pivotMotor.velocity.clone()
-    private val pivotAppliedVoltage = pivotMotor.motorVoltage.clone()
-    private val pivotStatorCurrent = pivotMotor.statorCurrent.clone()
-
-    private val motionMagicRequest = MotionMagicVoltage(0.0)
-    private val pivotVoltageRequest = VoltageOut(0.0)
-    private var targetPosition: Angle = Radians.of(0.0)
     private val canandcolor = Canandcolor(canandcolorID)
 
-    // kraken x44 for rolling motors
-    private val rollerMotor = configureMotor(
-        rollerMotorID,
-        rollerInverted,
-        pidGains = PIDGains(), // These will be ignored for roller motor
-        ffGains = FeedforwardGains(),  // These will be ignored for roller motor
-        kG = 0.0,       // These will be ignored for roller motor
-        velocityLimit = RotationsPerSecond.of(0.0), // These will be ignored for roller motor
-        accelerationLimit = RotationsPerSecondPerSecond.of(0.0), // These will be ignored for roller motor
-        jerkLimit = RotationsPerSecondPerSecond.per(Second).of(0.0), // These will be ignored for roller motor
+    // Two Kraken X44 for rollers
+    private val leftRollerMotor = configureMotor(
+        leftRollerMotorID,
+        leftRollerInverted,
         gearing = rollerGearing,
-        true // isRoller
+        isRoller = true
     )
 
-    private val rollerVoltageRequest = VoltageOut(0.0)
+    private val rightRollerMotor = configureMotor(
+        rightRollerMotorID,
+        rightRollerInverted,
+        gearing = rollerGearing,
+        isRoller = true
+    )
 
-    private val rollerVelocity = rollerMotor.velocity.clone()
-    private val rollerAppliedVoltage = rollerMotor.motorVoltage.clone()
-    private val rollerStatorCurrent = rollerMotor.statorCurrent.clone()
+    private val leftRollerVoltageRequest = VoltageOut(0.0)
+    private val rightRollerVoltageRequest = VoltageOut(0.0)
+
+    private val leftRollerVelocity = leftRollerMotor.velocity.clone()
+    private val leftRollerAppliedVoltage = leftRollerMotor.motorVoltage.clone()
+    private val leftRollerStatorCurrent = leftRollerMotor.statorCurrent.clone()
+
+    private val rightRollerVelocity = rightRollerMotor.velocity.clone()
+    private val rightRollerAppliedVoltage = rightRollerMotor.motorVoltage.clone()
+    private val rightRollerStatorCurrent = rightRollerMotor.statorCurrent.clone()
 
     override fun updateInputs(inputs: ManipulatorIO.ManipulatorInputs) {
         BaseStatusSignal.refreshAll(
-            pivotPosition, pivotVelocity, pivotAppliedVoltage, pivotStatorCurrent,
-            rollerVelocity, rollerAppliedVoltage, rollerStatorCurrent
+            leftRollerVelocity, leftRollerAppliedVoltage, leftRollerStatorCurrent,
+            rightRollerVelocity, rightRollerAppliedVoltage, rightRollerStatorCurrent
         )
 
         inputs.coralDistance.mut_replace(Constants.ManipulatorConstants.CANANDCOLOR_SCALING_FACTOR * canandcolor.getProximity())
 
-        inputs.pivotAngularPosition.mut_replace(pivotPosition.value)
-        inputs.pivotAngularVelocity.mut_replace(pivotVelocity.value)
-        inputs.pivotAppliedVoltage.mut_replace(pivotAppliedVoltage.value)
-        inputs.pivotStatorCurrent.mut_replace(pivotStatorCurrent.value)
-        inputs.pivotTargetAngularPosition.mut_replace(targetPosition)
+        inputs.leftRollerAngularVelocity.mut_replace(leftRollerVelocity.value)
+        inputs.leftRollerAppliedVoltage.mut_replace(leftRollerAppliedVoltage.value)
+        inputs.leftRollerStatorCurrent.mut_replace(leftRollerStatorCurrent.value)
 
-        inputs.rollerAngularVelocity.mut_replace(rollerVelocity.value)
-        inputs.rollerAppliedVoltage.mut_replace(rollerAppliedVoltage.value)
-        inputs.rollerStatorCurrent.mut_replace(rollerStatorCurrent.value)
-    }
-
-    override fun setPivotTargetAngle(angle: Angle) {
-        targetPosition = angle
-        pivotMotor.setControl(motionMagicRequest.withPosition(angle))
-    }
-
-    override fun setPivotVoltage(voltage: Voltage) {
-        pivotMotor.setControl(pivotVoltageRequest.withOutput(voltage))
+        inputs.rightRollerAngularVelocity.mut_replace(rightRollerVelocity.value)
+        inputs.rightRollerAppliedVoltage.mut_replace(rightRollerAppliedVoltage.value)
+        inputs.rightRollerStatorCurrent.mut_replace(rightRollerStatorCurrent.value)
     }
 
     override fun setRollerVoltage(voltage: Voltage) {
-        rollerMotor.setControl(rollerVoltageRequest.withOutput(voltage))
+        leftRollerMotor.setControl(leftRollerVoltageRequest.withOutput(voltage))
+        rightRollerMotor.setControl(rightRollerVoltageRequest.withOutput(voltage))
     }
 
-    override fun setPivotBrakeMode(brake: Boolean) {
-        pivotMotor.setNeutralMode(if (brake) NeutralModeValue.Brake else NeutralModeValue.Coast)
+    override fun setLeftRightRollerVoltages(leftVoltage: Voltage, rightVoltage: Voltage) {
+        leftRollerMotor.setControl(leftRollerVoltageRequest.withOutput(leftVoltage))
+        rightRollerMotor.setControl(rightRollerVoltageRequest.withOutput(rightVoltage))
     }
 
     override fun stopRoller() {
-        rollerMotor.setControl(rollerVoltageRequest.withOutput(Volts.of(0.0)))
+        leftRollerMotor.setControl(leftRollerVoltageRequest.withOutput(Volts.of(0.0)))
+        rightRollerMotor.setControl(rightRollerVoltageRequest.withOutput(Volts.of(0.0)))
     }
 } 

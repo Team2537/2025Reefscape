@@ -7,59 +7,47 @@ import org.littletonrobotics.junction.inputs.LoggableInputs
 
 interface ManipulatorIO {
     class ManipulatorInputs: LoggableInputs {
-        var isRollerMotorConnected: Boolean = false
-        var isPivotMotorConnected: Boolean = false
-        
-        val rollerAngularVelocity: MutAngularVelocity = RadiansPerSecond.zero().mutableCopy()
-        val rollerAngularPosition: MutAngle = Radians.zero().mutableCopy()
-        val rollerAppliedVoltage: MutVoltage = Volts.zero().mutableCopy()
-        val rollerStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
+        var isLeftRollerConnected: Boolean = false
+        var isRightRollerConnected: Boolean = false
 
-        val pivotAngularVelocity: MutAngularVelocity = RadiansPerSecond.zero().mutableCopy()
-        val pivotAngularPosition: MutAngle = Radians.zero().mutableCopy()
-        val pivotTargetAngularPosition: MutAngle = Radians.zero().mutableCopy()
-        val pivotAppliedVoltage: MutVoltage = Volts.zero().mutableCopy()
-        val pivotStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
+        val leftRollerAngularVelocity: MutAngularVelocity = RadiansPerSecond.zero().mutableCopy()
+        val leftRollerAppliedVoltage: MutVoltage = Volts.zero().mutableCopy()
+        val leftRollerStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
+
+        val rightRollerAngularVelocity: MutAngularVelocity = RadiansPerSecond.zero().mutableCopy()
+        val rightRollerAppliedVoltage: MutVoltage = Volts.zero().mutableCopy()
+        val rightRollerStatorCurrent: MutCurrent = Amps.zero().mutableCopy()
 
         var coralDistance: MutDistance = Meters.zero().mutableCopy()
         
         override fun toLog(table: LogTable) {
-            table.put("isRollerMotorConnected", isRollerMotorConnected)
-            table.put("isPivotMotorConnected", isPivotMotorConnected)
-            table.put("rollerAngularVelocity", rollerAngularVelocity)
-            table.put("rollerAngularPosition", rollerAngularPosition)
-            table.put("rollerAppliedVoltage", rollerAppliedVoltage)
-            table.put("rollerStatorCurrent", rollerStatorCurrent)
-            table.put("pivotAngularVelocity", pivotAngularVelocity)
-            table.put("pivotAngularPosition", pivotAngularPosition)
-            table.put("pivotTargetAngularPosition", pivotTargetAngularPosition)
-            table.put("pivotAppliedVoltage", pivotAppliedVoltage)
-            table.put("pivotStatorCurrent", pivotStatorCurrent)
+            table.put("isLeftRollerConnected", isLeftRollerConnected)
+            table.put("isRightRollerConnected", isRightRollerConnected)
+            table.put("leftRollerAngularVelocity", leftRollerAngularVelocity)
+            table.put("leftRollerAppliedVoltage", leftRollerAppliedVoltage)
+            table.put("leftRollerStatorCurrent", leftRollerStatorCurrent)
+            table.put("rightRollerAngularVelocity", rightRollerAngularVelocity)
+            table.put("rightRollerAppliedVoltage", rightRollerAppliedVoltage)
+            table.put("rightRollerStatorCurrent", rightRollerStatorCurrent)
             table.put("coralDistance", coralDistance)
         }
         
         override fun fromLog(table: LogTable) {
-            isRollerMotorConnected = table.get("isRollerMotorConnected", isRollerMotorConnected)
-            isPivotMotorConnected = table.get("isPivotMotorConnected", isPivotMotorConnected)
-            rollerAngularVelocity.mut_replace(table.get("rollerAngularVelocity", rollerAngularVelocity))
-            rollerAngularPosition.mut_replace(table.get("rollerAngularPosition", rollerAngularPosition))
-            rollerAppliedVoltage.mut_replace(table.get("rollerAppliedVoltage", rollerAppliedVoltage))
-            rollerStatorCurrent.mut_replace(table.get("rollerStatorCurrent", rollerStatorCurrent))
-            pivotAngularVelocity.mut_replace(table.get("pivotAngularVelocity", pivotAngularVelocity))
-            pivotAngularPosition.mut_replace(table.get("pivotAngularPosition", pivotAngularPosition))
-            pivotTargetAngularPosition.mut_replace(table.get("pivotTargetAngularPosition", pivotTargetAngularPosition))
-            pivotAppliedVoltage.mut_replace(table.get("pivotAppliedVoltage", pivotAppliedVoltage))
-            pivotStatorCurrent.mut_replace(table.get("pivotStatorCurrent", pivotStatorCurrent))
+            isLeftRollerConnected = table.get("isLeftRollerConnected", isLeftRollerConnected)
+            isRightRollerConnected = table.get("isRightRollerConnected", isRightRollerConnected)
+            leftRollerAngularVelocity.mut_replace(table.get("leftRollerAngularVelocity", leftRollerAngularVelocity))
+            leftRollerAppliedVoltage.mut_replace(table.get("leftRollerAppliedVoltage", leftRollerAppliedVoltage))
+            leftRollerStatorCurrent.mut_replace(table.get("leftRollerStatorCurrent", leftRollerStatorCurrent))
+            rightRollerAngularVelocity.mut_replace(table.get("rightRollerAngularVelocity", rightRollerAngularVelocity))
+            rightRollerAppliedVoltage.mut_replace(table.get("rightRollerAppliedVoltage", rightRollerAppliedVoltage))
+            rightRollerStatorCurrent.mut_replace(table.get("rightRollerStatorCurrent", rightRollerStatorCurrent))
             coralDistance.mut_replace(table.get("coralDistance", coralDistance))
         }
     }
     
     fun updateInputs(inputs: ManipulatorInputs) {}
     fun setRollerVoltage(voltage: Voltage) {}
-    fun setPivotVoltage(voltage: Voltage) {}
-    fun setPivotTargetAngle(angle: Angle) {}
+    fun setLeftRightRollerVoltages(leftVoltage: Voltage, rightVoltage: Voltage) {}
 
     fun stopRoller() {}
-
-    fun setPivotBrakeMode(brake: Boolean) {}
 }

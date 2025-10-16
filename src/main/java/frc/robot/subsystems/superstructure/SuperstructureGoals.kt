@@ -12,68 +12,63 @@ import java.util.Optional
 
 // TODO: these need to be tuned significantly
 object SuperstructureGoals {
-    val scoreAngle = Degrees.of(40.0)
-
     val STOW = SuperstructureState(
-        armAngle = Degrees.of(90.0),
-        elevatorHeight = Inches.of(0.0),
+        armAngle = Degrees.of(70.0),
         driveLimits = Drivebase.defaultLimits,
         name = "Stow"
     )
 
-    val ALGAE_STOW = SuperstructureState(
-        armAngle = Degrees.of(-20.0),
-        elevatorHeight = Inches.of(12.0),
-        driveLimits = Drivebase.defaultLimits,
-        name = "Algae Stow"
-    )
+    // val ALGAE_STOW = SuperstructureState(
+    //     armAngle = Degrees.of(-20.0),
+    //     driveLimits = Drivebase.defaultLimits,
+    //     name = "Algae Stow"
+    // )
 
-    val ALGAE_L2 = SuperstructureState(
-        armAngle = Degrees.of(-20.0),
-        elevatorHeight = Inches.of(20.0), // tune
-        driveLimits = Drivebase.extendedLimits,
-        name = "Algae L2"
-    )
+    // val ALGAE_L2 = SuperstructureState(
+    //     armAngle = Degrees.of(-20.0),
+    //     driveLimits = Drivebase.extendedLimits,
+    //     name = "Algae L2"
+    // )
 
-    val ALGAE_L3 = SuperstructureState(
-        armAngle = Degrees.of(-20.0),
-        elevatorHeight = Inches.of(36.0), // tune
-        driveLimits = Drivebase.extendedLimits,
-        name = "Algae L3"
-    )
+    // val ALGAE_L3 = SuperstructureState(
+    //     armAngle = Degrees.of(-20.0),
+    //     driveLimits = Drivebase.extendedLimits,
+    //     name = "Algae L3"
+    // )
 
-    val BARGE = SuperstructureState(
-        armAngle = Degrees.of(-20.0),
-        elevatorHeight = Inches.of(74.0), // tune
-        driveLimits = Drivebase.extendedLimits,
-        name = "Barge"
-    )
+    // val BARGE = SuperstructureState(
+    //     armAngle = Degrees.of(-20.0),
+    //     driveLimits = Drivebase.extendedLimits,
+    //     name = "Barge"
+    // )
     
     val L1 = SuperstructureState(
-        armAngle = scoreAngle,
-        elevatorHeight = Inches.of(16.0),
+        armAngle = Degrees.of(50.0), // needs tuning
         driveLimits = Drivebase.extendedLimits,
         name = "L1"
     )
-    
-    val L2 = SuperstructureState(
-        armAngle = scoreAngle,
-        elevatorHeight = Inch.of(24.0),
+
+    val GROUND = SuperstructureState(
+        armAngle = Degrees.of(0.0),
         driveLimits = Drivebase.extendedLimits,
-        name = "L2"
+        name = "Ground"
     )
     
-    val L3 = SuperstructureState(
-        armAngle = scoreAngle,
-        elevatorHeight = Inch.of(40.0),
-        driveLimits = Drivebase.extendedLimits,
-        name = "L3"
-    )
+    // val L2 = SuperstructureState(
+    //     armAngle = scoreAngle,
+    //     driveLimits = Drivebase.extendedLimits,
+    //     name = "L2"
+    // )
     
-    val L4 = SuperstructureState(
-        armAngle = Degrees.of(20.0),
-        elevatorHeight = Inches.of(70.0),
-        driveLimits = Drivebase.extendedLimits,
-        name = "L4"
-    )
+    // val L3 = SuperstructureState(
+    //     armAngle = scoreAngle,
+    //     driveLimits = Drivebase.extendedLimits,
+    //     name = "L3"
+    // )
+    
+    // val L4 = SuperstructureState(
+    //     armAngle = Degrees.of(20.0),
+    //     driveLimits = Drivebase.extendedLimits,
+    //     name = "L4"
+    // )
 }

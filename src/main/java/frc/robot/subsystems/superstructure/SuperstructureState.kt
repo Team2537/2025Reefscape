@@ -14,7 +14,6 @@ import java.util.*
 
 data class SuperstructureState(
     val armAngle: Angle,
-    val elevatorHeight: Distance,
     val driveLimits: PathConstraints = Drivebase.defaultLimits,
     val nextState: Optional<SuperstructureState> = Optional.empty(),
     val name: String = ""
@@ -30,22 +29,20 @@ data class SuperstructureState(
             }
 
             override fun getSize(): Int {
-                return Double.SIZE_BYTES * 2
+                return Double.SIZE_BYTES
             }
 
             override fun getSchema(): String {
-                return "double armAngle;double elevatorHeight;"
+                return "double armAngle;"
             }
 
             override fun pack(bb: ByteBuffer?, value: SuperstructureState?) {
                 bb!!.putDouble(value!!.armAngle into Radians)
-                bb.putDouble(value.elevatorHeight into Meters)
             }
 
             override fun unpack(bb: ByteBuffer?): SuperstructureState {
                 return SuperstructureState(
                     Radians.of(bb!!.getDouble()),
-                    Meters.of(bb.getDouble())
                 )
             }
         }

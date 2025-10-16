@@ -12,9 +12,33 @@ import lib.math.units.measuredIn
 object Constants {
 
     object ArmConstants {
-        const val MOTOR_ID = 22
-        const val IS_MOTOR_INVERTED = true
-        const val GEARING = 40.0
+        // Motor CAN IDs (placeholder values)
+        const val LEFT_MOTOR_ID = 22
+        const val RIGHT_MOTOR_ID = 23
+
+        // Inversions
+        const val LEFT_INVERTED = true
+        const val RIGHT_INVERTED = false
+
+        // Total reduction from motor to arm pivot. MAX Planetary is 25:1; adjust for chain if needed
+        const val GEAR_RATIO = 25.0
+        const val CHAIN_RATIO = 1.0
+
+        // Motion limits (mechanical hard limits) in degrees
+        // Tune these to your actual arm travel
+        val MIN_ANGLE = Degrees.of(0.0)
+        val MAX_ANGLE = Degrees.of(110.0)
+
+        // Control gains (initial guesses; tune)
+        const val KP = 10.0
+        const val KI = 0.0
+        const val KD = 0.0
+
+        // Arm feedforward (V = ks*sign + kg*cos(theta) + kv*vel + ka*acc)
+        const val KS = 0.0
+        const val KG = 0.0
+        const val KV = 0.0
+        const val KA = 0.0
     }
 
     object ClimbConstants {
@@ -105,14 +129,18 @@ object Constants {
         val ROLLER_IN_VOLTAGE: Voltage = Volts.of(3.0) // TODO: determine which sign is in and out, and set value
         val ROLLER_OUT_VOLTAGE: Voltage = Volts.of(-3.0)
 
-        val PIVOT_MOTOR_ID = 4 // TODO: set actual values here
+        // Dual roller configuration (no pivot)
+        val LEFT_ROLLER_MOTOR_ID = 6 // TODO: set actual values here
+        val RIGHT_ROLLER_MOTOR_ID = 7 // TODO: set actual values here
         val CANANDCOLOR_ID = 5
-        val ROLLER_MOTOR_ID = 6
-        val PIVOT_INVERTED = false
-        val ROLLER_INVERTED = true
-        val PIVOT_GEARING = 1.0
+        val LEFT_ROLLER_INVERTED = true
+        val RIGHT_ROLLER_INVERTED = false
         val ROLLER_GEARING = 1.0
 
+        // Legacy pivot constants retained for compatibility elsewhere (unused by manipulator implementation)
+        val PIVOT_MOTOR_ID = 4
+        val PIVOT_INVERTED = false
+        val PIVOT_GEARING = 1.0
         val REAL_PIVOT_KP = 10.0
         val REAL_PIVOT_KV = 0.0
         val REAL_PIVOT_KA = 0.0
