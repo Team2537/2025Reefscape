@@ -14,7 +14,7 @@ import java.util.function.Supplier
 
 class Arm : SubsystemBase() {
     val io: ArmIO = when (RobotType.mode) {
-        RobotType.Mode.REAL -> ArmIOReal()
+        RobotType.Mode.REAL -> ArmIOKraken()
         RobotType.Mode.SIMULATION -> ArmIOSim()
         RobotType.Mode.REPLAY -> object : ArmIO {}
     }

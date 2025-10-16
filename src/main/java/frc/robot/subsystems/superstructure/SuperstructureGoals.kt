@@ -24,17 +24,29 @@ object SuperstructureGoals {
     //     name = "Algae Stow"
     // )
 
-    // val ALGAE_L2 = SuperstructureState(
-    //     armAngle = Degrees.of(-20.0),
-    //     driveLimits = Drivebase.extendedLimits,
-    //     name = "Algae L2"
-    // )
+    val PRE_ALGAE_L2 = SuperstructureState(
+        armAngle = Degrees.of(35.0),
+        driveLimits = Drivebase.extendedLimits,
+        name = "Pre Algae L2"
+    )
 
-    // val ALGAE_L3 = SuperstructureState(
-    //     armAngle = Degrees.of(-20.0),
-    //     driveLimits = Drivebase.extendedLimits,
-    //     name = "Algae L3"
-    // )
+    val PRE_ALGAE_L3 = SuperstructureState(
+        armAngle = Degrees.of(130.0),
+        driveLimits = Drivebase.extendedLimits,
+        name = "Pre Algae L3"
+    )
+
+    val ALGAE_L2 = SuperstructureState(
+        armAngle = Degrees.of(55.0),
+        driveLimits = Drivebase.extendedLimits,
+        name = "Algae L2"
+    )
+
+    val ALGAE_L3 = SuperstructureState(
+        armAngle = Degrees.of(110.0),
+        driveLimits = Drivebase.extendedLimits,
+        name = "Algae L3"
+    )
 
     // val BARGE = SuperstructureState(
     //     armAngle = Degrees.of(-20.0),
@@ -43,7 +55,7 @@ object SuperstructureGoals {
     // )
     
     val L1 = SuperstructureState(
-        armAngle = Degrees.of(50.0), // needs tuning
+        armAngle = Degrees.of(35.0), // needs tuning
         driveLimits = Drivebase.extendedLimits,
         name = "L1"
     )

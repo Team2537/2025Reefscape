@@ -163,7 +163,7 @@ class Drivebase : SubsystemBase("drivebase") {
 
     val routineToApply = steerSysIdRoutine
 
-    var limits = defaultLimits
+    var limits = autoLimits
 
     val robotConfig: RobotConfig? = try {
         RobotConfig.fromGUISettings()
@@ -279,6 +279,7 @@ class Drivebase : SubsystemBase("drivebase") {
         rotation: DoubleSupplier,
         shouldFieldOrient: BooleanSupplier,
         shouldBoostSupplier: BooleanSupplier,
+        shouldSlowSupplier: BooleanSupplier,
         headingTarget: Supplier<Rotation2d?>,
         exponent: Int
     ): Command {
@@ -311,20 +312,50 @@ class Drivebase : SubsystemBase("drivebase") {
 
             if (shouldFieldOrient.asBoolean) {
                 speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                    forwardS * (maxAttainableLinearVelocity into MetersPerSecond),
-                    strafeS * (maxAttainableLinearVelocity into MetersPerSecond),
-                    rotationSpeed * (maxAttainableAngularVelocity into RadiansPerSecond),
+                    forwardS * (maxAttainableLinearVelocity into MetersPerSecond) * when {
+                        shouldSlowSupplier.asBoolean -> 0.5
+                        shouldBoostSupplier.asBoolean -> 1.0
+                        else -> 0.75
+                    },
+                    strafeS * (maxAttainableLinearVelocity into MetersPerSecond) * when {
+                        shouldSlowSupplier.asBoolean -> 0.5
+                        shouldBoostSupplier.asBoolean -> 1.0
+                        else -> 0.75
+                    },
+                    rotationSpeed * (maxAttainableAngularVelocity into RadiansPerSecond) * when {
+                        shouldSlowSupplier.asBoolean -> 0.5
+                        shouldBoostSupplier.asBoolean -> 1.0
+                        else -> 0.75
+                    },
                     pose.rotation + operatorPerspective
                 )
             } else {
                 speeds = ChassisSpeeds(
-                    forwardS * (maxAttainableLinearVelocity into MetersPerSecond),
-                    strafeS * (maxAttainableLinearVelocity into MetersPerSecond),
-                    rotationSpeed * (maxAttainableAngularVelocity into RadiansPerSecond)
+                    forwardS * (maxAttainableLinearVelocity into MetersPerSecond) * when {
+                        shouldSlowSupplier.asBoolean -> 0.5
+                        shouldBoostSupplier.asBoolean -> 1.0
+                        else -> 0.75
+                    },
+                    strafeS * (maxAttainableLinearVelocity into MetersPerSecond) * when {
+                        shouldSlowSupplier.asBoolean -> 0.5
+                        shouldBoostSupplier.asBoolean -> 1.0
+                        else -> 0.75
+                    },
+                    rotationSpeed * (maxAttainableAngularVelocity into RadiansPerSecond) * when {
+                        shouldSlowSupplier.asBoolean -> 0.5
+                        shouldBoostSupplier.asBoolean -> 1.0
+                        else -> 0.75
+                    }
                 )
             }
 
-            applyChassisSpeeds(speeds, if (!shouldBoostSupplier.asBoolean) slowmodeLimits else defaultLimits)
+            val selectedConstraints = when {
+                shouldSlowSupplier.asBoolean -> slowmodeLimits
+                shouldBoostSupplier.asBoolean -> defaultLimits
+                else -> limits
+            }
+
+            applyChassisSpeeds(speeds, selectedConstraints)
         }
     }
 

@@ -27,10 +27,10 @@ object Constants {
         // Motion limits (mechanical hard limits) in degrees
         // Tune these to your actual arm travel
         val MIN_ANGLE = Degrees.of(0.0)
-        val MAX_ANGLE = Degrees.of(110.0)
+        val MAX_ANGLE = Degrees.of(170.0)
 
         // Control gains (initial guesses; tune)
-        const val KP = 20.0
+        const val KP = 10.0
         const val KI = 0.0
         const val KD = 0.0
 
@@ -128,6 +128,9 @@ object Constants {
         val PIVOT_START_ANGLE: Angle = Degrees.of(90.0)
         val ROLLER_IN_VOLTAGE: Voltage = Volts.of(3.0) // TODO: determine which sign is in and out, and set value
         val ROLLER_OUT_VOLTAGE: Voltage = Volts.of(-3.0)
+        // Torque-current control (Amps equivalent for FOC)
+        val ROLLER_IN_TORQUE_CURRENT = Amps.of(20.0)
+        val ROLLER_OUT_TORQUE_CURRENT = Amps.of(-20.0)
 
         // Dual roller configuration (no pivot)
         val LEFT_ROLLER_MOTOR_ID = 6 // TODO: set actual values here

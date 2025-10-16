@@ -4,6 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
+import com.ctre.phoenix6.controls.TorqueCurrentFOC
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.GravityTypeValue
 import com.ctre.phoenix6.signals.InvertedValue
@@ -69,6 +70,8 @@ class ManipulatorIOKraken(
 
     private val leftRollerVoltageRequest = VoltageOut(0.0)
     private val rightRollerVoltageRequest = VoltageOut(0.0)
+    private val leftRollerTorqueRequest = TorqueCurrentFOC(0.0)
+    private val rightRollerTorqueRequest = TorqueCurrentFOC(0.0)
 
     private val leftRollerVelocity = leftRollerMotor.velocity.clone()
     private val leftRollerAppliedVoltage = leftRollerMotor.motorVoltage.clone()
@@ -103,6 +106,16 @@ class ManipulatorIOKraken(
     override fun setLeftRightRollerVoltages(leftVoltage: Voltage, rightVoltage: Voltage) {
         leftRollerMotor.setControl(leftRollerVoltageRequest.withOutput(leftVoltage))
         rightRollerMotor.setControl(rightRollerVoltageRequest.withOutput(rightVoltage))
+    }
+
+    override fun setRollerTorqueCurrent(current: edu.wpi.first.units.measure.Current) {
+        leftRollerMotor.setControl(leftRollerTorqueRequest.withOutput(current))
+        rightRollerMotor.setControl(rightRollerTorqueRequest.withOutput(current))
+    }
+
+    override fun setLeftRightRollerTorqueCurrents(leftCurrent: edu.wpi.first.units.measure.Current, rightCurrent: edu.wpi.first.units.measure.Current) {
+        leftRollerMotor.setControl(leftRollerTorqueRequest.withOutput(leftCurrent))
+        rightRollerMotor.setControl(rightRollerTorqueRequest.withOutput(rightCurrent))
     }
 
     override fun stopRoller() {

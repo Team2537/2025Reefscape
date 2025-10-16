@@ -84,6 +84,19 @@ class ManipulatorIOSim(
         }
     }
 
+    override fun setRollerTorqueCurrent(current: Current) {
+        // Approximate torque-current as proportional to motor torque -> acceleration; use as voltage proxy
+        // For sim simplicity, scale current directly to input voltage range [-12, 12]
+        val volts = (current into Amps) / 40.0 * 12.0
+        setRollerVoltage(Volts.of(volts))
+    }
+
+    override fun setLeftRightRollerTorqueCurrents(leftCurrent: Current, rightCurrent: Current) {
+        val leftVolts = (leftCurrent into Amps) / 40.0 * 12.0
+        val rightVolts = (rightCurrent into Amps) / 40.0 * 12.0
+        setLeftRightRollerVoltages(Volts.of(leftVolts), Volts.of(rightVolts))
+    }
+
     override fun stopRoller() {
         leftRollerSim.inputVoltage = 0.0
         rightRollerSim.inputVoltage = 0.0

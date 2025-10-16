@@ -132,18 +132,30 @@ object Robot : LoggedRobot() {
     }
 
     fun configureBindings() {
+        val forwardAxis: java.util.function.DoubleSupplier = java.util.function.DoubleSupplier { -(MathUtil.applyDeadband(driverController.leftY, 0.05)) }
+        val strafeAxis: java.util.function.DoubleSupplier = java.util.function.DoubleSupplier { -(MathUtil.applyDeadband(driverController.leftX, 0.05)) }
+        val rotationAxis: java.util.function.DoubleSupplier = java.util.function.DoubleSupplier { -(MathUtil.applyDeadband(driverController.rightX, 0.05)) }
+        val fieldOriented = java.util.function.BooleanSupplier { !driverController.leftStick().asBoolean }
+        val boost = java.util.function.BooleanSupplier { driverController.leftBumper().asBoolean }
+        val slow = java.util.function.BooleanSupplier { driverController.rightBumper().asBoolean }
+        val headingSupplier: java.util.function.Supplier<Rotation2d?> = java.util.function.Supplier {
+            if (driverController.povLeft().asBoolean) {
+                Rotation2d.fromDegrees(-55.0)
+            } else if (driverController.povRight().asBoolean) {
+                Rotation2d.fromDegrees(55.0)
+            } else {
+                null
+            }
+        }
+
         drivebase.defaultCommand = drivebase.getDriveCmd(
-            { -(MathUtil.applyDeadband(driverController.leftY, 0.05)) },
-            { -(MathUtil.applyDeadband(driverController.leftX, 0.05)) },
-            { -(MathUtil.applyDeadband(driverController.rightX, 0.05)) },
-            !driverController.leftBumper(),
-            driverController.leftTrigger(),
-            {
-                if (driverController.povLeft().asBoolean)
-                    Rotation2d.fromDegrees(-55.0)
-                else if (driverController.povRight().asBoolean) Rotation2d.fromDegrees(55.0)
-                else null
-            },
+            forwardAxis,
+            strafeAxis,
+            rotationAxis,
+            fieldOriented,
+            boost,
+            slow,
+            headingSupplier,
             3
         )
 
@@ -162,23 +174,38 @@ object Robot : LoggedRobot() {
         //     }
         // }
 
-        operatorController.getL1Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L1 })
+        // operatorController.getL1Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L1 })
         // operatorController.getL2Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L2 })
         // operatorController.getL3Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L3 })
         // operatorController.getL4Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L4 })
 
+        // dealgaefy l2
+        driverController.leftTrigger().onTrue(Commands.sequence(
+            superstructure.getForceStateCommand { SuperstructureGoals.ALGAE_L2 },
+            superstructure.getDealgaefyCommand(!driverController.leftTrigger())
+            )
+        )
+        // dealgaefy l3
+        driverController.rightTrigger().onTrue(Commands.sequence(
+            superstructure.getForceStateCommand { SuperstructureGoals.ALGAE_L3 },
+            superstructure.getDealgaefyCommand(!driverController.rightTrigger())
+            )
+        )
+        
+        // stow
         driverController.b().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
+        // score l1
         driverController.y().onTrue(
             Commands.sequence(
                 superstructure.getForceStateCommand { SuperstructureGoals.L1 },
-                superstructure.getScoreCommand(!driverController.y())
+                superstructure.getScoreCommand(driverController.y())
             )
         )
 
-        // alignment
+        // auto align
         driverController.x().onTrue(AlignmentCommand.tagRelativeAlign(drivebase, vision, 0.45, 0.0).withTimeout(3.0))
         // intake
-        driverController.a().onTrue(superstructure.getIntakeCommand())
+        driverController.a().onTrue(superstructure.getIntakeCommand(driverController.a()))
 
         // driverController.rightTrigger().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getDealgaefyCommand()))
         // driverController.rightTrigger().onTrue(

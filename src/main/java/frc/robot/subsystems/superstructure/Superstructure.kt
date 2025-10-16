@@ -122,43 +122,44 @@ class Superstructure {
         return Commands.sequence(
             getSendToStateCommand { lastRequest },
             Commands.waitUntil { getStateAchievedTrigger(lastRequest).asBoolean },
+            Commands.waitUntil { !shouldScore.getAsBoolean() },
             Commands.waitUntil { shouldScore.getAsBoolean() },
             manipulator.getSpinRollersOutCommand(),
             Commands.waitSeconds(1.0),
+            manipulator.getStopRollersCommand(),
+            // getSendToStateCommand { SuperstructureGoals.STOW },
+            // Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.STOW).asBoolean },
+        )
+    }
+
+    // new intake command
+    fun getIntakeCommand(shouldRetract: BooleanSupplier): Command {
+        return Commands.sequence(
+            getSendToStateCommand { SuperstructureGoals.GROUND },
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.GROUND).asBoolean },
+            Commands.waitUntil { !shouldRetract.getAsBoolean() },
+            manipulator.getSpinRollersInCommand(),
+            Commands.waitUntil { shouldRetract.getAsBoolean() },
             manipulator.getStopRollersCommand(),
             getSendToStateCommand { SuperstructureGoals.STOW },
             Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.STOW).asBoolean },
         )
     }
 
-    // new intake command
-    fun getIntakeCommand(): Command {
+    fun getDealgaefyCommand(readyToDealgaefy: BooleanSupplier): Command {
         return Commands.sequence(
-            getSendToStateCommand { SuperstructureGoals.GROUND },
-            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.GROUND).asBoolean },
-            manipulator.getSpinRollersInCommand(),
-            Commands.waitSeconds(3.0),
-            manipulator.getStopRollersCommand(),
+            getSendToStateCommand { SuperstructureGoals.PRE_ALGAE_L2 }.onlyIf{lastRequest == SuperstructureGoals.ALGAE_L2},
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.PRE_ALGAE_L2).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.ALGAE_L2},
+            getSendToStateCommand { SuperstructureGoals.PRE_ALGAE_L3 }.onlyIf{lastRequest == SuperstructureGoals.ALGAE_L3},
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.PRE_ALGAE_L3).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.ALGAE_L3},
+            Commands.waitUntil { !readyToDealgaefy.getAsBoolean() },
+            Commands.waitUntil { readyToDealgaefy.getAsBoolean() },
+            getSendToStateCommand { SuperstructureGoals.ALGAE_L2 }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L2},
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L2).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L2},
+            getSendToStateCommand { SuperstructureGoals.ALGAE_L3 }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L3},
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L3).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L3},
         )
     }
-
-    // fun getDealgaefyCommand(): Command {
-    //     // when run, grab algae and return to ALGAE_STOW with manipulator rollers in brake mode
-    //     return Commands.sequence(
-    //         getSendToStateCommand { SuperstructureGoals.ALGAE_L2 }.onlyIf{lastRequest == SuperstructureGoals.L2},
-    //         getSendToStateCommand { SuperstructureGoals.ALGAE_L3 }.onlyIf{lastRequest == SuperstructureGoals.L3},
-    //         Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L2).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.L2},
-    //         Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L3).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.L3},
-    //         // manipulator.getSpinRollersOutCommand().until(!manipulator.isDetectingGamePiece())), // could be in?
-    //         Commands.deadline( // placeholder for sim
-    //             Commands.waitSeconds(3.0),
-    //             manipulator.getSpinRollersOutCommand(),
-    //         ),
-    //         manipulator.getStopRollersCommand(),
-    //         getSendToStateCommand { SuperstructureGoals.ALGAE_STOW },
-    //         Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_STOW).asBoolean },
-    //     )
-    // }
 
     // todo, will need to release while moving up to throw algae
     // fun getReleaseAlgaeCommand(): Command {
