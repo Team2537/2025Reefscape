@@ -167,11 +167,18 @@ object Robot : LoggedRobot() {
         // operatorController.getL3Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L3 })
         // operatorController.getL4Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L4 })
 
-        operatorController.getStowButton().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
-        operatorController.getActionButton().onTrue(superstructure.getScoreCommand(operatorController.getActionButton()))
+        driverController.b().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
+        driverController.y().onTrue(
+            Commands.sequence(
+                superstructure.getForceStateCommand { SuperstructureGoals.L1 },
+                superstructure.getScoreCommand(!driverController.y())
+            )
+        )
 
+        // alignment
         driverController.x().onTrue(AlignmentCommand.tagRelativeAlign(drivebase, vision, 0.45, 0.0).withTimeout(3.0))
-
+        // intake
+        driverController.a().onTrue(superstructure.getIntakeCommand())
 
         // driverController.rightTrigger().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getDealgaefyCommand()))
         // driverController.rightTrigger().onTrue(
@@ -181,8 +188,7 @@ object Robot : LoggedRobot() {
         //     )
         // )
         
-        // intake
-        driverController.a().onTrue(superstructure.getIntakeCommand())
+
 
         // full intake command
         // driverController.b().onTrue(
@@ -221,31 +227,29 @@ object Robot : LoggedRobot() {
 
     override fun robotPeriodic() {
         // AdvantageScope setup
-        // Logger.recordOutput("RobotPose", Pose2d(3.0, 2.0, Rotation2d(0.0)))
-        // Logger.recordOutput("ZeroedComponentPoses", Pose3d(), Pose3d(), Pose3d())
+        // Logger.recordOutput("RobotPose", Pose2d(0.0, 0.0, Rotation2d(0.0)))
+        // Logger.recordOutput("ZeroedComponentPoses", Pose3d())
+
+        // Logger.recordOutput("FinalComponentPoses", Pose3d(
+        //     0.28, 0.0, 0.275,
+        //     Rotation3d(0.0, Math.sin(Timer.getTimestamp()), 0.0)
+        //     )
+        // )
 
         // val elevatorHeight: Double = superstructure.elevator.inputs.carriageHeight into Meters
         // val pivotAngle: Double = superstructure.manipulator.inputs.pivotAngularPosition into Radians
         // val intakeAngle: Double = intake.inputs.pivotLeftPosition into Radians
 
-        // Logger.recordOutput(
-        //     "FinalComponentPoses",
-        //     // intake
-        //     Pose3d(
-        //         0.33655, 0.0, 0.24765,
-        //         Rotation3d(0.0, intakeAngle - 1.5, 0.0)
-        //     ),
-        //     // wrist
-        //     Pose3d(
-        //         -0.325374, 0.0, 0.2437638+elevatorHeight,
-        //         Rotation3d(0.0, pivotAngle-0.7, 0.0)
-        //     ),
-        //     // no wrist
-        //     Pose3d(
-        //         -0.325374, 0.0, 0.2437638+elevatorHeight,
-        //         Rotation3d(0.0, 0.0, 0.0)
-        //     )
-        // )
+        val armAngle: Double = superstructure.arm.inputs.angle into Radians
+
+        Logger.recordOutput(
+            "FinalComponentPoses",
+            // arm
+            Pose3d(
+                0.28, 0.0, 0.275,
+                Rotation3d(0.0, armAngle - 1.0, 0.0)
+            ),
+        )
 
 
         CommandScheduler.getInstance().run()

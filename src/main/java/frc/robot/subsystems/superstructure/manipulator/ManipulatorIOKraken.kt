@@ -39,7 +39,7 @@ class ManipulatorIOKraken(
             config.MotorOutput.Inverted =
                 if (isInverted) InvertedValue.Clockwise_Positive else InvertedValue.CounterClockwise_Positive
 
-            config.MotorOutput.NeutralMode = if (isRoller) NeutralModeValue.Coast else NeutralModeValue.Brake
+            config.MotorOutput.NeutralMode = if (isRoller) NeutralModeValue.Brake else NeutralModeValue.Brake
 
             config.Feedback.SensorToMechanismRatio = gearing
 

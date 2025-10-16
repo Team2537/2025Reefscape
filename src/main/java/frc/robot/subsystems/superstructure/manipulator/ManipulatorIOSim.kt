@@ -44,6 +44,14 @@ class ManipulatorIOSim(
         leftRollerSim.update(0.02)
         rightRollerSim.update(0.02)
 
+        // Emulate Brake neutral mode: if commanded 0 V, clamp velocity to 0
+        if (kotlin.math.abs(leftRollerSim.inputVoltage) < 1e-6) {
+            leftRollerSim.setState(leftRollerSim.angularPositionRad, 0.0)
+        }
+        if (kotlin.math.abs(rightRollerSim.inputVoltage) < 1e-6) {
+            rightRollerSim.setState(rightRollerSim.angularPositionRad, 0.0)
+        }
+
         inputs.leftRollerAngularVelocity.mut_replace(leftRollerSim.angularVelocity)
         inputs.leftRollerAppliedVoltage.mut_replace(Volts.of(leftRollerSim.inputVoltage))
         inputs.leftRollerStatorCurrent.mut_replace(Amps.of(leftRollerSim.currentDrawAmps))
@@ -59,11 +67,21 @@ class ManipulatorIOSim(
     override fun setRollerVoltage(voltage: Voltage) {
         leftRollerSim.inputVoltage = voltage into Volts
         rightRollerSim.inputVoltage = voltage into Volts
+        if (kotlin.math.abs(voltage into Volts) < 1e-6) {
+            leftRollerSim.setState(leftRollerSim.angularPositionRad, 0.0)
+            rightRollerSim.setState(rightRollerSim.angularPositionRad, 0.0)
+        }
     }
 
     override fun setLeftRightRollerVoltages(leftVoltage: Voltage, rightVoltage: Voltage) {
         leftRollerSim.inputVoltage = leftVoltage into Volts
         rightRollerSim.inputVoltage = rightVoltage into Volts
+        if (kotlin.math.abs(leftVoltage into Volts) < 1e-6) {
+            leftRollerSim.setState(leftRollerSim.angularPositionRad, 0.0)
+        }
+        if (kotlin.math.abs(rightVoltage into Volts) < 1e-6) {
+            rightRollerSim.setState(rightRollerSim.angularPositionRad, 0.0)
+        }
     }
 
     override fun stopRoller() {

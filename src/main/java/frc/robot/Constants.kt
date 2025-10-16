@@ -30,7 +30,7 @@ object Constants {
         val MAX_ANGLE = Degrees.of(110.0)
 
         // Control gains (initial guesses; tune)
-        const val KP = 10.0
+        const val KP = 20.0
         const val KI = 0.0
         const val KD = 0.0
 
