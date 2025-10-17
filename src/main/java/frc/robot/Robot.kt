@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.commands.Autos
 import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.commands.swerve.WheelRadiusCharacterization
@@ -159,26 +160,6 @@ object Robot : LoggedRobot() {
             3
         )
 
-        // FieldConstants.Reef.ReefFace.entries.forEach { face ->
-        //     FieldConstants.Reef.Side.entries.forEach { side ->
-        //         operatorController.getReefButton(face, side).whileTrue(
-        //             AlignmentCommand.buttonBoardAlign(
-        //                 drivebase,
-        //                 face,
-        //                 superstructure.isL4,
-        //                 leftSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.LEFT),
-        //                 rightSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.RIGHT),
-        //                 centerSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.CENTER)
-        //             )
-        //         )
-        //     }
-        // }
-
-        // operatorController.getL1Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L1 })
-        // operatorController.getL2Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L2 })
-        // operatorController.getL3Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L3 })
-        // operatorController.getL4Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L4 })
-
         // dealgaefy l2
         driverController.leftTrigger().onTrue(Commands.sequence(
             superstructure.getForceStateCommand { SuperstructureGoals.ALGAE_L2 },
@@ -207,6 +188,10 @@ object Robot : LoggedRobot() {
         // intake
         driverController.a().onTrue(superstructure.getIntakeCommand(driverController.a()))
 
+        // sysid
+        driverController.povUp().onTrue(superstructure.arm.getDynamicSysID(SysIdRoutine.Direction.kForward))
+        driverController.povDown().onTrue(superstructure.arm.getDynamicSysID(SysIdRoutine.Direction.kReverse))
+
         // driverController.rightTrigger().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getDealgaefyCommand()))
         // driverController.rightTrigger().onTrue(
         //     Commands.sequence(
@@ -215,6 +200,25 @@ object Robot : LoggedRobot() {
         //     )
         // )
         
+        // FieldConstants.Reef.ReefFace.entries.forEach { face ->
+        //     FieldConstants.Reef.Side.entries.forEach { side ->
+        //         operatorController.getReefButton(face, side).whileTrue(
+        //             AlignmentCommand.buttonBoardAlign(
+        //                 drivebase,
+        //                 face,
+        //                 superstructure.isL4,
+        //                 leftSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.LEFT),
+        //                 rightSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.RIGHT),
+        //                 centerSupplier = operatorController.getReefButton(face, FieldConstants.Reef.Side.CENTER)
+        //             )
+        //         )
+        //     }
+        // }
+
+        // operatorController.getL1Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L1 })
+        // operatorController.getL2Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L2 })
+        // operatorController.getL3Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L3 })
+        // operatorController.getL4Button().onTrue(superstructure.getForceStateCommand { SuperstructureGoals.L4 })
 
 
         // full intake command
