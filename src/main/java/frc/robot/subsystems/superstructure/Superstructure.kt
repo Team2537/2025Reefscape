@@ -148,11 +148,11 @@ class Superstructure {
 
     fun getDealgaefyCommand(readyToDealgaefy: BooleanSupplier): Command {
         return Commands.sequence(
+            Commands.waitUntil { !readyToDealgaefy.getAsBoolean() },
             getSendToStateCommand { SuperstructureGoals.PRE_ALGAE_L2 }.onlyIf{lastRequest == SuperstructureGoals.ALGAE_L2},
             Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.PRE_ALGAE_L2).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.ALGAE_L2},
             getSendToStateCommand { SuperstructureGoals.PRE_ALGAE_L3 }.onlyIf{lastRequest == SuperstructureGoals.ALGAE_L3},
             Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.PRE_ALGAE_L3).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.ALGAE_L3},
-            Commands.waitUntil { !readyToDealgaefy.getAsBoolean() },
             Commands.waitUntil { readyToDealgaefy.getAsBoolean() },
             getSendToStateCommand { SuperstructureGoals.ALGAE_L2 }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L2},
             Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L2).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L2},

@@ -36,8 +36,8 @@ object Constants {
 
         // Arm feedforward (V = ks*sign + kg*cos(theta) + kv*vel + ka*acc)
         const val KS = 0.0
-        const val KG = 0.0
-        const val KV = 0.0
+        const val KG = 0.2
+        const val KV = 9.93
         const val KA = 0.0
     }
 

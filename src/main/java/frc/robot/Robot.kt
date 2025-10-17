@@ -163,30 +163,30 @@ object Robot : LoggedRobot() {
         // dealgaefy l2
         driverController.leftTrigger().onTrue(Commands.sequence(
             superstructure.getForceStateCommand { SuperstructureGoals.ALGAE_L2 },
-            superstructure.getDealgaefyCommand(!driverController.leftTrigger())
+            superstructure.getDealgaefyCommand(driverController.leftTrigger())
             )
         )
         // dealgaefy l3
         driverController.rightTrigger().onTrue(Commands.sequence(
             superstructure.getForceStateCommand { SuperstructureGoals.ALGAE_L3 },
-            superstructure.getDealgaefyCommand(!driverController.rightTrigger())
+            superstructure.getDealgaefyCommand(driverController.rightTrigger())
             )
         )
         
         // stow
-        driverController.b().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
+        driverController.a().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
         // score l1
-        driverController.y().onTrue(
+        driverController.x().onTrue(
             Commands.sequence(
                 superstructure.getForceStateCommand { SuperstructureGoals.L1 },
-                superstructure.getScoreCommand(driverController.y())
+                superstructure.getScoreCommand(driverController.x())
             )
         )
 
         // auto align
-        driverController.x().onTrue(AlignmentCommand.tagRelativeAlign(drivebase, vision, 0.45, 0.0).withTimeout(3.0))
+        driverController.y().onTrue(AlignmentCommand.tagRelativeAlign(drivebase, vision, 0.45, 0.0).withTimeout(3.0))
         // intake
-        driverController.a().onTrue(superstructure.getIntakeCommand(driverController.a()))
+        driverController.b().onTrue(superstructure.getIntakeCommand(driverController.b()))
 
         // sysid
         driverController.povUp().onTrue(superstructure.arm.getDynamicSysID(SysIdRoutine.Direction.kForward))

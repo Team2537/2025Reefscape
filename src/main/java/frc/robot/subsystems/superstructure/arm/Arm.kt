@@ -24,7 +24,7 @@ class Arm : SubsystemBase() {
     private val sysIdRoutine: SysIdRoutine = SysIdRoutine(
         SysIdRoutine.Config(
             null,
-            Volts.of(4.0),
+            Volts.of(1.0),
             null,
             { state -> Logger.recordOutput("arm/sysid", state.toString()) }
         ),
