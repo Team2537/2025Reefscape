@@ -2,12 +2,12 @@ package frc.robot.subsystems.superstructure.arm
 
 import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.signals.GravityTypeValue
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
-import edu.wpi.first.math.controller.ArmFeedforward
-import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.*
 import frc.robot.Constants.ArmConstants
@@ -24,12 +24,7 @@ class ArmIOKraken : ArmIO {
     private val rightStatorCurrent = right.statorCurrent.clone()
 
     private val voltageRequest = VoltageOut(0.0)
-
-    private val pid = PIDController(ArmConstants.KP, ArmConstants.KI, ArmConstants.KD)
-    private val ff = ArmFeedforward(ArmConstants.KS, ArmConstants.KG, ArmConstants.KV, ArmConstants.KA)
-
-    private var positionControlEnabled: Boolean = false
-    private var targetAngle: Angle = ArmConstants.MIN_ANGLE
+    private val motionMagicRequest = MotionMagicVoltage(0.0)
 
     init {
         val commonRatio = ArmConstants.GEAR_RATIO * ArmConstants.CHAIN_RATIO
@@ -40,6 +35,20 @@ class ArmIOKraken : ArmIO {
             Feedback.SensorToMechanismRatio = commonRatio
             CurrentLimits.StatorCurrentLimit = 60.0
             CurrentLimits.StatorCurrentLimitEnable = true
+
+            // Closed-loop gains and feedforward for Motion Magic (tune as needed)
+            Slot0.kP = ArmConstants.KP
+            Slot0.kI = ArmConstants.KI
+            Slot0.kD = ArmConstants.KD
+            Slot0.kS = ArmConstants.KS
+            Slot0.kG = ArmConstants.KG
+            Slot0.kV = ArmConstants.KV
+            Slot0.kA = ArmConstants.KA
+            Slot0.GravityType = GravityTypeValue.Arm_Cosine
+
+            // Motion Magic trapezoidal profile settings (conservative starting points)
+            MotionMagic.withMotionMagicCruiseVelocity(RotationsPerSecond.of(2.0))
+            MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(10.0))
         }
         left.configurator.apply(leftCfg)
 
@@ -49,6 +58,19 @@ class ArmIOKraken : ArmIO {
             Feedback.SensorToMechanismRatio = commonRatio
             CurrentLimits.StatorCurrentLimit = 60.0
             CurrentLimits.StatorCurrentLimitEnable = true
+
+            // Mirror left configs for consistency when running closed-loop on both motors
+            Slot0.kP = ArmConstants.KP
+            Slot0.kI = ArmConstants.KI
+            Slot0.kD = ArmConstants.KD
+            Slot0.kS = ArmConstants.KS
+            Slot0.kG = ArmConstants.KG
+            Slot0.kV = ArmConstants.KV
+            Slot0.kA = ArmConstants.KA
+            Slot0.GravityType = GravityTypeValue.Arm_Cosine
+
+            MotionMagic.withMotionMagicCruiseVelocity(RotationsPerSecond.of(2.0))
+            MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(10.0))
         }
         right.configurator.apply(rightCfg)
     }
@@ -66,27 +88,18 @@ class ArmIOKraken : ArmIO {
         inputs.leftStatorCurrent.mut_replace(leftStatorCurrent.value)
         inputs.rightStatorCurrent.mut_replace(rightStatorCurrent.value)
 
-        if (positionControlEnabled) {
-            val currentAngleRad = leftPosition.value into Radians
-            val pidOut = pid.calculate(currentAngleRad, targetAngle.baseUnitMagnitude())
-            val ffOut = ff.calculate(currentAngleRad, 0.0)
-            val voltsCmd = pidOut + ffOut
-            val volts = Volts.of(voltsCmd)
-            left.setControl(voltageRequest.withOutput(volts))
-            right.setControl(voltageRequest.withOutput(volts))
-        }
     }
 
     override fun setVoltage(voltage: Voltage) {
-        positionControlEnabled = false
         left.setControl(voltageRequest.withOutput(voltage))
         right.setControl(voltageRequest.withOutput(voltage))
     }
 
     override fun setTargetAngle(angle: Angle) {
-        positionControlEnabled = true
-        targetAngle = angle
-        pid.reset()
+        // Convert commanded angle to mechanism rotations and send Motion Magic position setpoints
+        val targetAngleRotations: Angle = Rotations.of(angle into Rotations)
+        left.setControl(motionMagicRequest.withPosition(targetAngleRotations))
+        right.setControl(motionMagicRequest.withPosition(targetAngleRotations))
     }
 
     override fun setBrakeMode(brake: Boolean) {
