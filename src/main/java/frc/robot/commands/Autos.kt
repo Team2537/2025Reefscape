@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.robot.commands.swerve.AlignmentCommand
 import frc.robot.subsystems.superstructure.Superstructure
+import frc.robot.subsystems.superstructure.SuperstructureGoals
 import frc.robot.subsystems.swerve.Drivebase
 import lib.autos.AutoRoutine
 import lib.math.geometry.FieldConstants
@@ -43,7 +44,7 @@ class Autos(
     }
 
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
-        addDefaultOption("IDLE", { Commands.idle() })
+        addDefaultOption("IDLE", { Commands.sequence(superstructure.getSendToStateCommand { SuperstructureGoals.STOW }, Commands.idle() )})
         addOption("IJ", { IJ_Routine.build() })
         addOption("I4", { I4_Routine.build() })
         addOption("DRIVE_FORWARDS", {driveForwards()})

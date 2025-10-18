@@ -32,7 +32,7 @@ object Constants {
         val STARTING_ANGLE = Degrees.of(90.0)
 
         // Control gains (initial guesses; tune)
-        const val KP = 10.0
+        const val KP = 50.0
         const val KI = 0.0
         const val KD = 0.0
 
@@ -129,17 +129,17 @@ object Constants {
         val PIVOT_DOWN_MAX_ANGLE: Angle = Degrees.of(130.0)
         val PIVOT_START_ANGLE: Angle = Degrees.of(90.0)
         val ROLLER_IN_VOLTAGE: Voltage = Volts.of(3.0) // TODO: determine which sign is in and out, and set value
-        val ROLLER_OUT_VOLTAGE: Voltage = Volts.of(-3.0)
+        val ROLLER_OUT_VOLTAGE: Voltage = Volts.of(-12.0)
         // Torque-current control (Amps equivalent for FOC)
-        val ROLLER_IN_TORQUE_CURRENT = Amps.of(20.0)
-        val ROLLER_OUT_TORQUE_CURRENT = Amps.of(-20.0)
+        val ROLLER_IN_TORQUE_CURRENT = Amps.of(10.0)
+        val ROLLER_OUT_TORQUE_CURRENT = Amps.of(-30.0)
 
         // Dual roller configuration (no pivot)
-        val LEFT_ROLLER_MOTOR_ID = 6 // TODO: set actual values here
-        val RIGHT_ROLLER_MOTOR_ID = 7 // TODO: set actual values here
+        val LEFT_ROLLER_MOTOR_ID = 50 // TODO: set actual values here
+        val RIGHT_ROLLER_MOTOR_ID = 51 // TODO: set actual values here
         val CANANDCOLOR_ID = 5
         val LEFT_ROLLER_INVERTED = true
-        val RIGHT_ROLLER_INVERTED = false
+        val RIGHT_ROLLER_INVERTED = true
         val ROLLER_GEARING = 1.0
 
         // Legacy pivot constants retained for compatibility elsewhere (unused by manipulator implementation)

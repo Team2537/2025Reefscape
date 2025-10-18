@@ -47,8 +47,8 @@ class ArmIOKraken : ArmIO {
             Slot0.GravityType = GravityTypeValue.Arm_Cosine
 
             // Motion Magic trapezoidal profile settings (conservative starting points)
-            MotionMagic.withMotionMagicCruiseVelocity(RotationsPerSecond.of(2.0))
-            MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(10.0))
+            MotionMagic.withMotionMagicCruiseVelocity(RotationsPerSecond.of(0.5))
+            MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(1.0))
         }
         left.configurator.apply(leftCfg)
 
@@ -69,8 +69,8 @@ class ArmIOKraken : ArmIO {
             Slot0.kA = ArmConstants.KA
             Slot0.GravityType = GravityTypeValue.Arm_Cosine
 
-            MotionMagic.withMotionMagicCruiseVelocity(RotationsPerSecond.of(2.0))
-            MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(10.0))
+            MotionMagic.withMotionMagicCruiseVelocity(RotationsPerSecond.of(0.5))
+            MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(1.0))
         }
         right.configurator.apply(rightCfg)
         

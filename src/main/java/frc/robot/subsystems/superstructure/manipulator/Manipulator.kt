@@ -60,7 +60,7 @@ class Manipulator : SubsystemBase() {
 
     fun getSpinRollersOutCommand(): Command {
         return runOnce {
-            io.setRollerTorqueCurrent(Constants.ManipulatorConstants.ROLLER_OUT_TORQUE_CURRENT)
+            io.setRollerVoltage(Constants.ManipulatorConstants.ROLLER_OUT_VOLTAGE)
         }
     }
 

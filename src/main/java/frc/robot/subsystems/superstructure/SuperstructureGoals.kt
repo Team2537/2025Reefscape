@@ -25,7 +25,7 @@ object SuperstructureGoals {
     // )
 
     val PRE_ALGAE_L2 = SuperstructureState(
-        armAngle = Degrees.of(63.0),
+        armAngle = Degrees.of(34.0),
         driveLimits = Drivebase.extendedLimits,
         name = "Pre Algae L2"
     )
@@ -61,7 +61,7 @@ object SuperstructureGoals {
     )
 
     val GROUND = SuperstructureState(
-        armAngle = Degrees.of(1.0),
+        armAngle = Degrees.of(5.0),
         driveLimits = Drivebase.extendedLimits,
         name = "Ground"
     )

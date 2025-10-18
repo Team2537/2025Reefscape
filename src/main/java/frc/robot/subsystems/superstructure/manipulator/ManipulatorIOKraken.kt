@@ -34,7 +34,7 @@ class ManipulatorIOKraken(
         gearing: Double,
         isRoller: Boolean = true
     ): TalonFX {
-        return TalonFX(motorId, "canivore").apply {
+        return TalonFX(motorId).apply {
             val config = TalonFXConfiguration()
 
             config.MotorOutput.Inverted =
@@ -51,7 +51,7 @@ class ManipulatorIOKraken(
         }
     }
 
-    private val canandcolor = Canandcolor(canandcolorID)
+    // private val canandcolor = Canandcolor(canandcolorID)
 
     // Two Kraken X44 for rollers
     private val leftRollerMotor = configureMotor(
@@ -87,7 +87,7 @@ class ManipulatorIOKraken(
             rightRollerVelocity, rightRollerAppliedVoltage, rightRollerStatorCurrent
         )
 
-        inputs.coralDistance.mut_replace(Constants.ManipulatorConstants.CANANDCOLOR_SCALING_FACTOR * canandcolor.getProximity())
+        // inputs.coralDistance.mut_replace(Constants.ManipulatorConstants.CANANDCOLOR_SCALING_FACTOR * canandcolor.getProximity())
 
         inputs.leftRollerAngularVelocity.mut_replace(leftRollerVelocity.value)
         inputs.leftRollerAppliedVoltage.mut_replace(leftRollerAppliedVoltage.value)
