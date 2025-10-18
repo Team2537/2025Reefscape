@@ -20,14 +20,16 @@ object Constants {
         const val LEFT_INVERTED = true
         const val RIGHT_INVERTED = false
 
-        // Total reduction from motor to arm pivot. MAX Planetary is 25:1; adjust for chain if needed
-        const val GEAR_RATIO = 25.0
-        const val CHAIN_RATIO = 1.0
+        const val GEAR_RATIO = 20.0
+        const val CHAIN_RATIO = 4.0
 
         // Motion limits (mechanical hard limits) in degrees
         // Tune these to your actual arm travel
         val MIN_ANGLE = Degrees.of(0.0)
         val MAX_ANGLE = Degrees.of(170.0)
+        
+        // Starting angle to set encoders to on startup
+        val STARTING_ANGLE = Degrees.of(90.0)
 
         // Control gains (initial guesses; tune)
         const val KP = 10.0

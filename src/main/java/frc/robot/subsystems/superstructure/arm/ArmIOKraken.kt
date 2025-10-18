@@ -73,6 +73,11 @@ class ArmIOKraken : ArmIO {
             MotionMagic.withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(10.0))
         }
         right.configurator.apply(rightCfg)
+        
+        // Set encoder positions to starting angle
+        val startingAngleRotations = (ArmConstants.STARTING_ANGLE into Rotations)
+        left.setPosition(startingAngleRotations)
+        right.setPosition(startingAngleRotations)
     }
 
     override fun updateInputs(inputs: ArmIO.ArmInputs) {

@@ -13,7 +13,7 @@ import java.util.Optional
 // TODO: these need to be tuned significantly
 object SuperstructureGoals {
     val STOW = SuperstructureState(
-        armAngle = Degrees.of(70.0),
+        armAngle = Degrees.of(63.0),
         driveLimits = Drivebase.defaultLimits,
         name = "Stow"
     )
@@ -25,25 +25,25 @@ object SuperstructureGoals {
     // )
 
     val PRE_ALGAE_L2 = SuperstructureState(
-        armAngle = Degrees.of(35.0),
+        armAngle = Degrees.of(63.0),
         driveLimits = Drivebase.extendedLimits,
         name = "Pre Algae L2"
     )
 
     val PRE_ALGAE_L3 = SuperstructureState(
-        armAngle = Degrees.of(130.0),
+        armAngle = Degrees.of(125.0),
         driveLimits = Drivebase.extendedLimits,
         name = "Pre Algae L3"
     )
 
     val ALGAE_L2 = SuperstructureState(
-        armAngle = Degrees.of(55.0),
+        armAngle = Degrees.of(34.0),
         driveLimits = Drivebase.extendedLimits,
         name = "Algae L2"
     )
 
     val ALGAE_L3 = SuperstructureState(
-        armAngle = Degrees.of(110.0),
+        armAngle = Degrees.of(125.0),
         driveLimits = Drivebase.extendedLimits,
         name = "Algae L3"
     )
@@ -55,13 +55,13 @@ object SuperstructureGoals {
     // )
     
     val L1 = SuperstructureState(
-        armAngle = Degrees.of(35.0), // needs tuning
+        armAngle = Degrees.of(34.0), // needs tuning
         driveLimits = Drivebase.extendedLimits,
         name = "L1"
     )
 
     val GROUND = SuperstructureState(
-        armAngle = Degrees.of(0.0),
+        armAngle = Degrees.of(1.0),
         driveLimits = Drivebase.extendedLimits,
         name = "Ground"
     )

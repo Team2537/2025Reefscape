@@ -111,7 +111,7 @@ class Superstructure {
             Logger.recordOutput("target", target.name)
             val armAtSetpoint = arm.inputs.angle.epsilonEquals(
                 target.armAngle,
-                5.0.degrees
+                2.0.degrees
             )
             return@Trigger armAtSetpoint
         }
@@ -153,11 +153,13 @@ class Superstructure {
             Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.PRE_ALGAE_L2).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.ALGAE_L2},
             getSendToStateCommand { SuperstructureGoals.PRE_ALGAE_L3 }.onlyIf{lastRequest == SuperstructureGoals.ALGAE_L3},
             Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.PRE_ALGAE_L3).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.ALGAE_L3},
+            manipulator.getSpinRollersOutCommand(),
             Commands.waitUntil { readyToDealgaefy.getAsBoolean() },
-            getSendToStateCommand { SuperstructureGoals.ALGAE_L2 }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L2},
-            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L2).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L2},
-            getSendToStateCommand { SuperstructureGoals.ALGAE_L3 }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L3},
-            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L3).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L3},
+            manipulator.getStopRollersCommand(),
+            // getSendToStateCommand { SuperstructureGoals.ALGAE_L2 }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L2},
+            // Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L2).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L2},
+            // getSendToStateCommand { SuperstructureGoals.ALGAE_L3 }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L3},
+            // Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_L3).asBoolean }.onlyIf{lastRequest == SuperstructureGoals.PRE_ALGAE_L3},
         )
     }
 

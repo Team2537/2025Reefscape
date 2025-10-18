@@ -6,7 +6,7 @@ import com.ctre.phoenix6.hardware.Pigeon2
 import edu.wpi.first.math.geometry.Rotation2d
 
 class GyroIOPigeon2(val id: Int): GyroIO {
-    private val pigeon: Pigeon2 = Pigeon2(id, "canivore").apply {
+    private val pigeon: Pigeon2 = Pigeon2(id).apply {
         val config = Pigeon2Configuration()
     }
 

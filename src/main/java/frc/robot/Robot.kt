@@ -59,12 +59,12 @@ object Robot : LoggedRobot() {
     val godController: CommandXboxController = CommandXboxController(5)
 
     val drivebase: Drivebase
-    val vision: Vision
+    // val vision: Vision
     val superstructure: Superstructure
     // val intake: Intake
     // val transfer: Transfer
 
-    val autos: Autos
+    // val autos: Autos
 
 
     init {
@@ -116,13 +116,13 @@ object Robot : LoggedRobot() {
         CommandScheduler.getInstance()
             .onCommandFinish { command -> Logger.recordOutput("commands/${command.name}", false) }
 
-        CameraServer.startAutomaticCapture()
+        // CameraServer.startAutomaticCapture()
 
         drivebase = Drivebase()
-        vision = Vision(drivebase::addVisionMeasurement)
+        // vision = Vision(drivebase::addVisionMeasurement)
         superstructure = Superstructure()
 
-        autos = Autos(drivebase, superstructure)
+        // autos = Autos(drivebase, superstructure)
 
 
         configureBindings()
@@ -160,37 +160,37 @@ object Robot : LoggedRobot() {
             3
         )
 
-        // dealgaefy l2
-        driverController.leftTrigger().onTrue(Commands.sequence(
-            superstructure.getForceStateCommand { SuperstructureGoals.ALGAE_L2 },
-            superstructure.getDealgaefyCommand(driverController.leftTrigger())
-            )
-        )
-        // dealgaefy l3
-        driverController.rightTrigger().onTrue(Commands.sequence(
-            superstructure.getForceStateCommand { SuperstructureGoals.ALGAE_L3 },
-            superstructure.getDealgaefyCommand(driverController.rightTrigger())
-            )
-        )
+        // // dealgaefy l2
+        // driverController.leftTrigger().onTrue(Commands.sequence(
+        //     superstructure.getForceStateCommand { SuperstructureGoals.ALGAE_L2 },
+        //     superstructure.getDealgaefyCommand(driverController.leftTrigger())
+        //     )
+        // )
+        // // dealgaefy l3
+        // driverController.rightTrigger().onTrue(Commands.sequence(
+        //     superstructure.getForceStateCommand { SuperstructureGoals.ALGAE_L3 },
+        //     superstructure.getDealgaefyCommand(driverController.rightTrigger())
+        //     )
+        // )
         
         // stow
-        driverController.a().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
+        // driverController.a().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
         // score l1
-        driverController.x().onTrue(
-            Commands.sequence(
-                superstructure.getForceStateCommand { SuperstructureGoals.L1 },
-                superstructure.getScoreCommand(driverController.x())
-            )
-        )
+        // driverController.x().onTrue(
+        //     Commands.sequence(
+        //         superstructure.getForceStateCommand { SuperstructureGoals.L1 },
+        //         superstructure.getScoreCommand(driverController.x())
+        //     )
+        // )
 
         // auto align
-        driverController.y().onTrue(AlignmentCommand.tagRelativeAlign(drivebase, vision, 0.45, 0.0).withTimeout(3.0))
+        // driverController.y().onTrue(AlignmentCommand.tagRelativeAlign(drivebase, vision, 0.45, 0.0).withTimeout(3.0))
         // intake
-        driverController.b().onTrue(superstructure.getIntakeCommand(driverController.b()))
+        // driverController.b().onTrue(superstructure.getIntakeCommand(driverController.b()))
 
         // sysid
-        driverController.povUp().onTrue(superstructure.arm.getDynamicSysID(SysIdRoutine.Direction.kForward))
-        driverController.povDown().onTrue(superstructure.arm.getDynamicSysID(SysIdRoutine.Direction.kReverse))
+        // driverController.povUp().onTrue(superstructure.arm.getDynamicSysID(SysIdRoutine.Direction.kForward))
+        // driverController.povDown().onTrue(superstructure.arm.getDynamicSysID(SysIdRoutine.Direction.kReverse))
 
         // driverController.rightTrigger().onTrue(Commands.sequence(superstructure.getForceStateCommand { SuperstructureGoals.L3 }, superstructure.getDealgaefyCommand()))
         // driverController.rightTrigger().onTrue(
@@ -271,20 +271,20 @@ object Robot : LoggedRobot() {
         // val pivotAngle: Double = superstructure.manipulator.inputs.pivotAngularPosition into Radians
         // val intakeAngle: Double = intake.inputs.pivotLeftPosition into Radians
 
-        val armAngle: Double = superstructure.arm.inputs.angle into Radians
+        // val armAngle: Double = superstructure.arm.inputs.angle into Radians
 
-        Logger.recordOutput(
-            "FinalComponentPoses",
-            // arm
-            Pose3d(
-                0.28, 0.0, 0.275,
-                Rotation3d(0.0, armAngle - 1.0, 0.0)
-            ),
-        )
+        // Logger.recordOutput(
+        //     "FinalComponentPoses",
+        //     // arm
+        //     Pose3d(
+        //         0.28, 0.0, 0.275,
+        //         Rotation3d(0.0, armAngle - 1.0, 0.0)
+        //     ),
+        // )
 
 
         CommandScheduler.getInstance().run()
-        superstructure.periodic()
+        // superstructure.periodic()
     }
 
     override fun disabledInit() {}
@@ -292,14 +292,14 @@ object Robot : LoggedRobot() {
     override fun disabledPeriodic() {}
 
     override fun autonomousInit() {
-        autos.selectedRoutine.schedule()
+        // autos.selectedRoutine.schedule()
     }
 
     override fun autonomousPeriodic() {}
 
     override fun teleopInit() {
         CommandScheduler.getInstance().cancelAll()
-        superstructure.getSendToStateCommand({ SuperstructureGoals.STOW }).schedule()
+        // superstructure.getSendToStateCommand({ SuperstructureGoals.STOW }).schedule()
     }
 
     override fun teleopPeriodic() {}

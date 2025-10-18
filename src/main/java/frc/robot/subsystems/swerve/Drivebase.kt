@@ -62,10 +62,10 @@ class Drivebase : SubsystemBase("drivebase") {
      * 3: Back Right
      */
     val modules: Array<SwerveModule> = arrayOf(
-        SwerveModule(1, 2, 2, false, true, Rotation2d.fromRotations(0.3779296875), moduleTranslations[0]),
-        SwerveModule(3, 4, 4, true, true, Rotation2d.fromRotations(-0.376220703125), moduleTranslations[1]),
-        SwerveModule(5, 6, 6, false, true, Rotation2d.fromRotations(0.383544921875), moduleTranslations[2]),
-        SwerveModule(7, 8, 8, true, true, Rotation2d.fromRotations(-0.230712890625), moduleTranslations[3])
+        SwerveModule(1, 2, 2, false, true, Rotation2d.fromRotations(0.261), moduleTranslations[0]),
+        SwerveModule(3, 4, 4, false, true, Rotation2d.fromRotations(-0.4367), moduleTranslations[1]),
+        SwerveModule(5, 6, 6, false, true, Rotation2d.fromRotations(0.1186), moduleTranslations[2]),
+        SwerveModule(7, 8, 8, false, true, Rotation2d.fromRotations(0.362), moduleTranslations[3])
     )
 
     val gyro: GyroIO = when (RobotType.mode) {
