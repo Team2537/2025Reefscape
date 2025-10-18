@@ -172,6 +172,9 @@ object Robot : LoggedRobot() {
         //     superstructure.getDealgaefyCommand(driverController.rightTrigger())
         //     )
         // )
+
+        // score processor
+        driverController.povRight().onTrue(superstructure.getProcessorCommand(driverController.povRight()))
         
         // stow
         driverController.a().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
@@ -189,7 +192,7 @@ object Robot : LoggedRobot() {
         driverController.b().onTrue(superstructure.getIntakeCommand(driverController.b()))
 
         // reset gyro
-        driverController.leftStick().onTrue(drivebase.resetHeading())
+        driverController.rightStick().onTrue(drivebase.resetHeading())
 
         // sysid
         // driverController.povUp().onTrue(superstructure.arm.getDynamicSysID(SysIdRoutine.Direction.kForward))

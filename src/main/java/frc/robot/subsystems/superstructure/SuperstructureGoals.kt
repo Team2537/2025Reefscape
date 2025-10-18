@@ -65,6 +65,12 @@ object SuperstructureGoals {
         driveLimits = Drivebase.extendedLimits,
         name = "Ground"
     )
+
+    val PROCESSOR = SuperstructureState(
+        armAngle = Degrees.of(20.0),
+        driveLimits = Drivebase.extendedLimits,
+        name = "Processor"
+    )
     
     // val L2 = SuperstructureState(
     //     armAngle = scoreAngle,

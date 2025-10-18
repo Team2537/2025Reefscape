@@ -132,6 +132,20 @@ class Superstructure {
         )
     }
 
+    fun getProcessorCommand(shouldScore: BooleanSupplier): Command {
+        return Commands.sequence(
+            getSendToStateCommand { SuperstructureGoals.PROCESSOR },
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.PROCESSOR).asBoolean },
+            Commands.waitUntil { !shouldScore.getAsBoolean() },
+            Commands.waitUntil { shouldScore.getAsBoolean() },
+            manipulator.getSpinRollersOutCommand(),
+            Commands.waitUntil { !shouldScore.getAsBoolean() },
+            Commands.waitSeconds(0.5),
+            Commands.waitUntil { shouldScore.getAsBoolean() },
+            manipulator.getStopRollersCommand(),
+        )
+    }
+
     // new intake command
     fun getIntakeCommand(shouldRetract: BooleanSupplier): Command {
         return Commands.sequence(
