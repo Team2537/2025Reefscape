@@ -135,18 +135,18 @@ object Robot : LoggedRobot() {
     fun configureBindings() {
         val forwardAxis: java.util.function.DoubleSupplier = java.util.function.DoubleSupplier { -(MathUtil.applyDeadband(driverController.leftY, 0.05)) }
         val strafeAxis: java.util.function.DoubleSupplier = java.util.function.DoubleSupplier { -(MathUtil.applyDeadband(driverController.leftX, 0.05)) }
-        val rotationAxis: java.util.function.DoubleSupplier = java.util.function.DoubleSupplier { -(MathUtil.applyDeadband(driverController.rightX, 0.05)) }
+        val rotationAxis: java.util.function.DoubleSupplier = java.util.function.DoubleSupplier { (MathUtil.applyDeadband(driverController.rightX, 0.05)) }
         val fieldOriented = java.util.function.BooleanSupplier { !driverController.leftStick().asBoolean }
         val boost = java.util.function.BooleanSupplier { driverController.leftBumper().asBoolean }
         val slow = java.util.function.BooleanSupplier { driverController.rightBumper().asBoolean }
         val headingSupplier: java.util.function.Supplier<Rotation2d?> = java.util.function.Supplier {
-            if (driverController.povLeft().asBoolean) {
-                Rotation2d.fromDegrees(-55.0)
-            } else if (driverController.povRight().asBoolean) {
-                Rotation2d.fromDegrees(55.0)
-            } else {
+            // if (driverController.povLeft().asBoolean) {
+            //     Rotation2d.fromDegrees(-55.0)
+            // } else if (driverController.povRight().asBoolean) {
+            //     Rotation2d.fromDegrees(55.0)
+            // } else {
                 null
-            }
+            // }
         }
 
         drivebase.defaultCommand = drivebase.getDriveCmd(
@@ -175,6 +175,9 @@ object Robot : LoggedRobot() {
 
         // score processor
         driverController.povRight().onTrue(superstructure.getProcessorCommand(driverController.povRight()))
+
+        // intake algae
+        driverController.povLeft().onTrue(superstructure.getIntakeAlgaeCommand(driverController.povLeft()))
         
         // stow
         driverController.a().onTrue(superstructure.getSendToStateCommand { SuperstructureGoals.STOW })
@@ -192,7 +195,7 @@ object Robot : LoggedRobot() {
         driverController.b().onTrue(superstructure.getIntakeCommand(driverController.b()))
 
         // reset gyro
-        driverController.rightStick().onTrue(drivebase.resetHeading())
+        driverController.povDown().onTrue(drivebase.resetHeading())
 
         // sysid
         // driverController.povUp().onTrue(superstructure.arm.getDynamicSysID(SysIdRoutine.Direction.kForward))

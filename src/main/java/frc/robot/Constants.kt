@@ -129,7 +129,7 @@ object Constants {
         val PIVOT_DOWN_MAX_ANGLE: Angle = Degrees.of(130.0)
         val PIVOT_START_ANGLE: Angle = Degrees.of(90.0)
         val ROLLER_IN_VOLTAGE: Voltage = Volts.of(3.0) // TODO: determine which sign is in and out, and set value
-        val ROLLER_OUT_VOLTAGE: Voltage = Volts.of(-12.0)
+        val ROLLER_OUT_VOLTAGE: Voltage = Volts.of(-4.0)
         // Torque-current control (Amps equivalent for FOC)
         val ROLLER_IN_TORQUE_CURRENT = Amps.of(10.0)
         val ROLLER_OUT_TORQUE_CURRENT = Amps.of(-30.0)

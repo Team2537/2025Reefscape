@@ -410,10 +410,11 @@ class Drivebase : SubsystemBase("drivebase") {
         Logger.recordOutput("$name/slowModeEnabled", slowModeEnabled)
         Logger.recordOutput("$name/alignmentState", alignmentState)
 
-        if (!hasAppliedOperatorPerspective || Robot.isDisabled) {
-            operatorPerspective = if (AutoBuilder.shouldFlip()) redPerspective else bluePerspective
-            hasAppliedOperatorPerspective = true
-        }
+        // disabled because headings were reversed
+        // if (!hasAppliedOperatorPerspective || Robot.isDisabled) {
+        //     operatorPerspective = if (AutoBuilder.shouldFlip()) redPerspective else bluePerspective
+        //     hasAppliedOperatorPerspective = true
+        // }
     }
 
     companion object Constants {
@@ -463,14 +464,14 @@ class Drivebase : SubsystemBase("drivebase") {
             maxAttainableLinearVelocity,
             MetersPerSecondPerSecond.of(14.5),
             maxAttainableAngularVelocity,
-            DegreesPerSecondPerSecond.of(2500.0)
+            DegreesPerSecondPerSecond.of(1500.0)
         )
 
         val extendedLimits = PathConstraints(
             FeetPerSecond.of(3.0),
             MetersPerSecondPerSecond.of(5.5),
             maxAttainableAngularVelocity,
-            DegreesPerSecondPerSecond.of(2500.0)
+            DegreesPerSecondPerSecond.of(1500.0)
         )
 
 
@@ -478,7 +479,7 @@ class Drivebase : SubsystemBase("drivebase") {
             FeetPerSecond.of(3.0),
             MetersPerSecondPerSecond.of(5.5),
             DegreesPerSecond.of(180.0),
-            DegreesPerSecondPerSecond.of(2500.0)
+            DegreesPerSecondPerSecond.of(1500.0)
         )
 
         val intakeLimits = PathConstraints(

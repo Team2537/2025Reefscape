@@ -134,14 +134,20 @@ class Superstructure {
 
     fun getProcessorCommand(shouldScore: BooleanSupplier): Command {
         return Commands.sequence(
-            getSendToStateCommand { SuperstructureGoals.PROCESSOR },
-            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.PROCESSOR).asBoolean },
             Commands.waitUntil { !shouldScore.getAsBoolean() },
+            manipulator.getSpinRollersInCommand(),
+            // Commands.waitSeconds(0.5),
             Commands.waitUntil { shouldScore.getAsBoolean() },
+            manipulator.getStopRollersCommand(),
+        )
+    }
+    fun getIntakeAlgaeCommand(done: BooleanSupplier): Command {
+        return Commands.sequence(
+            getSendToStateCommand { SuperstructureGoals.ALGAE_INTAKE },
+            Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.ALGAE_INTAKE).asBoolean },
             manipulator.getSpinRollersOutCommand(),
-            Commands.waitUntil { !shouldScore.getAsBoolean() },
-            Commands.waitSeconds(0.5),
-            Commands.waitUntil { shouldScore.getAsBoolean() },
+            Commands.waitUntil { !done.getAsBoolean() },
+            Commands.waitUntil { done.getAsBoolean() },
             manipulator.getStopRollersCommand(),
         )
     }
@@ -159,6 +165,7 @@ class Superstructure {
             Commands.waitUntil { getStateAchievedTrigger(SuperstructureGoals.STOW).asBoolean },
         )
     }
+
 
     fun getDealgaefyCommand(readyToDealgaefy: BooleanSupplier): Command {
         return Commands.sequence(

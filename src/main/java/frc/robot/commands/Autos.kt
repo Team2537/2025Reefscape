@@ -44,10 +44,10 @@ class Autos(
     }
 
     private val chooser = LoggedDashboardChooser<Supplier<Command>>("auto").apply {
-        addDefaultOption("IDLE", { Commands.sequence(superstructure.getSendToStateCommand { SuperstructureGoals.STOW }, Commands.idle() )})
+        // addDefaultOption("IDLE", { Commands.sequence(superstructure.getSendToStateCommand { SuperstructureGoals.STOW }, Commands.idle() )})
         addOption("IJ", { IJ_Routine.build() })
         addOption("I4", { I4_Routine.build() })
-        addOption("DRIVE_FORWARDS", {driveForwards()})
+        addDefaultOption("DRIVE_FORWARDS", {driveForwards()})
 //        addOption("FE", { FE_Routine.build() })
 //        addOption("F4", { F4_Routine.build() })
 //        addOption("B - L2, L3", { bL2_L3() })
@@ -56,10 +56,10 @@ class Autos(
 
     fun driveForwards(): Command {
         return Commands.sequence(
-            Commands.run({
-                drivebase.applyChassisSpeeds(ChassisSpeeds(0.1, 0.0, 0.0))
+            Commands.runOnce({
+                drivebase.applyChassisSpeeds(ChassisSpeeds(-3.0, 0.0, 0.0))
             }, drivebase),
-            Commands.waitSeconds(0.5),
+            Commands.waitSeconds(5.0),
             drivebase.getStopCmd()
         )
     }
