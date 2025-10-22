@@ -116,7 +116,7 @@ object Robot : LoggedRobot() {
         CommandScheduler.getInstance()
             .onCommandFinish { command -> Logger.recordOutput("commands/${command.name}", false) }
 
-        // CameraServer.startAutomaticCapture()
+        CameraServer.startAutomaticCapture()
 
         drivebase = Drivebase()
         vision = Vision(drivebase::addVisionMeasurement)
@@ -166,12 +166,12 @@ object Robot : LoggedRobot() {
             superstructure.getDealgaefyCommand(driverController.leftTrigger())
             )
         )
-        // // dealgaefy l3
-        // driverController.rightTrigger().onTrue(Commands.sequence(
-        //     superstructure.getForceStateCommand { SuperstructureGoals.ALGAE_L3 },
-        //     superstructure.getDealgaefyCommand(driverController.rightTrigger())
-        //     )
-        // )
+        // dealgaefy l3
+        driverController.rightTrigger().onTrue(Commands.sequence(
+            superstructure.getForceStateCommand { SuperstructureGoals.ALGAE_L3 },
+            superstructure.getDealgaefyCommand(driverController.rightTrigger())
+            )
+        )
 
         // score processor
         driverController.povRight().onTrue(superstructure.getProcessorCommand(driverController.povRight()))
