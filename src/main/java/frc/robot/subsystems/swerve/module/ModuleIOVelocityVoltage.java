@@ -11,17 +11,18 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.StatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -34,7 +35,7 @@ import lib.math.controllers.gains.PIDGains;
 public final class ModuleIOVelocityVoltage implements ModuleIO {
   private final TalonFX driveMotor;
   private final SparkMax turnMotor;
-  private final SparkPIDController turnPidController;
+  private final SparkClosedLoopController turnPidController;
   private final CANcoder absoluteEncoder;
   private final double wheelRadiusMeters;
 
@@ -42,15 +43,15 @@ public final class ModuleIOVelocityVoltage implements ModuleIO {
   private final TorqueCurrentFOC openLoopTorqueRequest = new TorqueCurrentFOC(0.0);
   private final VelocityVoltage closedLoopDriveRequest = new VelocityVoltage(0.0);
 
-  private final StatusSignal<Double> drivePosition;
-  private final StatusSignal<Double> driveVelocity;
-  private final StatusSignal<Double> driveSupplyVolts;
-  private final StatusSignal<Double> driveMotorVolts;
-  private final StatusSignal<Double> driveStatorCurrent;
-  private final StatusSignal<Double> driveSupplyCurrent;
-  private final StatusSignal<Double> driveTorqueCurrent;
+  private final StatusSignal<Angle> drivePosition;
+  private final StatusSignal<AngularVelocity> driveVelocity;
+  private final StatusSignal<Voltage> driveSupplyVolts;
+  private final StatusSignal<Voltage> driveMotorVolts;
+  private final StatusSignal<Current> driveStatorCurrent;
+  private final StatusSignal<Current> driveSupplyCurrent;
+  private final StatusSignal<Current> driveTorqueCurrent;
 
-  private final StatusSignal<Double> absoluteTurnPosition;
+  private final StatusSignal<Angle> absoluteTurnPosition;
 
   private final SparkMaxConfig turnBrakeConfig;
   private final SparkMaxConfig turnCoastConfig;
@@ -69,8 +70,8 @@ public final class ModuleIOVelocityVoltage implements ModuleIO {
       PIDGains turnPID,
       int encoderID,
       Rotation2d encoderOffset,
-      Measure<Distance> wheelRadius) {
-    this.wheelRadiusMeters = wheelRadius.in(Units.Meters);
+      Distance wheelRadius) {
+    this.wheelRadiusMeters = wheelRadius.in(Units.Meter);
     this.turnFF = turnFF;
 
     driveMotor = new TalonFX(driveID);
@@ -125,7 +126,7 @@ public final class ModuleIOVelocityVoltage implements ModuleIO {
     absoluteEncoder.getConfigurator().apply(encoderConfig);
     absoluteTurnPosition = absoluteEncoder.getAbsolutePosition().clone();
 
-    turnMotor.getEncoder().setPosition(absoluteTurnPosition.getValue());
+    turnMotor.getEncoder().setPosition(absoluteTurnPosition.getValueAsDouble());
   }
 
   @Override
@@ -145,17 +146,17 @@ public final class ModuleIOVelocityVoltage implements ModuleIO {
     inputs.absoluteEncoderConnected =
         BaseStatusSignal.refreshAll(absoluteTurnPosition).isOK();
 
-    inputs.driveVelocityRadPerSec = driveVelocity.getValue();
+    inputs.driveVelocityRadPerSec = driveVelocity.getValueAsDouble();
     inputs.driveVelocityMetersPerSec = inputs.driveVelocityRadPerSec * wheelRadiusMeters;
-    inputs.drivePositionRad = drivePosition.getValue();
+    inputs.drivePositionRad = drivePosition.getValueAsDouble();
     inputs.drivePositionMeters = inputs.drivePositionRad * wheelRadiusMeters;
-    inputs.driveAppliedVolts = driveMotorVolts.getValue();
-    inputs.driveStatorCurrentAmps = driveStatorCurrent.getValue();
-    inputs.driveSupplyCurrentAmps = driveSupplyCurrent.getValue();
-    inputs.driveTorqueCurrentAmps = driveTorqueCurrent.getValue();
+    inputs.driveAppliedVolts = driveMotorVolts.getValueAsDouble();
+    inputs.driveStatorCurrentAmps = driveStatorCurrent.getValueAsDouble();
+    inputs.driveSupplyCurrentAmps = driveSupplyCurrent.getValueAsDouble();
+    inputs.driveTorqueCurrentAmps = driveTorqueCurrent.getValueAsDouble();
 
     inputs.turnPosition = Rotation2d.fromRotations(turnMotor.getEncoder().getPosition());
-    inputs.absoluteTurnPosition = Rotation2d.fromRotations(absoluteTurnPosition.getValue());
+    inputs.absoluteTurnPosition = Rotation2d.fromRotations(absoluteTurnPosition.getValueAsDouble());
     inputs.turnVelocityRadPerSec = Units.RPM.of(turnMotor.getEncoder().getVelocity()).in(Units.RadiansPerSecond);
     inputs.turnAppliedVolts = turnMotor.getAppliedOutput() * turnMotor.getBusVoltage();
     inputs.turnStatorCurrentAmps = turnMotor.getOutputCurrent();

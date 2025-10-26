@@ -46,9 +46,9 @@ public final class ModuleForcesPathFollower implements PathFollower {
   public void accept(SwerveSample sample) {
     Pose2d pose = poseSupplier.get();
 
-    double xOutput = xPID.calculate(pose.getX(), sample.getX());
-    double yOutput = yPID.calculate(pose.getY(), sample.getY());
-    double thetaOutput = thetaPID.calculate(pose.getRotation().getRadians(), sample.getHeading());
+    double xOutput = xPID.calculate(pose.getX(), sample.x);
+    double yOutput = yPID.calculate(pose.getY(), sample.y);
+    double thetaOutput = thetaPID.calculate(pose.getRotation().getRadians(), sample.heading);
 
     Logger.recordOutput("drivebase/auto/xError", xPID.getPositionError());
     Logger.recordOutput("drivebase/auto/yError", yPID.getPositionError());
@@ -57,19 +57,19 @@ public final class ModuleForcesPathFollower implements PathFollower {
     Logger.recordOutput("drivebase/auto/samplePose", Pose2d.struct, sample.getPose());
     Logger.recordOutput("drivebase/auto/pose", Pose2d.struct, pose);
 
-    List<Double> moduleForcesX = sample.getModuleForcesX();
-    List<Double> moduleForcesY = sample.getModuleForcesY();
-    int moduleCount = Math.min(moduleForcesX.size(), moduleForcesY.size());
+    double[] moduleForcesX = sample.moduleForcesX();
+    double[] moduleForcesY = sample.moduleForcesY();
+    int moduleCount = Math.min(moduleForcesX.length, moduleForcesY.length);
     List<Vector<N2>> moduleForces = new ArrayList<>(moduleCount);
     for (int i = 0; i < moduleCount; i++) {
-      moduleForces.add(VecBuilder.fill(moduleForcesX.get(i), moduleForcesY.get(i)));
+      moduleForces.add(VecBuilder.fill(moduleForcesX[i], moduleForcesY[i]));
     }
 
     speedConsumer.accept(
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            xOutput + sample.getVx(),
-            yOutput + sample.getVy(),
-            thetaOutput + sample.getOmega(),
+            xOutput + sample.vx,
+            yOutput + sample.vy,
+            thetaOutput + sample.omega,
             pose.getRotation()),
         moduleForces);
   }

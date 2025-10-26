@@ -56,7 +56,7 @@ public final class FieldConstants {
 
     public static final Ellipse2d REEF_ZONE =
         new Ellipse2d(
-            REEF_CENTER_BLUE,
+            new Pose2d(REEF_CENTER_BLUE, new Rotation2d()),
             Units.inchesToMeters(32.745545 + 20.0),
             Units.inchesToMeters(32.745545 + 20.0));
 

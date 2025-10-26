@@ -9,6 +9,7 @@ import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
 import frc.robot.RobotType;
+import frc.robot.subsystems.swerve.module.ModuleIOInputsAutoLogged;
 import java.util.function.Supplier;
 import lib.math.VectorFunctions;
 import lib.math.controllers.gains.ControllerGains;
@@ -21,7 +22,7 @@ public final class SwerveModule {
   private final int index;
   private final Translation2d modulePosition;
   private final ModuleIO io;
-  private final ModuleIO.ModuleIOInputs inputs = new ModuleIO.ModuleIOInputs();
+  private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
   private final Vector<N2> positiveRotationVector;
 
   private SwerveModuleState desiredState = new SwerveModuleState();
@@ -91,7 +92,7 @@ public final class SwerveModule {
               new PIDGains(50.0, 0.0, 0.5),
               encoderID,
               encoderOffset,
-              Units.Meters.of(WHEEL_RADIUS_METERS));
+              Units.Meter.of(WHEEL_RADIUS_METERS));
       case REPLAY -> new ModuleIO() {};
     };
   }
@@ -109,7 +110,8 @@ public final class SwerveModule {
 
   public void applyState(SwerveModuleState targetState) {
     SwerveModuleState optimized = SwerveModuleState.optimize(targetState, inputs.absoluteTurnPosition);
-    SwerveModuleState scaled = SwerveModuleState.cosineScale(optimized, inputs.absoluteTurnPosition);
+    optimized.cosineScale(inputs.absoluteTurnPosition);
+    SwerveModuleState scaled = optimized;
 
     Logger.recordOutput("modules/" + index + "/preOptimize", SwerveModuleState.struct, targetState);
     Logger.recordOutput("modules/" + index + "/postOptimize", SwerveModuleState.struct, scaled);
@@ -122,7 +124,8 @@ public final class SwerveModule {
 
   public void applyState(SwerveModuleState targetState, Vector<N2> moduleForce) {
     SwerveModuleState optimized = SwerveModuleState.optimize(targetState, inputs.absoluteTurnPosition);
-    SwerveModuleState scaled = SwerveModuleState.cosineScale(optimized, inputs.absoluteTurnPosition);
+    optimized.cosineScale(inputs.absoluteTurnPosition);
+    SwerveModuleState scaled = optimized;
 
     Vector<N2> wheelDirection =
         VectorFunctions.vectorFromRotation(getState().angle);
@@ -182,7 +185,7 @@ public final class SwerveModule {
     return index;
   }
 
-  public ModuleIO.ModuleIOInputs getInputs() {
+  public ModuleIOInputsAutoLogged getInputs() {
     return inputs;
   }
 }

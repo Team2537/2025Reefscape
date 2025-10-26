@@ -11,17 +11,18 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.StatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkPIDController;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -34,23 +35,25 @@ import lib.math.controllers.gains.PIDGains;
 public final class ModuleIOTorqueCurrent implements ModuleIO {
   private final TalonFX driveMotor;
   private final SparkMax turnMotor;
-  private final SparkPIDController turnPidController;
+  private final SparkClosedLoopController turnPidController;
   private final CANcoder absoluteEncoder;
   private final double wheelRadiusMeters;
   private final FeedforwardGains turnFF;
+  private final PIDGains turnPID;
+  private final double turnGearing;
 
   private final VoltageOut openLoopDriveRequest = new VoltageOut(0.0);
   private final TorqueCurrentFOC openLoopTorqueRequest = new TorqueCurrentFOC(0.0);
   private final VelocityTorqueCurrentFOC closedLoopDriveRequest = new VelocityTorqueCurrentFOC(0.0);
 
-  private final StatusSignal<Double> drivePosition;
-  private final StatusSignal<Double> driveVelocity;
-  private final StatusSignal<Double> driveSupplyVolts;
-  private final StatusSignal<Double> driveMotorVolts;
-  private final StatusSignal<Double> driveStatorCurrent;
-  private final StatusSignal<Double> driveSupplyCurrent;
-  private final StatusSignal<Double> driveTorqueCurrent;
-  private final StatusSignal<Double> absoluteTurnPosition;
+  private final StatusSignal<Angle> drivePosition;
+  private final StatusSignal<AngularVelocity> driveVelocity;
+  private final StatusSignal<Voltage> driveSupplyVolts;
+  private final StatusSignal<Voltage> driveMotorVolts;
+  private final StatusSignal<Current> driveStatorCurrent;
+  private final StatusSignal<Current> driveSupplyCurrent;
+  private final StatusSignal<Current> driveTorqueCurrent;
+  private final StatusSignal<Angle> absoluteTurnPosition;
 
   public ModuleIOTorqueCurrent(
       int driveID,
@@ -65,9 +68,11 @@ public final class ModuleIOTorqueCurrent implements ModuleIO {
       PIDGains turnPID,
       int encoderID,
       Rotation2d encoderOffset,
-      Measure<Distance> wheelRadius) {
-    this.wheelRadiusMeters = wheelRadius.in(Units.Meters);
+      Distance wheelRadius) {
+    this.wheelRadiusMeters = wheelRadius.in(Units.Meter);
     this.turnFF = turnFF;
+    this.turnPID = turnPID;
+    this.turnGearing = turnGearing;
 
     driveMotor = new TalonFX(driveID);
     TalonFXConfiguration driveConfig = new TalonFXConfiguration();
@@ -117,7 +122,7 @@ public final class ModuleIOTorqueCurrent implements ModuleIO {
     absoluteEncoder.getConfigurator().apply(encoderConfig);
     absoluteTurnPosition = absoluteEncoder.getAbsolutePosition().clone();
 
-    turnMotor.getEncoder().setPosition(absoluteTurnPosition.getValue());
+    turnMotor.getEncoder().setPosition(absoluteTurnPosition.getValueAsDouble());
   }
 
   @Override
@@ -137,17 +142,17 @@ public final class ModuleIOTorqueCurrent implements ModuleIO {
     inputs.absoluteEncoderConnected =
         BaseStatusSignal.refreshAll(absoluteTurnPosition).isOK();
 
-    inputs.driveVelocityRadPerSec = driveVelocity.getValue();
+    inputs.driveVelocityRadPerSec = driveVelocity.getValueAsDouble();
     inputs.driveVelocityMetersPerSec = inputs.driveVelocityRadPerSec * wheelRadiusMeters;
-    inputs.drivePositionRad = drivePosition.getValue();
+    inputs.drivePositionRad = drivePosition.getValueAsDouble();
     inputs.drivePositionMeters = inputs.drivePositionRad * wheelRadiusMeters;
-    inputs.driveAppliedVolts = driveMotorVolts.getValue();
-    inputs.driveStatorCurrentAmps = driveStatorCurrent.getValue();
-    inputs.driveSupplyCurrentAmps = driveSupplyCurrent.getValue();
-    inputs.driveTorqueCurrentAmps = driveTorqueCurrent.getValue();
+    inputs.driveAppliedVolts = driveMotorVolts.getValueAsDouble();
+    inputs.driveStatorCurrentAmps = driveStatorCurrent.getValueAsDouble();
+    inputs.driveSupplyCurrentAmps = driveSupplyCurrent.getValueAsDouble();
+    inputs.driveTorqueCurrentAmps = driveTorqueCurrent.getValueAsDouble();
 
     inputs.turnPosition = Rotation2d.fromRotations(turnMotor.getEncoder().getPosition());
-    inputs.absoluteTurnPosition = Rotation2d.fromRotations(absoluteTurnPosition.getValue());
+    inputs.absoluteTurnPosition = Rotation2d.fromRotations(absoluteTurnPosition.getValueAsDouble());
     inputs.turnVelocityRadPerSec = Units.RPM.of(turnMotor.getEncoder().getVelocity()).in(Units.RadiansPerSecond);
     inputs.turnAppliedVolts = turnMotor.getAppliedOutput() * turnMotor.getBusVoltage();
     inputs.turnStatorCurrentAmps = turnMotor.getOutputCurrent();
@@ -178,8 +183,8 @@ public final class ModuleIOTorqueCurrent implements ModuleIO {
   @Override
   public void setDriveVelocity(double velocityMetersPerSec, double torqueCurrentAmps) {
     double velocityRadPerSec = velocityMetersPerSec / wheelRadiusMeters;
-    Measure<AngularVelocity> velocityMeasure = Units.RadiansPerSecond.of(velocityRadPerSec);
-    Measure<Current> ff = Units.Amps.of(torqueCurrentAmps);
+    AngularVelocity velocityMeasure = Units.RadiansPerSecond.of(velocityRadPerSec);
+    Current ff = Units.Amps.of(torqueCurrentAmps);
     driveMotor.setControl(closedLoopDriveRequest.withVelocity(velocityMeasure).withFeedForward(ff));
   }
 
@@ -206,11 +211,11 @@ public final class ModuleIOTorqueCurrent implements ModuleIO {
   public void setTurnBrake(boolean enabled) {
     SparkBaseConfig.IdleMode mode = enabled ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast;
     SparkMaxConfig config = new SparkMaxConfig();
-    config.closedLoop.pid(turnPidController.getP(), turnPidController.getI(), turnPidController.getD());
+    config.closedLoop.pid(turnPID.getKP(), turnPID.getKI(), turnPID.getKD());
     config.closedLoop.positionWrappingEnabled(true);
     config.closedLoop.positionWrappingInputRange(0.0, 1.0);
-    config.encoder.positionConversionFactor(turnMotor.getEncoder().getPositionConversionFactor());
-    config.encoder.velocityConversionFactor(turnMotor.getEncoder().getVelocityConversionFactor());
+    config.encoder.positionConversionFactor(1.0 / turnGearing);
+    config.encoder.velocityConversionFactor(60.0 / turnGearing);
     config.inverted(turnMotor.getInverted());
     config.idleMode(mode);
     config.smartCurrentLimit(30);
@@ -228,9 +233,13 @@ public final class ModuleIOTorqueCurrent implements ModuleIO {
 
   @Override
   public void setSteerPID(PIDGains gains) {
-    turnPidController.setP(gains.getKP());
-    turnPidController.setI(gains.getKI());
-    turnPidController.setD(gains.getKD());
+    SparkMaxConfig config = new SparkMaxConfig();
+    config.closedLoop.pid(gains.getKP(), gains.getKI(), gains.getKD());
+    config.closedLoop.positionWrappingEnabled(true);
+    config.closedLoop.positionWrappingInputRange(0.0, 1.0);
+    config.encoder.positionConversionFactor(1.0 / turnGearing);
+    config.encoder.velocityConversionFactor(60.0 / turnGearing);
+    turnMotor.configure(config, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
   }
 
   @Override

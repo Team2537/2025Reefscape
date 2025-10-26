@@ -48,7 +48,6 @@ public final class SuperstructureState implements StructSerializable {
     return name;
   }
 
-  @Override
   public Struct<SuperstructureState> getStruct() {
     return STRUCT;
   }

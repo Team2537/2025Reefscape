@@ -8,9 +8,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.StatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants.ArmConstants;
 
 /** Arm IO implementation for dual Talon FX motors. */
@@ -18,11 +22,11 @@ public final class ArmIOKraken implements ArmIO {
   private final TalonFX left = new TalonFX(ArmConstants.LEFT_MOTOR_ID);
   private final TalonFX right = new TalonFX(ArmConstants.RIGHT_MOTOR_ID);
 
-  private final StatusSignal<Double> leftPosition = left.getPosition().clone();
-  private final StatusSignal<Double> leftVelocity = left.getVelocity().clone();
-  private final StatusSignal<Double> leftVoltage = left.getMotorVoltage().clone();
-  private final StatusSignal<Double> leftCurrent = left.getStatorCurrent().clone();
-  private final StatusSignal<Double> rightCurrent = right.getStatorCurrent().clone();
+  private final StatusSignal<Angle> leftPosition = left.getPosition().clone();
+  private final StatusSignal<AngularVelocity> leftVelocity = left.getVelocity().clone();
+  private final StatusSignal<Voltage> leftVoltage = left.getMotorVoltage().clone();
+  private final StatusSignal<Current> leftCurrent = left.getStatorCurrent().clone();
+  private final StatusSignal<Current> rightCurrent = right.getStatorCurrent().clone();
 
   private final VoltageOut voltageRequest = new VoltageOut(0.0);
   private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0.0);
@@ -72,7 +76,7 @@ public final class ArmIOKraken implements ArmIO {
     rightConfig.MotionMagic.withMotionMagicAcceleration(Units.RotationsPerSecondPerSecond.of(1.0));
     right.getConfigurator().apply(rightConfig);
 
-    double startingRot = Rotation2d.fromDegrees(ArmConstants.STARTING_ANGLE.in(Units.Degrees)).getRotations();
+    double startingRot = ArmConstants.STARTING_ANGLE.getRotations();
     left.setPosition(startingRot);
     right.setPosition(startingRot);
   }
@@ -82,11 +86,11 @@ public final class ArmIOKraken implements ArmIO {
     BaseStatusSignal.refreshAll(leftPosition, leftVelocity, leftVoltage, leftCurrent, rightCurrent);
     inputs.leftMotorConnected = true;
     inputs.rightMotorConnected = true;
-    inputs.angle = Rotation2d.fromRotations(leftPosition.getValue());
-    inputs.angularVelocityRadPerSec = leftVelocity.getValue();
-    inputs.appliedVolts = leftVoltage.getValue();
-    inputs.leftStatorCurrentAmps = leftCurrent.getValue();
-    inputs.rightStatorCurrentAmps = rightCurrent.getValue();
+    inputs.angle = Rotation2d.fromRotations(leftPosition.getValueAsDouble());
+    inputs.angularVelocityRadPerSec = leftVelocity.getValueAsDouble();
+    inputs.appliedVolts = leftVoltage.getValueAsDouble();
+    inputs.leftStatorCurrentAmps = leftCurrent.getValueAsDouble();
+    inputs.rightStatorCurrentAmps = rightCurrent.getValueAsDouble();
   }
 
   @Override

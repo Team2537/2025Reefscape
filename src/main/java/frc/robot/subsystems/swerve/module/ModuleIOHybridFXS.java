@@ -19,14 +19,16 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.StatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import lib.math.controllers.gains.FeedforwardGains;
 import lib.math.controllers.gains.PIDGains;
 
@@ -42,21 +44,21 @@ public final class ModuleIOHybridFXS implements ModuleIO {
   private final VelocityTorqueCurrentFOC closedLoopDriveRequest = new VelocityTorqueCurrentFOC(0.0);
   private final MotionMagicVoltage closedLoopTurnRequest = new MotionMagicVoltage(0.0);
 
-  private final StatusSignal<Double> drivePosition;
-  private final StatusSignal<Double> driveVelocity;
-  private final StatusSignal<Double> driveSupplyVolts;
-  private final StatusSignal<Double> driveMotorVolts;
-  private final StatusSignal<Double> driveStatorCurrent;
-  private final StatusSignal<Double> driveSupplyCurrent;
-  private final StatusSignal<Double> driveTorqueCurrent;
+  private final StatusSignal<Angle> drivePosition;
+  private final StatusSignal<AngularVelocity> driveVelocity;
+  private final StatusSignal<Voltage> driveSupplyVolts;
+  private final StatusSignal<Voltage> driveMotorVolts;
+  private final StatusSignal<Current> driveStatorCurrent;
+  private final StatusSignal<Current> driveSupplyCurrent;
+  private final StatusSignal<Current> driveTorqueCurrent;
 
-  private final StatusSignal<Double> turnPosition;
-  private final StatusSignal<Double> turnVelocity;
-  private final StatusSignal<Double> turnAppliedVoltage;
-  private final StatusSignal<Double> turnSupplyCurrent;
-  private final StatusSignal<Double> turnStatorCurrent;
+  private final StatusSignal<Angle> turnPosition;
+  private final StatusSignal<AngularVelocity> turnVelocity;
+  private final StatusSignal<Voltage> turnAppliedVoltage;
+  private final StatusSignal<Current> turnSupplyCurrent;
+  private final StatusSignal<Current> turnStatorCurrent;
 
-  private final StatusSignal<Double> absoluteTurnPosition;
+  private final StatusSignal<Angle> absoluteTurnPosition;
 
   public ModuleIOHybridFXS(
       int driveID,
@@ -71,8 +73,8 @@ public final class ModuleIOHybridFXS implements ModuleIO {
       PIDGains turnPID,
       int encoderID,
       Rotation2d encoderOffset,
-      Measure<Distance> wheelRadius) {
-    this.wheelRadiusMeters = wheelRadius.in(Units.Meters);
+      Distance wheelRadius) {
+    this.wheelRadiusMeters = wheelRadius.in(Units.Meter);
 
     driveMotor = new TalonFX(driveID, "canivore");
     TalonFXConfiguration driveConfig = new TalonFXConfiguration();
@@ -162,22 +164,22 @@ public final class ModuleIOHybridFXS implements ModuleIO {
     inputs.absoluteEncoderConnected =
         BaseStatusSignal.refreshAll(absoluteTurnPosition).isOK();
 
-    inputs.driveVelocityRadPerSec = driveVelocity.getValue();
+    inputs.driveVelocityRadPerSec = driveVelocity.getValueAsDouble();
     inputs.driveVelocityMetersPerSec = inputs.driveVelocityRadPerSec * wheelRadiusMeters;
-    inputs.drivePositionRad = drivePosition.getValue();
+    inputs.drivePositionRad = drivePosition.getValueAsDouble();
     inputs.drivePositionMeters = inputs.drivePositionRad * wheelRadiusMeters;
-    inputs.driveAppliedVolts = driveMotorVolts.getValue();
-    inputs.driveStatorCurrentAmps = driveStatorCurrent.getValue();
-    inputs.driveSupplyCurrentAmps = driveSupplyCurrent.getValue();
-    inputs.driveTorqueCurrentAmps = driveTorqueCurrent.getValue();
+    inputs.driveAppliedVolts = driveMotorVolts.getValueAsDouble();
+    inputs.driveStatorCurrentAmps = driveStatorCurrent.getValueAsDouble();
+    inputs.driveSupplyCurrentAmps = driveSupplyCurrent.getValueAsDouble();
+    inputs.driveTorqueCurrentAmps = driveTorqueCurrent.getValueAsDouble();
 
-    inputs.turnPosition = Rotation2d.fromRotations(turnPosition.getValue());
+    inputs.turnPosition = Rotation2d.fromRotations(turnPosition.getValueAsDouble());
     inputs.absoluteTurnPosition =
-        Rotation2d.fromRotations(absoluteTurnPosition.getValue());
-    inputs.turnVelocityRadPerSec = turnVelocity.getValue();
-    inputs.turnAppliedVolts = turnAppliedVoltage.getValue();
-    inputs.turnStatorCurrentAmps = turnStatorCurrent.getValue();
-    inputs.turnSupplyCurrentAmps = turnSupplyCurrent.getValue();
+        Rotation2d.fromRotations(absoluteTurnPosition.getValueAsDouble());
+    inputs.turnVelocityRadPerSec = turnVelocity.getValueAsDouble();
+    inputs.turnAppliedVolts = turnAppliedVoltage.getValueAsDouble();
+    inputs.turnStatorCurrentAmps = turnStatorCurrent.getValueAsDouble();
+    inputs.turnSupplyCurrentAmps = turnSupplyCurrent.getValueAsDouble();
   }
 
   @Override
@@ -203,8 +205,8 @@ public final class ModuleIOHybridFXS implements ModuleIO {
   @Override
   public void setDriveVelocity(double velocityMetersPerSec, double torqueCurrentAmps) {
     double velocityRadPerSec = velocityMetersPerSec / wheelRadiusMeters;
-    Measure<AngularVelocity> velocityMeasure = Units.RadiansPerSecond.of(velocityRadPerSec);
-    Measure<Current> ff = Units.Amps.of(torqueCurrentAmps);
+    AngularVelocity velocityMeasure = Units.RadiansPerSecond.of(velocityRadPerSec);
+    Current ff = Units.Amps.of(torqueCurrentAmps);
     driveMotor.setControl(closedLoopDriveRequest.withVelocity(velocityMeasure).withFeedForward(ff));
   }
 

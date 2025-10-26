@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -87,7 +86,7 @@ public final class Robot extends LoggedRobot {
     Logger.start();
 
     CanandEventLoop.getInstance();
-    FieldConstants.Reef.getNodes();
+    // FieldConstants.Reef.getNodes();
 
     CommandScheduler.getInstance()
         .onCommandInitialize(command -> Logger.recordOutput("commands/" + command.getName(), true));

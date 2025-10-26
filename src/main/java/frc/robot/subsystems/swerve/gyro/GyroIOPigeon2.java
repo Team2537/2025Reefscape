@@ -3,18 +3,20 @@ package frc.robot.subsystems.swerve.gyro;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.ctre.phoenix6.signals.StatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 
 /** Pigeon2 gyro implementation. */
 public final class GyroIOPigeon2 implements GyroIO {
   private final Pigeon2 pigeon;
-  private final StatusSignal<Double> yawSignal;
-  private final StatusSignal<Double> pitchSignal;
-  private final StatusSignal<Double> rollSignal;
-  private final StatusSignal<Double> yawRateSignal;
-  private final StatusSignal<Double> pitchRateSignal;
-  private final StatusSignal<Double> rollRateSignal;
+  private final StatusSignal<Angle> yawSignal;
+  private final StatusSignal<Angle> pitchSignal;
+  private final StatusSignal<Angle> rollSignal;
+  private final StatusSignal<AngularVelocity> yawRateSignal;
+  private final StatusSignal<AngularVelocity> pitchRateSignal;
+  private final StatusSignal<AngularVelocity> rollRateSignal;
 
   public GyroIOPigeon2(int id) {
     pigeon = new Pigeon2(id);
@@ -40,13 +42,13 @@ public final class GyroIOPigeon2 implements GyroIO {
                     rollRateSignal)
                 .isOK();
 
-    inputs.yaw = Rotation2d.fromDegrees(yawSignal.getValue());
-    inputs.pitch = Rotation2d.fromDegrees(pitchSignal.getValue());
-    inputs.roll = Rotation2d.fromDegrees(rollSignal.getValue());
+    inputs.yaw = Rotation2d.fromDegrees(yawSignal.getValueAsDouble());
+    inputs.pitch = Rotation2d.fromDegrees(pitchSignal.getValueAsDouble());
+    inputs.roll = Rotation2d.fromDegrees(rollSignal.getValueAsDouble());
 
-    inputs.yawRateRadPerSec = Math.toRadians(yawRateSignal.getValue());
-    inputs.pitchRateRadPerSec = Math.toRadians(pitchRateSignal.getValue());
-    inputs.rollRateRadPerSec = Math.toRadians(rollRateSignal.getValue());
+    inputs.yawRateRadPerSec = Math.toRadians(yawRateSignal.getValueAsDouble());
+    inputs.pitchRateRadPerSec = Math.toRadians(pitchRateSignal.getValueAsDouble());
+    inputs.rollRateRadPerSec = Math.toRadians(rollRateSignal.getValueAsDouble());
   }
 
   @Override

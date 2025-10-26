@@ -42,15 +42,15 @@ public final class SimplePathFollower implements PathFollower {
   public void accept(SwerveSample sample) {
     Pose2d pose = poseSupplier.get();
 
-    double xOutput = xPID.calculate(pose.getX(), sample.getX());
-    double yOutput = yPID.calculate(pose.getY(), sample.getY());
-    double thetaOutput = thetaPID.calculate(pose.getRotation().getRadians(), sample.getHeading());
+    double xOutput = xPID.calculate(pose.getX(), sample.x);
+    double yOutput = yPID.calculate(pose.getY(), sample.y);
+    double thetaOutput = thetaPID.calculate(pose.getRotation().getRadians(), sample.heading);
 
     ChassisSpeeds speeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            xOutput + sample.getVx(),
-            yOutput + sample.getVy(),
-            thetaOutput + sample.getOmega(),
+            xOutput + sample.vx,
+            yOutput + sample.vy,
+            thetaOutput + sample.omega,
             pose.getRotation());
 
     Logger.recordOutput("drivebase/auto/xError", xPID.getPositionError());

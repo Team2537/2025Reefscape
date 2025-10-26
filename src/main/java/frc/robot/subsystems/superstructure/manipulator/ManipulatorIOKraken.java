@@ -7,8 +7,10 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.StatusSignal;
-import edu.wpi.first.units.Units;
+import com.ctre.phoenix6.StatusSignal;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants.ManipulatorConstants;
 
 /** Real manipulator implementation using Talon FX rollers. */
@@ -24,13 +26,13 @@ public final class ManipulatorIOKraken implements ManipulatorIO {
   private double leftTorqueCommandAmps = 0.0;
   private double rightTorqueCommandAmps = 0.0;
 
-  private final StatusSignal<Double> leftVelocity;
-  private final StatusSignal<Double> leftVoltage;
-  private final StatusSignal<Double> leftCurrent;
+  private final StatusSignal<AngularVelocity> leftVelocity;
+  private final StatusSignal<Voltage> leftVoltage;
+  private final StatusSignal<Current> leftCurrent;
 
-  private final StatusSignal<Double> rightVelocity;
-  private final StatusSignal<Double> rightVoltage;
-  private final StatusSignal<Double> rightCurrent;
+  private final StatusSignal<AngularVelocity> rightVelocity;
+  private final StatusSignal<Voltage> rightVoltage;
+  private final StatusSignal<Current> rightCurrent;
 
   public ManipulatorIOKraken() {
     leftRollerMotor = configureMotor(
@@ -71,13 +73,13 @@ public final class ManipulatorIOKraken implements ManipulatorIO {
 
     inputs.leftRollerConnected = true;
     inputs.rightRollerConnected = true;
-    inputs.leftRollerVelocityRadPerSec = leftVelocity.getValue();
-    inputs.leftRollerAppliedVolts = leftVoltage.getValue();
-    inputs.leftRollerStatorCurrentAmps = leftCurrent.getValue();
+    inputs.leftRollerVelocityRadPerSec = leftVelocity.getValueAsDouble();
+    inputs.leftRollerAppliedVolts = leftVoltage.getValueAsDouble();
+    inputs.leftRollerStatorCurrentAmps = leftCurrent.getValueAsDouble();
     inputs.leftRollerTorqueCurrentAmps = leftTorqueCommandAmps;
-    inputs.rightRollerVelocityRadPerSec = rightVelocity.getValue();
-    inputs.rightRollerAppliedVolts = rightVoltage.getValue();
-    inputs.rightRollerStatorCurrentAmps = rightCurrent.getValue();
+    inputs.rightRollerVelocityRadPerSec = rightVelocity.getValueAsDouble();
+    inputs.rightRollerAppliedVolts = rightVoltage.getValueAsDouble();
+    inputs.rightRollerStatorCurrentAmps = rightCurrent.getValueAsDouble();
     inputs.rightRollerTorqueCurrentAmps = rightTorqueCommandAmps;
     inputs.coralDistanceMeters = Double.NaN;
   }
@@ -98,16 +100,16 @@ public final class ManipulatorIOKraken implements ManipulatorIO {
   public void setRollerTorqueCurrent(double amps) {
     leftTorqueCommandAmps = amps;
     rightTorqueCommandAmps = amps;
-    leftRollerMotor.setControl(leftTorqueRequest.withOutput(Units.Amps.of(amps)));
-    rightRollerMotor.setControl(rightTorqueRequest.withOutput(Units.Amps.of(amps)));
+    leftRollerMotor.setControl(leftTorqueRequest.withOutput(amps));
+    rightRollerMotor.setControl(rightTorqueRequest.withOutput(amps));
   }
 
   @Override
   public void setLeftRightRollerTorqueCurrents(double leftAmps, double rightAmps) {
     leftTorqueCommandAmps = leftAmps;
     rightTorqueCommandAmps = rightAmps;
-    leftRollerMotor.setControl(leftTorqueRequest.withOutput(Units.Amps.of(leftAmps)));
-    rightRollerMotor.setControl(rightTorqueRequest.withOutput(Units.Amps.of(rightAmps)));
+    leftRollerMotor.setControl(leftTorqueRequest.withOutput(leftAmps));
+    rightRollerMotor.setControl(rightTorqueRequest.withOutput(rightAmps));
   }
 
   @Override

@@ -60,7 +60,7 @@ public class VisionIOPhotonVision implements VisionIO {
           .getMultiTagResult()
           .ifPresentOrElse(
               multitagResult -> {
-                Transform3d fieldToCamera = multitagResult.getEstimatedPose().best;
+                Transform3d fieldToCamera = multitagResult.estimatedPose.best;
                 Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
                 Pose3d robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
 
@@ -69,14 +69,16 @@ public class VisionIOPhotonVision implements VisionIO {
                   totalTagDistance += target.getBestCameraToTarget().getTranslation().getNorm();
                 }
 
-                tagIds.addAll(multitagResult.getFiducialIDsUsed());
+                for (short id : multitagResult.fiducialIDsUsed) {
+                  tagIds.add((int) id);
+                }
 
                 poseObservations.add(
                     new PoseObservation(
                         result.getTimestampSeconds(),
                         robotPose,
-                        multitagResult.getEstimatedPose().ambiguity,
-                        multitagResult.getFiducialIDsUsed().size(),
+                        multitagResult.estimatedPose.ambiguity,
+                        multitagResult.fiducialIDsUsed.size(),
                         result.getTargets().isEmpty()
                             ? 0.0
                             : totalTagDistance / result.getTargets().size()));

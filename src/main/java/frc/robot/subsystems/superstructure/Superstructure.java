@@ -11,6 +11,7 @@ import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.subsystems.superstructure.arm.Arm;
 import frc.robot.subsystems.superstructure.manipulator.Manipulator;
 import frc.robot.subsystems.swerve.Drivebase;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -45,7 +46,7 @@ public final class Superstructure extends SubsystemBase {
   }
 
   public Trigger isHoldingCoral() {
-    double threshold = ManipulatorConstants.DETECTION_DISTANCE_THRESHOLD.in(edu.wpi.first.units.Units.Meters);
+    double threshold = ManipulatorConstants.DETECTION_DISTANCE_THRESHOLD_METERS;
     return new Trigger(() -> manipulator.getInputs().coralDistanceMeters > threshold);
   }
 
@@ -120,27 +121,27 @@ public final class Superstructure extends SubsystemBase {
                 lastRequest == SuperstructureGoals.ALGAE_L2
                     ? getSendToStateCommand(() -> SuperstructureGoals.PRE_ALGAE_L2)
                     : Commands.none(),
-            this),
+            Set.of(this)),
         Commands.defer(
             () ->
                 lastRequest == SuperstructureGoals.ALGAE_L2
                     ? Commands.waitUntil(
                         () -> getStateAchievedTrigger(SuperstructureGoals.PRE_ALGAE_L2).getAsBoolean())
                     : Commands.none(),
-            this),
+            Set.of(this)),
         Commands.defer(
             () ->
                 lastRequest == SuperstructureGoals.ALGAE_L3
                     ? getSendToStateCommand(() -> SuperstructureGoals.PRE_ALGAE_L3)
                     : Commands.none(),
-            this),
+            Set.of(this)),
         Commands.defer(
             () ->
                 lastRequest == SuperstructureGoals.ALGAE_L3
                     ? Commands.waitUntil(
                         () -> getStateAchievedTrigger(SuperstructureGoals.PRE_ALGAE_L3).getAsBoolean())
                     : Commands.none(),
-            this),
+            Set.of(this)),
         Commands.deadline(
             Commands.waitUntil(readyToDealgaefy::getAsBoolean),
             Commands.defer(
@@ -148,13 +149,13 @@ public final class Superstructure extends SubsystemBase {
                     lastRequest == SuperstructureGoals.ALGAE_L2
                         ? manipulator.getSpinRollersOutCommand()
                         : Commands.none(),
-                this),
+                Set.of()),
             Commands.defer(
                 () ->
                     lastRequest == SuperstructureGoals.ALGAE_L3
                         ? manipulator.getSpinRollersInCommand()
                         : Commands.none(),
-                this)),
+                Set.of())),
         manipulator.getStopRollersCommand());
   }
 

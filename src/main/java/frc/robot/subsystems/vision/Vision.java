@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 import lib.math.geometry.FieldConstants;
 import org.littletonrobotics.junction.Logger;
 import frc.robot.subsystems.vision.VisionIO.PoseObservation;
-import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
+import frc.robot.subsystems.vision.VisionIOInputsAutoLogged;
 
 /** Vision subsystem responsible for processing pose estimates from PhotonVision. */
 public final class Vision extends SubsystemBase {
@@ -45,17 +45,17 @@ public final class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
   private final Supplier<Pose2d> robotPoseSupplier;
   private final List<VisionIO> ios;
-  private final List<VisionIOInputs> inputs;
+  private final List<VisionIOInputsAutoLogged> inputs;
 
   public Vision(VisionConsumer consumer) {
     super("vision");
     this.consumer = consumer;
     this.robotPoseSupplier = () -> Robot.getDrivebase().getPose();
     this.ios = createIOs();
-    this.inputs = ios.stream().map(io -> new VisionIOInputs()).toList();
+    this.inputs = ios.stream().map(io -> new VisionIOInputsAutoLogged()).toList();
   }
 
-  public List<VisionIOInputs> getInputs() {
+  public List<VisionIOInputsAutoLogged> getInputs() {
     return inputs;
   }
 
@@ -65,7 +65,7 @@ public final class Vision extends SubsystemBase {
 
   public List<VisionIO.TargetTransform> getTargetTransforms() {
     List<VisionIO.TargetTransform> transforms = new ArrayList<>();
-    for (VisionIOInputs input : inputs) {
+    for (VisionIOInputsAutoLogged input : inputs) {
       transforms.addAll(List.of(input.targetTransforms));
     }
     return transforms;
@@ -91,7 +91,7 @@ public final class Vision extends SubsystemBase {
   public void periodic() {
     for (int index = 0; index < ios.size(); index++) {
       VisionIO io = ios.get(index);
-      VisionIOInputs input = inputs.get(index);
+      VisionIOInputsAutoLogged input = inputs.get(index);
       io.updateInputs(input);
       Logger.processInputs(getName() + "/Camera" + index, input);
     }
@@ -108,7 +108,7 @@ public final class Vision extends SubsystemBase {
     List<Pose3d> allRejectedRobotPoses = new ArrayList<>();
 
     for (int index = 0; index < inputs.size(); index++) {
-      VisionIOInputs input = inputs.get(index);
+      VisionIOInputsAutoLogged input = inputs.get(index);
       List<Pose3d> tagPoses = new ArrayList<>();
       List<Pose3d> robotPoses = new ArrayList<>();
       List<Pose3d> acceptedRobotPoses = new ArrayList<>();

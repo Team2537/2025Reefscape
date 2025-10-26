@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -29,13 +28,13 @@ import lib.math.geometry.FieldFlipUtil;
 import org.littletonrobotics.junction.Logger;
 
 /** Command for aligning the drivebase to various field references. */
-public final class AlignmentCommand extends CommandBase {
+public final class AlignmentCommand extends Command {
   private static final PathConstraints ALIGN_LIMITS =
       new PathConstraints(
-          Units.MetersPerSecond.of(1.5),
-          Units.MetersPerSecondPerSecond.of(8.0),
-          Units.DegreesPerSecond.of(540.0),
-          Units.DegreesPerSecondPerSecond.of(720.0));
+          edu.wpi.first.units.Units.MetersPerSecond.of(1.5),
+          edu.wpi.first.units.Units.MetersPerSecondPerSecond.of(8.0),
+          edu.wpi.first.units.Units.DegreesPerSecond.of(540.0),
+          edu.wpi.first.units.Units.DegreesPerSecondPerSecond.of(720.0));
 
   private final Drivebase drivebase;
   private final Supplier<Pose2d> poseSupplier;
@@ -57,7 +56,7 @@ public final class AlignmentCommand extends CommandBase {
     this.drivebase = drivebase;
     this.poseSupplier = poseSupplier;
     this.xPid = translationPid;
-    this.yPid = translationPid.copy();
+    this.yPid = new PIDController(translationPid.getP(), translationPid.getI(), translationPid.getD());
     this.rotPid = rotationPid;
     this.endStateSupplier = endStateSupplier;
 
@@ -182,12 +181,13 @@ public final class AlignmentCommand extends CommandBase {
     if (AutoBuilder.shouldFlip()) {
       current = FieldFlipUtil.flip(current);
     }
-
+    
+    final Pose2d finalCurrent = current;
     List<Pose2d> targets =
         List.of(FieldConstants.Source.BLUE_TOP_SOURCE_CENTER, FieldConstants.Source.BLUE_BOTTOM_SOURCE_CENTER);
     Pose2d nearest =
         targets.stream()
-            .min(Comparator.comparingDouble(t -> t.getTranslation().getDistance(current.getTranslation())))
+            .min(Comparator.comparingDouble(t -> t.getTranslation().getDistance(finalCurrent.getTranslation())))
             .orElse(null);
     if (nearest == null) {
       return null;

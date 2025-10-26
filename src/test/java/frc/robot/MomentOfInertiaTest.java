@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 class MomentOfInertiaTest {
   @Test
   void armMomentOfInertiaIsNonNegative() {
-    MomentOfInertia moi = Constants.ManipulatorConstants.SIM_ROLLER_MOI;
-    assertTrue(moi.in(Units.KilogramSquareMeters) >= 0.0);
+    double moi = Constants.ManipulatorConstants.SIM_ROLLER_MOI;
+    assertTrue(moi >= 0.0);
   }
 }

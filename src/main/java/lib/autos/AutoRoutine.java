@@ -41,15 +41,17 @@ public final class AutoRoutine {
 
     for (int index = 0; index < actions.size(); index++) {
       AutoAction action = actions.get(index);
+      final int currentIndex = index;
 
       sequence.addCommands(
           Commands.parallel(
-              drivebase.followPath(getPathToBranch(action.branch(), action.top())).onlyIf(() -> index != 0),
+              drivebase.followPath(getPathToBranch(action.branch(), action.top())).onlyIf(() -> currentIndex != 0),
               switch (action.level()) {
                 case L1 -> superstructure.getForceStateCommand(() -> SuperstructureGoals.L1);
                 case L2 -> superstructure.getForceStateCommand(() -> SuperstructureGoals.STOW);
                 case L3 -> superstructure.getForceStateCommand(() -> SuperstructureGoals.STOW);
                 case L4 -> superstructure.getForceStateCommand(() -> SuperstructureGoals.STOW);
+                default -> Commands.none();
               }),
           drivebase.getStopCmd(),
           Commands.waitSeconds(0.75),
@@ -70,36 +72,48 @@ public final class AutoRoutine {
 
   private PathPlannerPath getPathToBranch(
       lib.math.geometry.FieldConstants.Reef.Branch branch, boolean top) {
-    if (top) {
-      return PathPlannerPath.fromPathFile("ts_to_" + branch.name());
+    try {
+      if (top) {
+        return PathPlannerPath.fromPathFile("ts_to_" + branch.name());
+      }
+      return PathPlannerPath.fromPathFile("bs_to_" + branch.name());
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to load path file", e);
     }
-    return PathPlannerPath.fromPathFile("bs_to_" + branch.name());
   }
 
   private PathPlannerPath getPathToSource(lib.math.geometry.FieldConstants.Reef.Branch startBranch) {
-    boolean topSource =
-        List.of(
-                lib.math.geometry.FieldConstants.Reef.Branch.A,
-                lib.math.geometry.FieldConstants.Reef.Branch.L,
-                lib.math.geometry.FieldConstants.Reef.Branch.K,
-                lib.math.geometry.FieldConstants.Reef.Branch.J,
-                lib.math.geometry.FieldConstants.Reef.Branch.I,
-                lib.math.geometry.FieldConstants.Reef.Branch.H)
-            .contains(startBranch);
+    try {
+      boolean topSource =
+          List.of(
+                  lib.math.geometry.FieldConstants.Reef.Branch.A,
+                  lib.math.geometry.FieldConstants.Reef.Branch.L,
+                  lib.math.geometry.FieldConstants.Reef.Branch.K,
+                  lib.math.geometry.FieldConstants.Reef.Branch.J,
+                  lib.math.geometry.FieldConstants.Reef.Branch.I,
+                  lib.math.geometry.FieldConstants.Reef.Branch.H)
+              .contains(startBranch);
 
-    return PathPlannerPath.fromPathFile(
-        startBranch.name() + "_to_" + (topSource ? "ts" : "bs"));
+      return PathPlannerPath.fromPathFile(
+          startBranch.name() + "_to_" + (topSource ? "ts" : "bs"));
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to load path file", e);
+    }
   }
 
   private PathPlannerPath getPathFromStart(lib.math.geometry.FieldConstants.Reef.Branch branch) {
-    List<lib.math.geometry.FieldConstants.Reef.Branch> topBranches =
-        List.of(
-            lib.math.geometry.FieldConstants.Reef.Branch.J,
-            lib.math.geometry.FieldConstants.Reef.Branch.I);
+    try {
+      List<lib.math.geometry.FieldConstants.Reef.Branch> topBranches =
+          List.of(
+              lib.math.geometry.FieldConstants.Reef.Branch.J,
+              lib.math.geometry.FieldConstants.Reef.Branch.I);
 
-    if (topBranches.contains(branch)) {
-      return PathPlannerPath.fromPathFile("tstart_to_" + branch.name());
+      if (topBranches.contains(branch)) {
+        return PathPlannerPath.fromPathFile("tstart_to_" + branch.name());
+      }
+      return PathPlannerPath.fromPathFile("bstart_to_" + branch.name());
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to load path file", e);
     }
-    return PathPlannerPath.fromPathFile("bstart_to_" + branch.name());
   }
 }

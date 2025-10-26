@@ -23,8 +23,8 @@ public final class MechanismVisualizer {
     return MECHANISM_POSES;
   }
 
-  public static void setArmAngle(Measure<Angle> angle) {
-    double angleRadians = angle.in(edu.wpi.first.units.Units.Radians);
+  public static void setArmAngle(Angle angle) {
+    double angleRadians = angle.in(edu.wpi.first.units.Units.Radian);
     MECHANISM_POSES.set(
         2,
         new Pose3d(

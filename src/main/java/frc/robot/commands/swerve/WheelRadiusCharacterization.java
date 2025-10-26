@@ -7,15 +7,16 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.Drivebase;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 /** Characterizes wheel radius by spinning in place and comparing yaw to wheel rotation. */
-public final class WheelRadiusCharacterization extends edu.wpi.first.wpilibj2.command.CommandBase {
+public final class WheelRadiusCharacterization extends Command {
   private final Drivebase drivebase;
   private final Direction direction;
-  private final Measure<AngularVelocity> characterizationSpeed;
+  private final AngularVelocity characterizationSpeed;
   private final SlewRateLimiter omegaLimiter = new SlewRateLimiter(1.0);
 
   private double[] startWheelPositionsRad = new double[0];
@@ -27,7 +28,7 @@ public final class WheelRadiusCharacterization extends edu.wpi.first.wpilibj2.co
   }
 
   public WheelRadiusCharacterization(
-      Drivebase drivebase, Direction direction, Measure<AngularVelocity> characterizationSpeed) {
+      Drivebase drivebase, Direction direction, AngularVelocity characterizationSpeed) {
     this.drivebase = drivebase;
     this.direction = direction;
     this.characterizationSpeed = characterizationSpeed;
@@ -36,32 +37,27 @@ public final class WheelRadiusCharacterization extends edu.wpi.first.wpilibj2.co
 
   @Override
   public void initialize() {
-    List<Measure<Angle>> wheelAngles = drivebase.getWheelRadiusCharacterizationAngles();
-    startWheelPositionsRad = new double[wheelAngles.size()];
-    for (int i = 0; i < wheelAngles.size(); i++) {
-      startWheelPositionsRad[i] = wheelAngles.get(i).in(Units.Radians);
-    }
+    startWheelPositionsRad = drivebase.getWheelRadiusCharacterizationAngles();
 
     gyroYawAccumRads = 0.0;
-    lastGyroYawRads = drivebase.getGyroInputs().getYaw().getRadians();
+    lastGyroYawRads = drivebase.getGyroInputs().yaw.getRadians();
     omegaLimiter.reset(0.0);
   }
 
   @Override
   public void execute() {
-    drivebase.runWheelRadiusCharacterization(characterizationSpeed.times(direction.sign));
+    drivebase.runWheelRadiusCharacterization(characterizationSpeed.in(Units.RadiansPerSecond) * direction.sign);
 
-    double currentYaw = drivebase.getGyroInputs().getYaw().getRadians();
+    double currentYaw = drivebase.getGyroInputs().yaw.getRadians();
     gyroYawAccumRads += MathUtil.angleModulus(currentYaw - lastGyroYawRads);
     lastGyroYawRads = currentYaw;
 
-    List<Measure<Angle>> wheelPositions = drivebase.getWheelRadiusCharacterizationAngles();
+    double[] wheelPositions = drivebase.getWheelRadiusCharacterizationAngles();
     double sumRad = 0.0;
-    for (int i = 0; i < wheelPositions.size(); i++) {
-      double current = wheelPositions.get(i).in(Units.Radians);
-      sumRad += Math.abs(current - startWheelPositionsRad[i]);
+    for (int i = 0; i < wheelPositions.length; i++) {
+      sumRad += Math.abs(wheelPositions[i] - startWheelPositionsRad[i]);
     }
-    double averageWheelPositionRad = wheelPositions.isEmpty() ? 0.0 : sumRad / wheelPositions.size();
+    double averageWheelPositionRad = wheelPositions.length == 0 ? 0.0 : sumRad / wheelPositions.length;
 
     Logger.recordOutput(
         drivebase.getName() + "/radiusCharacterization/averageWheelPositionRad",
@@ -69,7 +65,7 @@ public final class WheelRadiusCharacterization extends edu.wpi.first.wpilibj2.co
 
     if (averageWheelPositionRad > 1e-6) {
       double currentEffectiveWheelRadiusMeters =
-          (gyroYawAccumRads * Drivebase.Companion.getDrivebaseRadius().in(Units.Meters)
+          (gyroYawAccumRads * Drivebase.getDrivebaseRadiusMeters()
                   / averageWheelPositionRad)
               * direction.sign;
       Logger.recordOutput(

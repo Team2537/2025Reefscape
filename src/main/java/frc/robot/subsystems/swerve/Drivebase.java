@@ -24,6 +24,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -37,7 +38,7 @@ import frc.robot.Robot;
 import frc.robot.RobotType;
 import frc.robot.subsystems.swerve.Drivebase.AlignmentState;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
-import frc.robot.subsystems.swerve.gyro.GyroIO.GyroIOInputs;
+import frc.robot.subsystems.swerve.gyro.GyroIOInputsAutoLogged;
 import frc.robot.subsystems.swerve.gyro.GyroIOPigeon2;
 import frc.robot.subsystems.swerve.gyro.GyroIOSim;
 import frc.robot.subsystems.swerve.module.SwerveModule;
@@ -70,7 +71,7 @@ public final class Drivebase extends SubsystemBase {
         case REPLAY -> new GyroIO() {};
       };
 
-  private final GyroIOInputs gyroInputs = new GyroIOInputs();
+  private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
 
   private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_TRANSLATIONS);
 
@@ -91,7 +92,7 @@ public final class Drivebase extends SubsystemBase {
               Seconds.of(2.0),
               state -> Logger.recordOutput(getName() + "/sysIdState", state.toString())),
           new SysIdRoutine.Mechanism(
-              volts -> Arrays.stream(modules).forEach(module -> module.characterizeDriveVoltage(volts)),
+              volts -> Arrays.stream(modules).forEach(module -> module.characterizeDriveVoltage(volts.in(Units.Volts))),
               null,
               this));
 
@@ -103,7 +104,7 @@ public final class Drivebase extends SubsystemBase {
               null,
               state -> Logger.recordOutput(getName() + "/state", state.toString())),
           new SysIdRoutine.Mechanism(
-              volts -> Arrays.stream(modules).forEach(module -> module.characterizeSteerVoltage(volts)),
+              volts -> Arrays.stream(modules).forEach(module -> module.characterizeSteerVoltage(volts.in(Units.Volts))),
               null,
               this));
 
@@ -134,7 +135,7 @@ public final class Drivebase extends SubsystemBase {
         this::getPose,
         this::resetOdometry,
         this::getChassisSpeeds,
-        (speeds, _) -> applyChassisSpeeds(speeds),
+        (speeds, ignored) -> applyChassisSpeeds(speeds),
         new PPHolonomicDriveController(new PIDConstants(7.0), new PIDConstants(5.0)),
         robotConfig,
         () ->
@@ -180,7 +181,7 @@ public final class Drivebase extends SubsystemBase {
   }
 
   public void applyChassisSpeeds(ChassisSpeeds speeds) {
-    applyChassisSpeeds(speeds, Robot.isTeleop() ? limits : DEFAULT_LIMITS);
+    applyChassisSpeeds(speeds, DriverStation.isTeleop() ? limits : DEFAULT_LIMITS);
   }
 
   public Command followPath(PathPlannerPath path) {
@@ -352,6 +353,14 @@ public final class Drivebase extends SubsystemBase {
 
   public double[] getWheelRadiusCharacterizationAngles() {
     return Arrays.stream(modules).mapToDouble(SwerveModule::getRadiusCharacterizationAngleRad).toArray();
+  }
+
+  public GyroIOInputsAutoLogged getGyroInputs() {
+    return gyroInputs;
+  }
+
+  public static double getDrivebaseRadiusMeters() {
+    return DRIVEBASE_RADIUS_METERS;
   }
 
   public AlignmentState getAlignmentState() {
