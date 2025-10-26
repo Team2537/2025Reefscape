@@ -51,55 +51,61 @@ import static edu.wpi.first.units.Units.*;
 /** Robot swerve drive subsystem. */
 public final class Drivebase extends SubsystemBase {
   private final SwerveModule[] modules = {
-    new SwerveModule(1, 2, 2, false, true, Rotation2d.fromRotations(0.261), MODULE_TRANSLATIONS[0]),
-    new SwerveModule(3, 4, 4, false, true, Rotation2d.fromRotations(-0.4367), MODULE_TRANSLATIONS[1]),
-    new SwerveModule(5, 6, 6, false, true, Rotation2d.fromRotations(0.1186), MODULE_TRANSLATIONS[2]),
-    new SwerveModule(7, 8, 8, false, true, Rotation2d.fromRotations(0.362), MODULE_TRANSLATIONS[3])
+      new SwerveModule(1, 2, 2, false, true, Rotation2d.fromRotations(0.261), MODULE_TRANSLATIONS[0]),
+      new SwerveModule(3, 4, 4, false, true, Rotation2d.fromRotations(-0.4367), MODULE_TRANSLATIONS[1]),
+      new SwerveModule(5, 6, 6, false, true, Rotation2d.fromRotations(0.1186), MODULE_TRANSLATIONS[2]),
+      new SwerveModule(7, 8, 8, false, true, Rotation2d.fromRotations(0.362), MODULE_TRANSLATIONS[3])
   };
 
-  private final GyroIO gyro =
-      switch (RobotType.MODE) {
-        case SIMULATION -> new GyroIOSim(this::getChassisSpeeds);
-        case REAL -> new GyroIOPigeon2(9);
-        case REPLAY -> new GyroIO() {};
-      };
+  private final GyroIO gyro = switch (RobotType.MODE) {
+    case SIMULATION -> new GyroIOSim(this::getChassisSpeeds);
+    case REAL -> new GyroIOPigeon2(9);
+    case REPLAY -> new GyroIO() {
+    };
+  };
 
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
 
   private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(MODULE_TRANSLATIONS);
 
-  private final SwerveDrivePoseEstimator odometry =
-      new SwerveDrivePoseEstimator(
-          kinematics,
-          gyroInputs.yaw,
-          getWheelPositionsArray(),
-          new Pose2d(),
-          VecBuilder.fill(0.1, 0.1, 0.1),
-          VecBuilder.fill(0.9, 0.9, 0.9));
+  private final SwerveDrivePoseEstimator odometry;
 
-  private final SysIdRoutine driveSysIdVolts =
-      new SysIdRoutine(
-          new SysIdRoutine.Config(
-              null,
-              null,
-              Seconds.of(2.0),
-              state -> Logger.recordOutput(getName() + "/sysIdState", state.toString())),
-          new SysIdRoutine.Mechanism(
-              volts -> Arrays.stream(modules).forEach(module -> module.characterizeDriveVoltage(volts.in(Units.Volts))),
-              null,
-              this));
+  {
+    // Initialize module inputs before creating odometry
+    for (SwerveModule module : modules) {
+      module.periodic();
+    }
 
-  private final SysIdRoutine steerSysIdRoutine =
-      new SysIdRoutine(
-          new SysIdRoutine.Config(
-              null,
-              null,
-              null,
-              state -> Logger.recordOutput(getName() + "/state", state.toString())),
-          new SysIdRoutine.Mechanism(
-              volts -> Arrays.stream(modules).forEach(module -> module.characterizeSteerVoltage(volts.in(Units.Volts))),
-              null,
-              this));
+    odometry = new SwerveDrivePoseEstimator(
+        kinematics,
+        gyroInputs.yaw,
+        getWheelPositionsArray(),
+        new Pose2d(),
+        VecBuilder.fill(0.1, 0.1, 0.1),
+        VecBuilder.fill(0.9, 0.9, 0.9));
+  }
+
+  private final SysIdRoutine driveSysIdVolts = new SysIdRoutine(
+      new SysIdRoutine.Config(
+          null,
+          null,
+          Seconds.of(2.0),
+          state -> Logger.recordOutput(getName() + "/sysIdState", state.toString())),
+      new SysIdRoutine.Mechanism(
+          volts -> Arrays.stream(modules).forEach(module -> module.characterizeDriveVoltage(volts.in(Units.Volts))),
+          null,
+          this));
+
+  private final SysIdRoutine steerSysIdRoutine = new SysIdRoutine(
+      new SysIdRoutine.Config(
+          null,
+          null,
+          null,
+          state -> Logger.recordOutput(getName() + "/state", state.toString())),
+      new SysIdRoutine.Mechanism(
+          volts -> Arrays.stream(modules).forEach(module -> module.characterizeSteerVoltage(volts.in(Units.Volts))),
+          null,
+          this));
 
   private final SwerveSetpointGenerator setpointGenerator;
   private SwerveSetpoint lastSetpoint;
@@ -120,9 +126,8 @@ public final class Drivebase extends SubsystemBase {
 
     robotConfig = loadRobotConfig();
     setpointGenerator = new SwerveSetpointGenerator(robotConfig, RPM.of(560.0));
-    lastSetpoint =
-        new SwerveSetpoint(
-            new ChassisSpeeds(), getWheelStatesArray(), DriveFeedforwards.zeros(modules.length));
+    lastSetpoint = new SwerveSetpoint(
+        new ChassisSpeeds(), getWheelStatesArray(), DriveFeedforwards.zeros(modules.length));
 
     AutoBuilder.configure(
         this::getPose,
@@ -131,9 +136,7 @@ public final class Drivebase extends SubsystemBase {
         (speeds, ignored) -> applyChassisSpeeds(speeds),
         new PPHolonomicDriveController(new PIDConstants(7.0), new PIDConstants(5.0)),
         robotConfig,
-        () ->
-            DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
-                == DriverStation.Alliance.Red,
+        () -> DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red,
         this);
 
     PathPlannerLogging.setLogActivePathCallback(
@@ -152,12 +155,11 @@ public final class Drivebase extends SubsystemBase {
   }
 
   public void applyChassisSpeeds(ChassisSpeeds speeds, List<Vector<N2>> moduleForces) {
-    lastSetpoint =
-        setpointGenerator.generateSetpoint(
-            lastSetpoint,
-            speeds,
-            RobotBase.isReal() ? limits : DEFAULT_LIMITS,
-            Robot.getUpdateRateSec());
+    lastSetpoint = setpointGenerator.generateSetpoint(
+        lastSetpoint,
+        speeds,
+        RobotBase.isReal() ? limits : DEFAULT_LIMITS,
+        Robot.getUpdateRateSec());
 
     for (int i = 0; i < modules.length; i++) {
       modules[i].applyState(lastSetpoint.moduleStates()[i], moduleForces.get(i));
@@ -165,9 +167,8 @@ public final class Drivebase extends SubsystemBase {
   }
 
   public void applyChassisSpeeds(ChassisSpeeds speeds, PathConstraints constraints) {
-    lastSetpoint =
-        setpointGenerator.generateSetpoint(
-            lastSetpoint, speeds, constraints, Robot.getUpdateRateSec());
+    lastSetpoint = setpointGenerator.generateSetpoint(
+        lastSetpoint, speeds, constraints, Robot.getUpdateRateSec());
     for (int i = 0; i < modules.length; i++) {
       modules[i].applyState(lastSetpoint.moduleStates()[i]);
     }
@@ -213,55 +214,51 @@ public final class Drivebase extends SubsystemBase {
       Supplier<Rotation2d> headingTarget,
       int exponent) {
     return run(() -> {
-          double forwardInput = forward.getAsDouble();
-          double strafeInput = strafe.getAsDouble();
-          double rotationInput = rotation.getAsDouble();
+      double forwardInput = forward.getAsDouble();
+      double strafeInput = strafe.getAsDouble();
+      double rotationInput = rotation.getAsDouble();
 
-          double magnitude = Math.hypot(strafeInput, forwardInput);
-          magnitude = Math.pow(magnitude, exponent);
-          Rotation2d direction = Rotation2d.fromRadians(Math.atan2(forwardInput, strafeInput));
+      double magnitude = Math.hypot(strafeInput, forwardInput);
+      magnitude = Math.pow(magnitude, exponent);
+      Rotation2d direction = Rotation2d.fromRadians(Math.atan2(forwardInput, strafeInput));
 
-          double rotationSpeed = rotationInput;
-          Rotation2d targetHeading = headingTarget.get();
-          if (targetHeading != null && Math.abs(rotationInput) < 0.1) {
-            Rotation2d goal =
-                AutoBuilder.shouldFlip() ? targetHeading.plus(Rotation2d.k180deg) : targetHeading;
-            rotationSpeed = headingPid.calculate(getPose().getRotation().getRotations(), goal.getRotations());
-          }
+      double rotationSpeed = rotationInput;
+      Rotation2d targetHeading = headingTarget.get();
+      if (targetHeading != null && Math.abs(rotationInput) < 0.1) {
+        Rotation2d goal = AutoBuilder.shouldFlip() ? targetHeading.plus(Rotation2d.k180deg) : targetHeading;
+        rotationSpeed = headingPid.calculate(getPose().getRotation().getRotations(), goal.getRotations());
+      }
 
-          double forwardScaled = magnitude * direction.getSin();
-          double strafeScaled = magnitude * direction.getCos();
+      double forwardScaled = magnitude * direction.getSin();
+      double strafeScaled = magnitude * direction.getCos();
 
-          if (alignmentState != AlignmentState.DRIVING && magnitude > inchesToMeters(2.0)) {
-            alignmentState = AlignmentState.DRIVING;
-          }
+      if (alignmentState != AlignmentState.DRIVING && magnitude > inchesToMeters(2.0)) {
+        alignmentState = AlignmentState.DRIVING;
+      }
 
-          double linearScale = selectScale(shouldBoostSupplier, shouldSlowSupplier);
-          double angularScale = selectScale(shouldBoostSupplier, shouldSlowSupplier);
+      double linearScale = selectScale(shouldBoostSupplier, shouldSlowSupplier);
+      double angularScale = selectScale(shouldBoostSupplier, shouldSlowSupplier);
 
-          ChassisSpeeds speeds;
-          if (shouldFieldOrient.getAsBoolean()) {
-            speeds =
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                    forwardScaled * MAX_LINEAR_VELOCITY_MPS * linearScale,
-                    strafeScaled * MAX_LINEAR_VELOCITY_MPS * linearScale,
-                    rotationSpeed * MAX_ANGULAR_VELOCITY_RPS * angularScale,
-                    getPose().getRotation().plus(operatorPerspective));
-          } else {
-            speeds =
-                new ChassisSpeeds(
-                    forwardScaled * MAX_LINEAR_VELOCITY_MPS * linearScale,
-                    strafeScaled * MAX_LINEAR_VELOCITY_MPS * linearScale,
-                    rotationSpeed * MAX_ANGULAR_VELOCITY_RPS * angularScale);
-          }
+      ChassisSpeeds speeds;
+      if (shouldFieldOrient.getAsBoolean()) {
+        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            forwardScaled * MAX_LINEAR_VELOCITY_MPS * linearScale,
+            strafeScaled * MAX_LINEAR_VELOCITY_MPS * linearScale,
+            rotationSpeed * MAX_ANGULAR_VELOCITY_RPS * angularScale,
+            getPose().getRotation().plus(operatorPerspective));
+      } else {
+        speeds = new ChassisSpeeds(
+            forwardScaled * MAX_LINEAR_VELOCITY_MPS * linearScale,
+            strafeScaled * MAX_LINEAR_VELOCITY_MPS * linearScale,
+            rotationSpeed * MAX_ANGULAR_VELOCITY_RPS * angularScale);
+      }
 
-          PathConstraints selected =
-              shouldSlowSupplier.getAsBoolean()
-                  ? SLOWMODE_LIMITS
-                  : (shouldBoostSupplier.getAsBoolean() ? DEFAULT_LIMITS : limits);
+      PathConstraints selected = shouldSlowSupplier.getAsBoolean()
+          ? SLOWMODE_LIMITS
+          : (shouldBoostSupplier.getAsBoolean() ? DEFAULT_LIMITS : limits);
 
-          applyChassisSpeeds(speeds, selected);
-        });
+      applyChassisSpeeds(speeds, selected);
+    });
   }
 
   private double selectScale(BooleanSupplier boost, BooleanSupplier slow) {
@@ -380,54 +377,47 @@ public final class Drivebase extends SubsystemBase {
     DRIVING
   }
 
-  private static final Translation2d[] MODULE_TRANSLATIONS =
-      new Translation2d[] {
-        new Translation2d(inchesToMeters(12.875), inchesToMeters(11.875)),
-        new Translation2d(inchesToMeters(12.875), inchesToMeters(-11.875)),
-        new Translation2d(inchesToMeters(-12.875), inchesToMeters(11.875)),
-        new Translation2d(inchesToMeters(-12.875), inchesToMeters(-11.875))
-      };
+  private static final Translation2d[] MODULE_TRANSLATIONS = new Translation2d[] {
+      new Translation2d(inchesToMeters(12.875), inchesToMeters(11.875)),
+      new Translation2d(inchesToMeters(12.875), inchesToMeters(-11.875)),
+      new Translation2d(inchesToMeters(-12.875), inchesToMeters(11.875)),
+      new Translation2d(inchesToMeters(-12.875), inchesToMeters(-11.875))
+  };
 
   private static final double MAX_LINEAR_VELOCITY_MPS = 4.5;
-  private static final double DRIVEBASE_RADIUS_METERS =
-      Arrays.stream(MODULE_TRANSLATIONS).mapToDouble(Translation2d::getNorm).max().orElse(0.0);
-  private static final double MAX_ANGULAR_VELOCITY_RPS =
-      MAX_LINEAR_VELOCITY_MPS / DRIVEBASE_RADIUS_METERS;
+  private static final double DRIVEBASE_RADIUS_METERS = Arrays.stream(MODULE_TRANSLATIONS)
+      .mapToDouble(Translation2d::getNorm).max().orElse(0.0);
+  private static final double MAX_ANGULAR_VELOCITY_RPS = MAX_LINEAR_VELOCITY_MPS / DRIVEBASE_RADIUS_METERS;
 
-  private static final PathConstraints DEFAULT_LIMITS =
-      new PathConstraints(
-          MetersPerSecond.of(MAX_LINEAR_VELOCITY_MPS),
-          MetersPerSecondPerSecond.of(14.5),
-          RadiansPerSecond.of(MAX_ANGULAR_VELOCITY_RPS),
-          DegreesPerSecondPerSecond.of(1500.0));
+  private static final PathConstraints DEFAULT_LIMITS = new PathConstraints(
+      MetersPerSecond.of(MAX_LINEAR_VELOCITY_MPS),
+      MetersPerSecondPerSecond.of(14.5),
+      RadiansPerSecond.of(MAX_ANGULAR_VELOCITY_RPS),
+      DegreesPerSecondPerSecond.of(1500.0));
 
-  private static final PathConstraints EXTENDED_LIMITS =
-      new PathConstraints(
-          MetersPerSecond.of(MAX_LINEAR_VELOCITY_MPS),
-          MetersPerSecondPerSecond.of(14.5),
-          RadiansPerSecond.of(MAX_ANGULAR_VELOCITY_RPS),
-          DegreesPerSecondPerSecond.of(1500.0));
+  private static final PathConstraints EXTENDED_LIMITS = new PathConstraints(
+      MetersPerSecond.of(MAX_LINEAR_VELOCITY_MPS),
+      MetersPerSecondPerSecond.of(14.5),
+      RadiansPerSecond.of(MAX_ANGULAR_VELOCITY_RPS),
+      DegreesPerSecondPerSecond.of(1500.0));
 
-  private static final PathConstraints SLOWMODE_LIMITS =
-      new PathConstraints(
-          FeetPerSecond.of(3.0),
-          MetersPerSecondPerSecond.of(5.5),
-          DegreesPerSecond.of(180.0),
-          DegreesPerSecondPerSecond.of(1500.0));
+  private static final PathConstraints SLOWMODE_LIMITS = new PathConstraints(
+      FeetPerSecond.of(3.0),
+      MetersPerSecondPerSecond.of(5.5),
+      DegreesPerSecond.of(180.0),
+      DegreesPerSecondPerSecond.of(1500.0));
 
-  private static final PathConstraints INTAKE_LIMITS =
-      new PathConstraints(
-          FeetPerSecond.of(3.0),
-          MetersPerSecondPerSecond.of(5.5),
-          RadiansPerSecond.of(MAX_ANGULAR_VELOCITY_RPS),
-          DegreesPerSecondPerSecond.of(2500.0));
+  private static final PathConstraints INTAKE_LIMITS = new PathConstraints(
+      FeetPerSecond.of(3.0),
+      MetersPerSecondPerSecond.of(5.5),
+      RadiansPerSecond.of(MAX_ANGULAR_VELOCITY_RPS),
+      DegreesPerSecondPerSecond.of(2500.0));
 
-  private static final PathConstraints AUTO_LIMITS =
-      new PathConstraints(
-          MetersPerSecond.of(3.0),
-          MetersPerSecondPerSecond.of(14.5),
-          DegreesPerSecond.of(540.0),
-          DegreesPerSecondPerSecond.of(720.0));
+  private static final PathConstraints AUTO_LIMITS = new PathConstraints(
+      MetersPerSecond.of(3.0),
+      MetersPerSecondPerSecond.of(14.5),
+      DegreesPerSecond.of(540.0),
+      DegreesPerSecondPerSecond.of(720.0));
 
   private static final Rotation2d BLUE_PERSPECTIVE = Rotation2d.fromDegrees(0.0);
   private static final Rotation2d RED_PERSPECTIVE = Rotation2d.fromDegrees(180.0);
