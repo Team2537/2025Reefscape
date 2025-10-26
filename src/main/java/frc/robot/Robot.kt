@@ -280,16 +280,16 @@ object Robot : LoggedRobot() {
         // val pivotAngle: Double = superstructure.manipulator.inputs.pivotAngularPosition into Radians
         // val intakeAngle: Double = intake.inputs.pivotLeftPosition into Radians
 
-        // val armAngle: Double = superstructure.arm.inputs.angle into Radians
+        val armAngle: Double = superstructure.arm.inputs.angle into Radians
 
-        // Logger.recordOutput(
-        //     "FinalComponentPoses",
-        //     // arm
-        //     Pose3d(
-        //         0.28, 0.0, 0.275,
-        //         Rotation3d(0.0, armAngle - 1.0, 0.0)
-        //     ),
-        // )
+        Logger.recordOutput(
+            "FinalComponentPoses",
+            // arm
+            Pose3d(
+                0.28, 0.0, 0.275,
+                Rotation3d(0.0, armAngle - 1.0, 0.0)
+            ),
+        )
 
 
         CommandScheduler.getInstance().run()
