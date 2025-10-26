@@ -19,20 +19,20 @@ public final class Arm extends SubsystemBase {
   private final SysIdRoutine sysIdRoutine;
 
   public Arm() {
-    this.io =
-        switch (RobotType.MODE) {
-          case REAL -> new ArmIOKraken();
-          case SIMULATION -> new ArmIOSim();
-          case REPLAY -> new ArmIO() {};
-        };
-    
+    this.io = switch (RobotType.MODE) {
+      case REAL -> new ArmIOKraken();
+      case SIMULATION -> new ArmIOSim();
+      case REPLAY -> new ArmIO() {
+      };
+    };
+
     this.sysIdRoutine = new SysIdRoutine(
         new SysIdRoutine.Config(
             null,
             Units.Volts.of(1.0),
             null,
             state -> Logger.recordOutput("arm/sysid", state.toString())),
-        new SysIdRoutine.Mechanism(voltage -> io.setVoltage(voltage.in(Units.Volts)), null, this));
+        new SysIdRoutine.Mechanism(voltage -> io.setVoltage(voltage), null, this));
   }
 
   @Override
@@ -40,8 +40,6 @@ public final class Arm extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Arm", inputs);
     Logger.recordOutput("Arm/AngleRad", inputs.angle.getRadians());
-    Logger.recordOutput("Arm/VelocityRadPerSec", inputs.angularVelocityRadPerSec);
-    Logger.recordOutput("Arm/AppliedVolts", inputs.appliedVolts);
   }
 
   private Rotation2d clampAngle(Rotation2d angle) {
@@ -55,7 +53,7 @@ public final class Arm extends SubsystemBase {
     io.setBrakeMode(brake);
   }
 
-  public void setVoltage(double volts) {
+  public void setVoltage(edu.wpi.first.units.measure.Voltage volts) {
     io.setVoltage(volts);
   }
 

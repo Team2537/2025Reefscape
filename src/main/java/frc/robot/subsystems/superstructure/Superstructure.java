@@ -1,6 +1,6 @@
 package frc.robot.subsystems.superstructure;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,7 +23,8 @@ public final class Superstructure extends SubsystemBase {
   private SuperstructureState lastRequest = SuperstructureGoals.STOW;
 
   private final Trigger isL1 = new Trigger(() -> lastRequest == SuperstructureGoals.L1);
-  private final Trigger readyToScore = new Trigger(() -> SmartDashboard.getBoolean("shouldScore", false));
+  // private final Trigger readyToScore = new Trigger(() ->
+  // SmartDashboard.getBoolean("shouldScore", false));
 
   public Superstructure(Drivebase drivebase) {
     this.drivebase = drivebase;
@@ -44,8 +45,8 @@ public final class Superstructure extends SubsystemBase {
   }
 
   public Trigger isHoldingCoral() {
-    double threshold = ManipulatorConstants.DETECTION_DISTANCE_THRESHOLD_METERS;
-    return new Trigger(() -> manipulator.getInputs().coralDistanceMeters > threshold);
+    return new Trigger(
+        () -> manipulator.getInputs().coralDistance.gt(ManipulatorConstants.DETECTION_DISTANCE_THRESHOLD));
   }
 
   public Command getSendToStateCommand(Supplier<SuperstructureState> stateSupplier) {
@@ -64,10 +65,8 @@ public final class Superstructure extends SubsystemBase {
 
   public Trigger getStateAchievedTrigger(SuperstructureState target) {
     return new Trigger(
-        () ->
-            Math.abs(
-                    arm.getAngle().minus(target.getArmAngle()).getDegrees())
-                < 2.0);
+        () -> Math.abs(
+            arm.getAngle().minus(target.getArmAngle()).getDegrees()) < 2.0);
   }
 
   public Command getScoreCommand(BooleanSupplier shouldScore) {

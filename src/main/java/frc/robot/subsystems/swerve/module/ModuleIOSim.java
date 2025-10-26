@@ -5,6 +5,10 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Robot;
 import lib.math.controllers.gains.FeedforwardGains;
@@ -30,19 +34,15 @@ public final class ModuleIOSim implements ModuleIO {
       DCMotor turnMotorGearbox,
       double turnGearing,
       double wheelRadiusMeters) {
-    this.driveMotor =
-        new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(driveMotorGearbox, 0.025, driveGearing),
-            driveMotorGearbox);
-    this.turnMotor =
-        new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(turnMotorGearbox, 0.004, turnGearing),
-            turnMotorGearbox);
+    this.driveMotor = new DCMotorSim(
+        LinearSystemId.createDCMotorSystem(driveMotorGearbox, 0.025, driveGearing),
+        driveMotorGearbox);
+    this.turnMotor = new DCMotorSim(
+        LinearSystemId.createDCMotorSystem(turnMotorGearbox, 0.004, turnGearing),
+        turnMotorGearbox);
 
-    this.driveFeedforward =
-        new SimpleMotorFeedforward(driveFF.getKS(), driveFF.getKV(), driveFF.getKA());
-    this.turnFeedforward =
-        new SimpleMotorFeedforward(turnFF.getKS(), turnFF.getKV(), turnFF.getKA());
+    this.driveFeedforward = new SimpleMotorFeedforward(driveFF.getKS(), driveFF.getKV(), driveFF.getKA());
+    this.turnFeedforward = new SimpleMotorFeedforward(turnFF.getKS(), turnFF.getKV(), turnFF.getKA());
 
     this.driveFeedback = new PIDController(driveGains.getKP(), driveGains.getKI(), driveGains.getKD());
     this.turnFeedback = new PIDController(turnGains.getKP(), turnGains.getKI(), turnGains.getKD());
@@ -58,30 +58,32 @@ public final class ModuleIOSim implements ModuleIO {
     inputs.turnMotorConnected = true;
     inputs.absoluteEncoderConnected = true;
 
-    inputs.drivePositionMeters = driveMotor.getAngularPositionRad() * wheelRadiusMeters;
-    inputs.driveVelocityMetersPerSec = driveMotor.getAngularVelocityRadPerSec() * wheelRadiusMeters;
-    inputs.drivePositionRad = driveMotor.getAngularPositionRad();
-    inputs.driveVelocityRadPerSec = driveMotor.getAngularVelocityRadPerSec();
-    inputs.driveAppliedVolts = driveMotor.getInputVoltage();
-    inputs.driveStatorCurrentAmps = driveMotor.getCurrentDrawAmps();
-    inputs.driveSupplyCurrentAmps = driveMotor.getCurrentDrawAmps();
+    inputs.drivePosition = Units.Meters.of(driveMotor.getAngularPositionRad() * wheelRadiusMeters);
+    inputs.driveVelocity = Units.MetersPerSecond.of(driveMotor.getAngularVelocityRadPerSec() * wheelRadiusMeters);
+    inputs.drivePositionRad = Units.Radians.of(driveMotor.getAngularPositionRad());
+    inputs.driveVelocityRadPerSec = Units.RadiansPerSecond.of(driveMotor.getAngularVelocityRadPerSec());
+    inputs.driveAppliedVolts = Units.Volts.of(driveMotor.getInputVoltage());
+    inputs.driveStatorCurrent = Units.Amps.of(driveMotor.getCurrentDrawAmps());
+    inputs.driveSupplyCurrent = Units.Amps.of(driveMotor.getCurrentDrawAmps());
+    inputs.driveTorqueCurrent = Units.Amps.zero();
+    inputs.driveTargetVelocity = Units.RadiansPerSecond.zero();
 
     inputs.turnPosition = Rotation2d.fromRadians(turnMotor.getAngularPositionRad());
     inputs.absoluteTurnPosition = inputs.turnPosition;
-    inputs.turnVelocityRadPerSec = turnMotor.getAngularVelocityRadPerSec();
-    inputs.turnAppliedVolts = turnMotor.getInputVoltage();
-    inputs.turnStatorCurrentAmps = turnMotor.getCurrentDrawAmps();
-    inputs.turnSupplyCurrentAmps = turnMotor.getCurrentDrawAmps();
+    inputs.turnVelocity = Units.RadiansPerSecond.of(turnMotor.getAngularVelocityRadPerSec());
+    inputs.turnAppliedVolts = Units.Volts.of(turnMotor.getInputVoltage());
+    inputs.turnStatorCurrent = Units.Amps.of(turnMotor.getCurrentDrawAmps());
+    inputs.turnSupplyCurrent = Units.Amps.of(turnMotor.getCurrentDrawAmps());
   }
 
   @Override
-  public void setDriveVoltage(double volts) {
-    driveMotor.setInputVoltage(volts);
+  public void setDriveVoltage(Voltage volts) {
+    driveMotor.setInputVoltage(volts.in(Units.Volts));
   }
 
   @Override
-  public void setTurnVoltage(double volts) {
-    turnMotor.setInputVoltage(volts);
+  public void setTurnVoltage(Voltage volts) {
+    turnMotor.setInputVoltage(volts.in(Units.Volts));
   }
 
   @Override
@@ -93,7 +95,8 @@ public final class ModuleIOSim implements ModuleIO {
   }
 
   @Override
-  public void setDriveVelocity(double velocityMetersPerSec) {
+  public void setDriveVelocity(LinearVelocity velocity) {
+    double velocityMetersPerSec = velocity.in(Units.MetersPerSecond);
     double velocityRadPerSec = velocityMetersPerSec / wheelRadiusMeters;
     double ff = driveFeedforward.calculate(velocityRadPerSec);
     double fb = driveFeedback.calculate(driveMotor.getAngularVelocityRadPerSec(), velocityRadPerSec);
@@ -101,8 +104,8 @@ public final class ModuleIOSim implements ModuleIO {
   }
 
   @Override
-  public void setDriveVelocity(double velocityMetersPerSec, double torqueCurrentAmps) {
-    setDriveVelocity(velocityMetersPerSec);
+  public void setDriveVelocity(LinearVelocity velocity, Current torqueCurrent) {
+    setDriveVelocity(velocity);
   }
 
   @Override

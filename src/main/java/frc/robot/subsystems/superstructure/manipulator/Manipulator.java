@@ -14,12 +14,12 @@ public final class Manipulator extends SubsystemBase {
   private final ManipulatorIOInputsAutoLogged inputs = new ManipulatorIOInputsAutoLogged();
 
   public Manipulator() {
-    this.io =
-        switch (RobotType.MODE) {
-          case REAL -> new ManipulatorIOKraken();
-          case SIMULATION -> new ManipulatorIOSim();
-          case REPLAY -> new ManipulatorIO() {};
-        };
+    this.io = switch (RobotType.MODE) {
+      case REAL -> new ManipulatorIOKraken();
+      case SIMULATION -> new ManipulatorIOSim();
+      case REPLAY -> new ManipulatorIO() {
+      };
+    };
   }
 
   @Override
@@ -35,9 +35,8 @@ public final class Manipulator extends SubsystemBase {
 
   public Command getSpinRollersInSlowCommand() {
     return Commands.runOnce(
-        () ->
-            io.setRollerTorqueCurrent(
-                0.25 * ManipulatorConstants.ROLLER_IN_TORQUE_CURRENT));
+        () -> io.setRollerTorqueCurrent(
+            ManipulatorConstants.ROLLER_IN_TORQUE_CURRENT.times(0.25)));
   }
 
   public Command getSpinRollersOutCommand() {
@@ -51,9 +50,7 @@ public final class Manipulator extends SubsystemBase {
 
   public Trigger isDetectingGamePiece() {
     return new Trigger(
-        () ->
-            inputs.coralDistanceMeters <
-                ManipulatorConstants.DETECTION_DISTANCE_THRESHOLD_METERS);
+        () -> inputs.coralDistance.lt(ManipulatorConstants.DETECTION_DISTANCE_THRESHOLD));
   }
 
   public ManipulatorIO.ManipulatorIOInputs getInputs() {

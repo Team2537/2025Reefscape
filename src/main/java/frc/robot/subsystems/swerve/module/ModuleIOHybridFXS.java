@@ -25,11 +25,14 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import lib.math.controllers.gains.FeedforwardGains;
 import lib.math.controllers.gains.PIDGains;
 
-/** Real robot module IO layer that uses Talon FX drive with Talon FXS steering. */
+/**
+ * Real robot module IO layer that uses Talon FX drive with Talon FXS steering.
+ */
 public final class ModuleIOHybridFXS implements ModuleIO {
   private final TalonFX driveMotor;
   private final TalonFXS turnMotor;
@@ -88,8 +91,8 @@ public final class ModuleIOHybridFXS implements ModuleIO {
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveConfig.TorqueCurrent.withPeakForwardTorqueCurrent(120.0);
     driveConfig.TorqueCurrent.withPeakReverseTorqueCurrent(-120.0);
-    driveConfig.MotorOutput.Inverted =
-        driveInverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+    driveConfig.MotorOutput.Inverted = driveInverted ? InvertedValue.Clockwise_Positive
+        : InvertedValue.CounterClockwise_Positive;
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveMotor.getConfigurator().apply(driveConfig);
 
@@ -105,14 +108,13 @@ public final class ModuleIOHybridFXS implements ModuleIO {
     TalonFXSConfiguration turnConfig = new TalonFXSConfiguration();
     turnConfig.ExternalFeedback.RotorToSensorRatio = turnGearing;
     turnConfig.ExternalFeedback.FeedbackRemoteSensorID = encoderID;
-    turnConfig.ExternalFeedback.ExternalFeedbackSensorSource =
-        ExternalFeedbackSensorSourceValue.FusedCANcoder;
+    turnConfig.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.FusedCANcoder;
     turnConfig.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST;
     turnConfig.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled;
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    turnConfig.MotorOutput.Inverted =
-        turnInverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+    turnConfig.MotorOutput.Inverted = turnInverted ? InvertedValue.Clockwise_Positive
+        : InvertedValue.CounterClockwise_Positive;
     turnConfig.Slot0.kP = turnPID.getKP();
     turnConfig.Slot0.kI = turnPID.getKI();
     turnConfig.Slot0.kD = turnPID.getKD();
@@ -138,55 +140,52 @@ public final class ModuleIOHybridFXS implements ModuleIO {
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
-    inputs.driveMotorConnected =
-        BaseStatusSignal.refreshAll(
-                    drivePosition,
-                    driveVelocity,
-                    driveSupplyVolts,
-                    driveMotorVolts,
-                    driveStatorCurrent,
-                    driveSupplyCurrent,
-                    driveTorqueCurrent)
-                .isOK();
+    inputs.driveMotorConnected = BaseStatusSignal.refreshAll(
+        drivePosition,
+        driveVelocity,
+        driveSupplyVolts,
+        driveMotorVolts,
+        driveStatorCurrent,
+        driveSupplyCurrent,
+        driveTorqueCurrent)
+        .isOK();
 
-    inputs.turnMotorConnected =
-        BaseStatusSignal.refreshAll(
-                    turnPosition,
-                    turnVelocity,
-                    turnSupplyCurrent,
-                    turnAppliedVoltage,
-                    turnStatorCurrent)
-                .isOK();
+    inputs.turnMotorConnected = BaseStatusSignal.refreshAll(
+        turnPosition,
+        turnVelocity,
+        turnSupplyCurrent,
+        turnAppliedVoltage,
+        turnStatorCurrent)
+        .isOK();
 
-    inputs.absoluteEncoderConnected =
-        BaseStatusSignal.refreshAll(absoluteTurnPosition).isOK();
+    inputs.absoluteEncoderConnected = BaseStatusSignal.refreshAll(absoluteTurnPosition).isOK();
 
-    inputs.driveVelocityRadPerSec = driveVelocity.getValueAsDouble();
-    inputs.driveVelocityMetersPerSec = inputs.driveVelocityRadPerSec * wheelRadiusMeters;
-    inputs.drivePositionRad = drivePosition.getValueAsDouble();
-    inputs.drivePositionMeters = inputs.drivePositionRad * wheelRadiusMeters;
-    inputs.driveAppliedVolts = driveMotorVolts.getValueAsDouble();
-    inputs.driveStatorCurrentAmps = driveStatorCurrent.getValueAsDouble();
-    inputs.driveSupplyCurrentAmps = driveSupplyCurrent.getValueAsDouble();
-    inputs.driveTorqueCurrentAmps = driveTorqueCurrent.getValueAsDouble();
+    inputs.driveVelocityRadPerSec = driveVelocity.getValue();
+    inputs.driveVelocity = Units.MetersPerSecond.of(driveVelocity.getValueAsDouble() * wheelRadiusMeters);
+    inputs.drivePositionRad = Units.Radians.of(drivePosition.getValueAsDouble());
+    inputs.drivePosition = Units.Meters.of(drivePosition.getValueAsDouble() * wheelRadiusMeters);
+    inputs.driveAppliedVolts = driveMotorVolts.getValue();
+    inputs.driveStatorCurrent = driveStatorCurrent.getValue();
+    inputs.driveSupplyCurrent = driveSupplyCurrent.getValue();
+    inputs.driveTorqueCurrent = driveTorqueCurrent.getValue();
+    inputs.driveTargetVelocity = Units.RadiansPerSecond.zero();
 
     inputs.turnPosition = Rotation2d.fromRotations(turnPosition.getValueAsDouble());
-    inputs.absoluteTurnPosition =
-        Rotation2d.fromRotations(absoluteTurnPosition.getValueAsDouble());
-    inputs.turnVelocityRadPerSec = turnVelocity.getValueAsDouble();
-    inputs.turnAppliedVolts = turnAppliedVoltage.getValueAsDouble();
-    inputs.turnStatorCurrentAmps = turnStatorCurrent.getValueAsDouble();
-    inputs.turnSupplyCurrentAmps = turnSupplyCurrent.getValueAsDouble();
+    inputs.absoluteTurnPosition = Rotation2d.fromRotations(absoluteTurnPosition.getValueAsDouble());
+    inputs.turnVelocity = turnVelocity.getValue();
+    inputs.turnAppliedVolts = turnAppliedVoltage.getValue();
+    inputs.turnStatorCurrent = turnStatorCurrent.getValue();
+    inputs.turnSupplyCurrent = turnSupplyCurrent.getValue();
   }
 
   @Override
-  public void setDriveVoltage(double volts) {
-    driveMotor.setControl(openLoopDriveRequest.withOutput(volts));
+  public void setDriveVoltage(Voltage volts) {
+    driveMotor.setControl(openLoopDriveRequest.withOutput(volts.in(Units.Volts)));
   }
 
   @Override
-  public void setTurnVoltage(double volts) {
-    turnMotor.setVoltage(volts);
+  public void setTurnVoltage(Voltage volts) {
+    turnMotor.setVoltage(volts.in(Units.Volts));
   }
 
   @Override
@@ -195,16 +194,16 @@ public final class ModuleIOHybridFXS implements ModuleIO {
   }
 
   @Override
-  public void setDriveVelocity(double velocityMetersPerSec) {
-    setDriveVelocity(velocityMetersPerSec, 0.0);
+  public void setDriveVelocity(LinearVelocity velocity) {
+    setDriveVelocity(velocity, Units.Amps.zero());
   }
 
   @Override
-  public void setDriveVelocity(double velocityMetersPerSec, double torqueCurrentAmps) {
+  public void setDriveVelocity(LinearVelocity velocity, Current torqueCurrent) {
+    double velocityMetersPerSec = velocity.in(Units.MetersPerSecond);
     double velocityRadPerSec = velocityMetersPerSec / wheelRadiusMeters;
     AngularVelocity velocityMeasure = Units.RadiansPerSecond.of(velocityRadPerSec);
-    Current ff = Units.Amps.of(torqueCurrentAmps);
-    driveMotor.setControl(closedLoopDriveRequest.withVelocity(velocityMeasure).withFeedForward(ff));
+    driveMotor.setControl(closedLoopDriveRequest.withVelocity(velocityMeasure).withFeedForward(torqueCurrent));
   }
 
   @Override
@@ -254,7 +253,7 @@ public final class ModuleIOHybridFXS implements ModuleIO {
   }
 
   @Override
-  public void setDriveCurrent(double currentAmps) {
-    driveMotor.setControl(openLoopTorqueRequest.withOutput(Units.Amps.of(currentAmps)));
+  public void setDriveCurrent(Current current) {
+    driveMotor.setControl(openLoopTorqueRequest.withOutput(current));
   }
 }

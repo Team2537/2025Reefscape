@@ -4,6 +4,8 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.subsystems.superstructure.SuperstructureGoals;
@@ -16,7 +18,7 @@ public final class ArmIOSim implements ArmIO {
 
   private boolean positionControl = false;
   private Rotation2d targetAngle = Rotation2d.fromDegrees(0.0);
-  private double appliedVolts = 0.0;
+  private Voltage appliedVolts = Units.Volts.zero();
 
   public ArmIOSim() {
     this(
@@ -33,16 +35,15 @@ public final class ArmIOSim implements ArmIO {
       double armLengthMeters,
       PIDGains pidGains,
       FeedforwardGains ffGains) {
-    this.sim =
-        new SingleJointedArmSim(
-            DCMotor.getNEO(2),
-            gearing,
-            momentOfInertiaKgM2,
-            armLengthMeters,
-            ArmConstants.MIN_ANGLE.getRadians(),
-            ArmConstants.MAX_ANGLE.getRadians(),
-            true,
-            SuperstructureGoals.STOW.getArmAngle().getRadians());
+    this.sim = new SingleJointedArmSim(
+        DCMotor.getNEO(2),
+        gearing,
+        momentOfInertiaKgM2,
+        armLengthMeters,
+        ArmConstants.MIN_ANGLE.getRadians(),
+        ArmConstants.MAX_ANGLE.getRadians(),
+        true,
+        SuperstructureGoals.STOW.getArmAngle().getRadians());
     this.pid = new PIDController(pidGains.kP(), pidGains.kI(), pidGains.kD());
     this.feedforward = new ArmFeedforward(ffGains.kS(), ffGains.kG(), ffGains.kV(), ffGains.kA());
   }
@@ -52,23 +53,23 @@ public final class ArmIOSim implements ArmIO {
     if (positionControl) {
       double pidOutput = pid.calculate(sim.getAngleRads(), targetAngle.getRadians());
       double ffOutput = feedforward.calculate(targetAngle.getRadians(), 0.0);
-      appliedVolts = pidOutput + ffOutput;
+      appliedVolts = Units.Volts.of(pidOutput + ffOutput);
     }
 
-    sim.setInputVoltage(appliedVolts);
+    sim.setInputVoltage(appliedVolts.in(Units.Volts));
     sim.update(0.02);
 
     inputs.leftMotorConnected = true;
     inputs.rightMotorConnected = true;
     inputs.angle = Rotation2d.fromRadians(sim.getAngleRads());
-    inputs.angularVelocityRadPerSec = sim.getVelocityRadPerSec();
+    inputs.angularVelocity = Units.RadiansPerSecond.of(sim.getVelocityRadPerSec());
     inputs.appliedVolts = appliedVolts;
-    inputs.leftStatorCurrentAmps = sim.getCurrentDrawAmps();
-    inputs.rightStatorCurrentAmps = sim.getCurrentDrawAmps();
+    inputs.leftStatorCurrent = Units.Amps.of(sim.getCurrentDrawAmps());
+    inputs.rightStatorCurrent = Units.Amps.of(sim.getCurrentDrawAmps());
   }
 
   @Override
-  public void setVoltage(double volts) {
+  public void setVoltage(Voltage volts) {
     positionControl = false;
     appliedVolts = volts;
   }
@@ -87,10 +88,12 @@ public final class ArmIOSim implements ArmIO {
 
   @Override
   public void stop() {
-    appliedVolts = 0.0;
+    appliedVolts = Units.Volts.zero();
   }
 
-  public record PIDGains(double kP, double kI, double kD) {}
+  public record PIDGains(double kP, double kI, double kD) {
+  }
 
-  public record FeedforwardGains(double kS, double kG, double kV, double kA) {}
+  public record FeedforwardGains(double kS, double kG, double kV, double kA) {
+  }
 }

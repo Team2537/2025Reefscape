@@ -33,12 +33,11 @@ public final class SwerveModule {
   private static final DCMotor DRIVE_MOTOR = DCMotor.getKrakenX60Foc(1);
   private static final DCMotor TURN_MOTOR = DCMotor.getNEO(1);
 
-  private static final ControllerGains DRIVE_TORQUE_GAINS =
-      new ControllerGains(new PIDGains(10.0, 0.0, 0.0), new FeedforwardGains(1.15, 0.0, 0.0));
+  private static final ControllerGains DRIVE_TORQUE_GAINS = new ControllerGains(new PIDGains(10.0, 0.0, 0.0),
+      new FeedforwardGains(1.15, 0.0, 0.0));
 
-  private static final ControllerGains DRIVE_VELOCITY_VOLTAGE_GAINS =
-      new ControllerGains(
-          new PIDGains(0.88842, 0.0, 0.0), new FeedforwardGains(0.34113, 1.9168, 0.081352));
+  private static final ControllerGains DRIVE_VELOCITY_VOLTAGE_GAINS = new ControllerGains(
+      new PIDGains(0.88842, 0.0, 0.0), new FeedforwardGains(0.34113, 1.9168, 0.081352));
 
   public SwerveModule(
       int driveID,
@@ -51,8 +50,8 @@ public final class SwerveModule {
     this.index = (driveID - 1) / 3;
     this.modulePosition = modulePosition;
 
-    positiveRotationVector =
-        VectorFunctions.vectorFromRotation(modulePosition.getAngle().plus(Rotation2d.fromDegrees(90.0)));
+    positiveRotationVector = VectorFunctions
+        .vectorFromRotation(modulePosition.getAngle().plus(Rotation2d.fromDegrees(90.0)));
 
     io = createIO(driveID, turnID, encoderID, invertDrive, invertTurn, encoderOffset);
   }
@@ -66,43 +65,43 @@ public final class SwerveModule {
       Rotation2d encoderOffset) {
     return switch (RobotType.MODE) {
       case SIMULATION ->
-          new ModuleIOSim(
-              new FeedforwardGains(0.0, 12.0 / 97.0, 0.0),
-              new PIDGains(0.01, 0.0, 0.0),
-              DRIVE_MOTOR,
-              DRIVE_GEARING,
-              new FeedforwardGains(),
-              new PIDGains(),
-              TURN_MOTOR,
-              TURN_GEARING,
-              WHEEL_RADIUS_METERS);
+        new ModuleIOSim(
+            new FeedforwardGains(0.0, 12.0 / 97.0, 0.0),
+            new PIDGains(0.01, 0.0, 0.0),
+            DRIVE_MOTOR,
+            DRIVE_GEARING,
+            new FeedforwardGains(),
+            new PIDGains(),
+            TURN_MOTOR,
+            TURN_GEARING,
+            WHEEL_RADIUS_METERS);
       case REAL ->
-          new ModuleIOHybridFXS(
-              driveID,
-              DRIVE_GEARING,
-              invertDrive,
-              DRIVE_TORQUE_GAINS.getFeedforward(),
-              DRIVE_TORQUE_GAINS.getPid(),
-              turnID,
-              TURN_GEARING,
-              invertTurn,
-              new FeedforwardGains(0.14403, 0.0, 0.0),
-              new PIDGains(50.0, 0.0, 0.5),
-              encoderID,
-              encoderOffset,
-              Units.Meter.of(WHEEL_RADIUS_METERS));
-      case REPLAY -> new ModuleIO() {};
+        new ModuleIOHybridFXS(
+            driveID,
+            DRIVE_GEARING,
+            invertDrive,
+            DRIVE_TORQUE_GAINS.getFeedforward(),
+            DRIVE_TORQUE_GAINS.getPid(),
+            turnID,
+            TURN_GEARING,
+            invertTurn,
+            new FeedforwardGains(0.14403, 0.0, 0.0),
+            new PIDGains(50.0, 0.0, 0.5),
+            encoderID,
+            encoderOffset,
+            Units.Meter.of(WHEEL_RADIUS_METERS));
+      case REPLAY -> new ModuleIO() {
+      };
     };
   }
 
   public void periodic() {
     io.updateInputs(inputs);
 
-    double driveError = inputs.driveVelocityMetersPerSec - desiredState.speedMetersPerSecond;
+    double driveError = inputs.driveVelocity.in(Units.MetersPerSecond) - desiredState.speedMetersPerSecond;
     Logger.recordOutput("modules/" + index + "/driveError", driveError);
 
-    double turnError =
-        desiredState.angle.minus(inputs.absoluteTurnPosition).getRadians();
+    double turnError = desiredState.angle.minus(inputs.absoluteTurnPosition).getRadians();
     Logger.recordOutput("modules/" + index + "/turnError", turnError);
   }
 
@@ -115,7 +114,7 @@ public final class SwerveModule {
     Logger.recordOutput("modules/" + index + "/postOptimize", SwerveModuleState.struct, scaled);
 
     io.setTurnPosition(scaled.angle);
-    io.setDriveVelocity(scaled.speedMetersPerSecond);
+    io.setDriveVelocity(Units.MetersPerSecond.of(scaled.speedMetersPerSecond));
     desiredState = scaled;
     wheelForce = new SwerveModuleState(0.0, scaled.angle);
   }
@@ -125,12 +124,13 @@ public final class SwerveModule {
     optimized.cosineScale(inputs.absoluteTurnPosition);
     SwerveModuleState scaled = optimized;
 
-    Vector<N2> wheelDirection =
-        VectorFunctions.vectorFromRotation(getState().angle);
+    Vector<N2> wheelDirection = VectorFunctions.vectorFromRotation(getState().angle);
     double wheelTorqueNm = moduleForce.dot(wheelDirection) * WHEEL_RADIUS_METERS;
 
     io.setTurnPosition(scaled.angle);
-    io.setDriveVelocity(scaled.speedMetersPerSecond, wheelTorqueNm * DRIVE_MOTOR.KtNMPerAmp);
+    io.setDriveVelocity(
+        Units.MetersPerSecond.of(scaled.speedMetersPerSecond),
+        Units.Amps.of(wheelTorqueNm * DRIVE_MOTOR.KtNMPerAmp));
 
     wheelForce = new SwerveModuleState(wheelTorqueNm, scaled.angle);
     desiredState = scaled;
@@ -138,21 +138,21 @@ public final class SwerveModule {
 
   public void characterizeDriveVoltage(double volts) {
     io.setTurnPosition(Rotation2d.kZero);
-    io.setDriveVoltage(volts);
+    io.setDriveVoltage(Units.Volts.of(volts));
   }
 
   public void characterizeSteerVoltage(double volts) {
-    io.setTurnVoltage(volts);
-    io.setDriveVoltage(0.0);
+    io.setTurnVoltage(Units.Volts.of(volts));
+    io.setDriveVoltage(Units.Volts.zero());
   }
 
   public void characterizeCurrent(double currentAmps) {
     io.setTurnPosition(Rotation2d.kZero);
-    io.setDriveCurrent(currentAmps);
+    io.setDriveCurrent(Units.Amps.of(currentAmps));
   }
 
   public SwerveModuleState getState() {
-    return new SwerveModuleState(inputs.driveVelocityMetersPerSec, inputs.absoluteTurnPosition);
+    return new SwerveModuleState(inputs.driveVelocity.in(Units.MetersPerSecond), inputs.absoluteTurnPosition);
   }
 
   public SwerveModuleState getDesiredState() {
@@ -160,11 +160,11 @@ public final class SwerveModule {
   }
 
   public SwerveModulePosition getPosition() {
-    return new SwerveModulePosition(inputs.drivePositionMeters, inputs.absoluteTurnPosition);
+    return new SwerveModulePosition(inputs.drivePosition.in(Units.Meters), inputs.absoluteTurnPosition);
   }
 
   public double getRadiusCharacterizationAngleRad() {
-    return inputs.drivePositionRad;
+    return inputs.drivePositionRad.in(Units.Radians);
   }
 
   public SwerveModuleState getWheelForce() {

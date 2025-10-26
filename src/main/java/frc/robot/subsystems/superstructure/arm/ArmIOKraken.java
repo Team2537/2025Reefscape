@@ -35,10 +35,9 @@ public final class ArmIOKraken implements ArmIO {
     double mechanismRatio = ArmConstants.GEAR_RATIO * ArmConstants.CHAIN_RATIO;
 
     TalonFXConfiguration leftConfig = new TalonFXConfiguration();
-    leftConfig.MotorOutput.Inverted =
-        ArmConstants.LEFT_INVERTED
-            ? InvertedValue.CounterClockwise_Positive
-            : InvertedValue.Clockwise_Positive;
+    leftConfig.MotorOutput.Inverted = ArmConstants.LEFT_INVERTED
+        ? InvertedValue.CounterClockwise_Positive
+        : InvertedValue.Clockwise_Positive;
     leftConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     leftConfig.Feedback.SensorToMechanismRatio = mechanismRatio;
     leftConfig.CurrentLimits.StatorCurrentLimit = 60.0;
@@ -56,10 +55,9 @@ public final class ArmIOKraken implements ArmIO {
     left.getConfigurator().apply(leftConfig);
 
     TalonFXConfiguration rightConfig = new TalonFXConfiguration();
-    rightConfig.MotorOutput.Inverted =
-        ArmConstants.RIGHT_INVERTED
-            ? InvertedValue.CounterClockwise_Positive
-            : InvertedValue.Clockwise_Positive;
+    rightConfig.MotorOutput.Inverted = ArmConstants.RIGHT_INVERTED
+        ? InvertedValue.CounterClockwise_Positive
+        : InvertedValue.Clockwise_Positive;
     rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     rightConfig.Feedback.SensorToMechanismRatio = mechanismRatio;
     rightConfig.CurrentLimits.StatorCurrentLimit = 60.0;
@@ -87,16 +85,16 @@ public final class ArmIOKraken implements ArmIO {
     inputs.leftMotorConnected = true;
     inputs.rightMotorConnected = true;
     inputs.angle = Rotation2d.fromRotations(leftPosition.getValueAsDouble());
-    inputs.angularVelocityRadPerSec = leftVelocity.getValueAsDouble();
-    inputs.appliedVolts = leftVoltage.getValueAsDouble();
-    inputs.leftStatorCurrentAmps = leftCurrent.getValueAsDouble();
-    inputs.rightStatorCurrentAmps = rightCurrent.getValueAsDouble();
+    inputs.angularVelocity = leftVelocity.getValue();
+    inputs.appliedVolts = leftVoltage.getValue();
+    inputs.leftStatorCurrent = leftCurrent.getValue();
+    inputs.rightStatorCurrent = rightCurrent.getValue();
   }
 
   @Override
-  public void setVoltage(double volts) {
-    left.setControl(voltageRequest.withOutput(volts));
-    right.setControl(voltageRequest.withOutput(volts));
+  public void setVoltage(Voltage volts) {
+    left.setControl(voltageRequest.withOutput(volts.in(Units.Volts)));
+    right.setControl(voltageRequest.withOutput(volts.in(Units.Volts)));
   }
 
   @Override
@@ -121,6 +119,6 @@ public final class ArmIOKraken implements ArmIO {
 
   @Override
   public void stop() {
-    setVoltage(0.0);
+    setVoltage(Units.Volts.zero());
   }
 }

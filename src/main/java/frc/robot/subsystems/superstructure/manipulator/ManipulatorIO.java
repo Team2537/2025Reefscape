@@ -1,5 +1,9 @@
 package frc.robot.subsystems.superstructure.manipulator;
 
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
 /** IO layer for the manipulator rollers. */
@@ -9,28 +13,34 @@ public interface ManipulatorIO {
     public boolean leftRollerConnected;
     public boolean rightRollerConnected;
 
-    public double leftRollerVelocityRadPerSec;
-    public double leftRollerAppliedVolts;
-    public double leftRollerStatorCurrentAmps;
-    public double leftRollerTorqueCurrentAmps;
+    public AngularVelocity leftRollerVelocity;
+    public Voltage leftRollerAppliedVolts;
+    public Current leftRollerStatorCurrent;
+    public Current leftRollerTorqueCurrent;
 
-    public double rightRollerVelocityRadPerSec;
-    public double rightRollerAppliedVolts;
-    public double rightRollerStatorCurrentAmps;
-    public double rightRollerTorqueCurrentAmps;
+    public AngularVelocity rightRollerVelocity;
+    public Voltage rightRollerAppliedVolts;
+    public Current rightRollerStatorCurrent;
+    public Current rightRollerTorqueCurrent;
 
-    public double coralDistanceMeters;
+    public Distance coralDistance;
   }
 
-  default void updateInputs(ManipulatorIOInputs inputs) {}
+  default void updateInputs(ManipulatorIOInputs inputs) {
+  }
 
-  default void setRollerVoltage(double volts) {}
+  default void setRollerVoltage(Voltage volts) {
+  }
 
-  default void setLeftRightRollerVoltages(double leftVolts, double rightVolts) {}
+  default void setLeftRightRollerVoltages(Voltage leftVolts, Voltage rightVolts) {
+  }
 
-  default void setRollerTorqueCurrent(double amps) {}
+  default void setRollerTorqueCurrent(Current amps) {
+  }
 
-  default void setLeftRightRollerTorqueCurrents(double leftAmps, double rightAmps) {}
+  default void setLeftRightRollerTorqueCurrents(Current leftAmps, Current rightAmps) {
+  }
 
-  default void stopRoller() {}
+  default void stopRoller() {
+  }
 }

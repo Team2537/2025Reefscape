@@ -1,10 +1,16 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Voltage;
 
 /** Robot-wide constants expressed in standard units. */
 public final class Constants {
-  private Constants() {}
+  private Constants() {
+  }
 
   public static final class ArmConstants {
     public static final int LEFT_MOTOR_ID = 22;
@@ -29,7 +35,8 @@ public final class Constants {
     public static final double KV = 9.93;
     public static final double KA = 0.0;
 
-    private ArmConstants() {}
+    private ArmConstants() {
+    }
   }
 
   public static final class ManipulatorConstants {
@@ -40,15 +47,16 @@ public final class Constants {
     public static final boolean RIGHT_ROLLER_INVERTED = true;
     public static final double ROLLER_GEARING = 1.0;
 
-    public static final double ROLLER_IN_VOLTAGE = 3.0;
-    public static final double ROLLER_OUT_VOLTAGE = -4.0;
-    public static final double ROLLER_IN_TORQUE_CURRENT = 10.0;
-    public static final double ROLLER_OUT_TORQUE_CURRENT = -30.0;
+    public static final Voltage ROLLER_IN_VOLTAGE = Units.Volts.of(3.0);
+    public static final Voltage ROLLER_OUT_VOLTAGE = Units.Volts.of(-4.0);
+    public static final Current ROLLER_IN_TORQUE_CURRENT = Units.Amps.of(10.0);
+    public static final Current ROLLER_OUT_TORQUE_CURRENT = Units.Amps.of(-30.0);
 
-    public static final double DETECTION_DISTANCE_THRESHOLD_METERS = 0.1;
+    public static final Distance DETECTION_DISTANCE_THRESHOLD = Units.Meters.of(0.1);
 
-    public static final double SIM_ROLLER_MOI = 0.1; // kg m^2
+    public static final MomentOfInertia SIM_ROLLER_MOI = Units.KilogramSquareMeters.of(0.1);
 
-    private ManipulatorConstants() {}
+    private ManipulatorConstants() {
+    }
   }
 }

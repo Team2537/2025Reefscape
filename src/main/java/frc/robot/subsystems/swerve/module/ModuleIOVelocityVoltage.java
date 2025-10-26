@@ -25,6 +25,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import lib.math.controllers.gains.FeedforwardGains;
 import lib.math.controllers.gains.PIDGains;
@@ -87,8 +88,8 @@ public final class ModuleIOVelocityVoltage implements ModuleIO {
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveConfig.TorqueCurrent.withPeakForwardTorqueCurrent(120.0);
     driveConfig.TorqueCurrent.withPeakReverseTorqueCurrent(-120.0);
-    driveConfig.MotorOutput.Inverted =
-        driveInverted ? InvertedValue.CounterClockwise_Positive : InvertedValue.Clockwise_Positive;
+    driveConfig.MotorOutput.Inverted = driveInverted ? InvertedValue.CounterClockwise_Positive
+        : InvertedValue.Clockwise_Positive;
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveMotor.getConfigurator().apply(driveConfig);
 
@@ -100,18 +101,16 @@ public final class ModuleIOVelocityVoltage implements ModuleIO {
     driveSupplyCurrent = driveMotor.getSupplyCurrent().clone();
     driveTorqueCurrent = driveMotor.getTorqueCurrent().clone();
 
-    turnBrakeConfig =
-        createTurnConfig(
-            turnPID,
-            turnGearing,
-            turnInverted,
-            SparkBaseConfig.IdleMode.kBrake);
-    turnCoastConfig =
-        createTurnConfig(
-            turnPID,
-            turnGearing,
-            turnInverted,
-            SparkBaseConfig.IdleMode.kCoast);
+    turnBrakeConfig = createTurnConfig(
+        turnPID,
+        turnGearing,
+        turnInverted,
+        SparkBaseConfig.IdleMode.kBrake);
+    turnCoastConfig = createTurnConfig(
+        turnPID,
+        turnGearing,
+        turnInverted,
+        SparkBaseConfig.IdleMode.kCoast);
 
     turnMotor = new SparkMax(turnID, SparkLowLevel.MotorType.kBrushless);
     turnMotor.configure(
@@ -129,46 +128,45 @@ public final class ModuleIOVelocityVoltage implements ModuleIO {
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
-    inputs.driveMotorConnected =
-        BaseStatusSignal.refreshAll(
-                    drivePosition,
-                    driveVelocity,
-                    driveSupplyVolts,
-                    driveMotorVolts,
-                    driveStatorCurrent,
-                    driveSupplyCurrent,
-                    driveTorqueCurrent)
-                .isOK();
+    inputs.driveMotorConnected = BaseStatusSignal.refreshAll(
+        drivePosition,
+        driveVelocity,
+        driveSupplyVolts,
+        driveMotorVolts,
+        driveStatorCurrent,
+        driveSupplyCurrent,
+        driveTorqueCurrent)
+        .isOK();
 
     inputs.turnMotorConnected = true;
-    inputs.absoluteEncoderConnected =
-        BaseStatusSignal.refreshAll(absoluteTurnPosition).isOK();
+    inputs.absoluteEncoderConnected = BaseStatusSignal.refreshAll(absoluteTurnPosition).isOK();
 
-    inputs.driveVelocityRadPerSec = driveVelocity.getValueAsDouble();
-    inputs.driveVelocityMetersPerSec = inputs.driveVelocityRadPerSec * wheelRadiusMeters;
-    inputs.drivePositionRad = drivePosition.getValueAsDouble();
-    inputs.drivePositionMeters = inputs.drivePositionRad * wheelRadiusMeters;
-    inputs.driveAppliedVolts = driveMotorVolts.getValueAsDouble();
-    inputs.driveStatorCurrentAmps = driveStatorCurrent.getValueAsDouble();
-    inputs.driveSupplyCurrentAmps = driveSupplyCurrent.getValueAsDouble();
-    inputs.driveTorqueCurrentAmps = driveTorqueCurrent.getValueAsDouble();
+    inputs.driveVelocityRadPerSec = driveVelocity.getValue();
+    inputs.driveVelocity = Units.MetersPerSecond.of(driveVelocity.getValueAsDouble() * wheelRadiusMeters);
+    inputs.drivePositionRad = Units.Radians.of(drivePosition.getValueAsDouble());
+    inputs.drivePosition = Units.Meters.of(drivePosition.getValueAsDouble() * wheelRadiusMeters);
+    inputs.driveAppliedVolts = driveMotorVolts.getValue();
+    inputs.driveStatorCurrent = driveStatorCurrent.getValue();
+    inputs.driveSupplyCurrent = driveSupplyCurrent.getValue();
+    inputs.driveTorqueCurrent = driveTorqueCurrent.getValue();
+    inputs.driveTargetVelocity = Units.RadiansPerSecond.zero();
 
     inputs.turnPosition = Rotation2d.fromRotations(turnMotor.getEncoder().getPosition());
     inputs.absoluteTurnPosition = Rotation2d.fromRotations(absoluteTurnPosition.getValueAsDouble());
-    inputs.turnVelocityRadPerSec = Units.RPM.of(turnMotor.getEncoder().getVelocity()).in(Units.RadiansPerSecond);
-    inputs.turnAppliedVolts = turnMotor.getAppliedOutput() * turnMotor.getBusVoltage();
-    inputs.turnStatorCurrentAmps = turnMotor.getOutputCurrent();
-    inputs.turnSupplyCurrentAmps = turnMotor.getOutputCurrent();
+    inputs.turnVelocity = Units.RPM.of(turnMotor.getEncoder().getVelocity());
+    inputs.turnAppliedVolts = Units.Volts.of(turnMotor.getAppliedOutput() * turnMotor.getBusVoltage());
+    inputs.turnStatorCurrent = Units.Amps.of(turnMotor.getOutputCurrent());
+    inputs.turnSupplyCurrent = Units.Amps.of(turnMotor.getOutputCurrent());
   }
 
   @Override
-  public void setDriveVoltage(double volts) {
-    driveMotor.setControl(openLoopDriveRequest.withOutput(volts));
+  public void setDriveVoltage(Voltage volts) {
+    driveMotor.setControl(openLoopDriveRequest.withOutput(volts.in(Units.Volts)));
   }
 
   @Override
-  public void setTurnVoltage(double volts) {
-    turnMotor.setVoltage(volts);
+  public void setTurnVoltage(Voltage volts) {
+    turnMotor.setVoltage(volts.in(Units.Volts));
   }
 
   @Override
@@ -181,12 +179,13 @@ public final class ModuleIOVelocityVoltage implements ModuleIO {
   }
 
   @Override
-  public void setDriveVelocity(double velocityMetersPerSec) {
-    setDriveVelocity(velocityMetersPerSec, 0.0);
+  public void setDriveVelocity(LinearVelocity velocity) {
+    setDriveVelocity(velocity, Units.Amps.zero());
   }
 
   @Override
-  public void setDriveVelocity(double velocityMetersPerSec, double torqueCurrentAmps) {
+  public void setDriveVelocity(LinearVelocity velocity, Current torqueCurrent) {
+    double velocityMetersPerSec = velocity.in(Units.MetersPerSecond);
     double velocityRadPerSec = velocityMetersPerSec / wheelRadiusMeters;
     driveMotor.setControl(closedLoopDriveRequest.withVelocity(velocityRadPerSec));
   }
@@ -233,8 +232,8 @@ public final class ModuleIOVelocityVoltage implements ModuleIO {
   }
 
   @Override
-  public void setDriveCurrent(double currentAmps) {
-    driveMotor.setControl(openLoopTorqueRequest.withOutput(Units.Amps.of(currentAmps)));
+  public void setDriveCurrent(Current current) {
+    driveMotor.setControl(openLoopTorqueRequest.withOutput(current));
   }
 
   private static SparkMaxConfig createTurnConfig(
