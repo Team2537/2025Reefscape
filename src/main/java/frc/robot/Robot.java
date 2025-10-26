@@ -17,9 +17,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Autos;
 import frc.robot.commands.swerve.AlignmentCommand;
+import frc.robot.subsystems.drive.Drivebase;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureGoals;
-import frc.robot.subsystems.swerve.Drivebase;
 import frc.robot.subsystems.vision.Vision;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -95,9 +95,9 @@ public final class Robot extends LoggedRobot {
   }
 
   private void configureBindings() {
-    DoubleSupplier forwardAxis = () -> -MathUtil.applyDeadband(driverController.getLeftY(), 0.05);
-    DoubleSupplier strafeAxis = () -> -MathUtil.applyDeadband(driverController.getLeftX(), 0.05);
-    DoubleSupplier rotationAxis = () -> MathUtil.applyDeadband(driverController.getRightX(), 0.05);
+    DoubleSupplier forwardAxis = () -> MathUtil.applyDeadband(driverController.getLeftY(), 0.05);
+    DoubleSupplier strafeAxis = () -> MathUtil.applyDeadband(driverController.getLeftX(), 0.05);
+    DoubleSupplier rotationAxis = () -> -MathUtil.applyDeadband(driverController.getRightX(), 0.05);
     BooleanSupplier fieldOriented = () -> !driverController.leftStick().getAsBoolean();
     BooleanSupplier boost = () -> driverController.leftBumper().getAsBoolean();
     BooleanSupplier slow = () -> driverController.rightBumper().getAsBoolean();

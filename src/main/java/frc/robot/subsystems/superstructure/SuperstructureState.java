@@ -4,7 +4,8 @@ import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
-import frc.robot.subsystems.swerve.Drivebase;
+import frc.robot.subsystems.drive.Drivebase;
+
 import java.nio.ByteBuffer;
 import java.util.Optional;
 

@@ -2,7 +2,7 @@ package frc.robot.subsystems.superstructure;
 
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.subsystems.swerve.Drivebase;
+import frc.robot.subsystems.drive.Drivebase;
 
 /** Predefined superstructure targets. */
 public final class SuperstructureGoals {

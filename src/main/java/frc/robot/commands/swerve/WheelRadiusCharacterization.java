@@ -6,10 +6,14 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.swerve.Drivebase;
+import frc.robot.subsystems.drive.Drivebase;
+
 import org.littletonrobotics.junction.Logger;
 
-/** Characterizes wheel radius by spinning in place and comparing yaw to wheel rotation. */
+/**
+ * Characterizes wheel radius by spinning in place and comparing yaw to wheel
+ * rotation.
+ */
 public final class WheelRadiusCharacterization extends Command {
   private final Drivebase drivebase;
   private final Direction direction;
@@ -37,7 +41,7 @@ public final class WheelRadiusCharacterization extends Command {
     startWheelPositionsRad = drivebase.getWheelRadiusCharacterizationAngles();
 
     gyroYawAccumRads = 0.0;
-    lastGyroYawRads = drivebase.getGyroInputs().yaw.getRadians();
+    lastGyroYawRads = drivebase.getPose().getRotation().getRadians();
     omegaLimiter.reset(0.0);
   }
 
@@ -45,7 +49,7 @@ public final class WheelRadiusCharacterization extends Command {
   public void execute() {
     drivebase.runWheelRadiusCharacterization(characterizationSpeed.in(Units.RadiansPerSecond) * direction.sign);
 
-    double currentYaw = drivebase.getGyroInputs().yaw.getRadians();
+    double currentYaw = drivebase.getPose().getRotation().getRadians();
     gyroYawAccumRads += MathUtil.angleModulus(currentYaw - lastGyroYawRads);
     lastGyroYawRads = currentYaw;
 
@@ -61,10 +65,9 @@ public final class WheelRadiusCharacterization extends Command {
         averageWheelPositionRad);
 
     if (averageWheelPositionRad > 1e-6) {
-      double currentEffectiveWheelRadiusMeters =
-          (gyroYawAccumRads * Drivebase.getDrivebaseRadiusMeters()
-                  / averageWheelPositionRad)
-              * direction.sign;
+      double currentEffectiveWheelRadiusMeters = (gyroYawAccumRads * Drivebase.getDrivebaseRadiusMeters()
+          / averageWheelPositionRad)
+          * direction.sign;
       Logger.recordOutput(
           drivebase.getName() + "/radiusCharacterization/wheelRadius",
           currentEffectiveWheelRadiusMeters);
