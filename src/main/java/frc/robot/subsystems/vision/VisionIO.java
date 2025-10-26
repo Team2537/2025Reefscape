@@ -29,6 +29,7 @@ public interface VisionIO {
   record TargetTransform(
       double timestamp,
       int fiducialId,
+      int cameraIndex,
       Transform3d cameraToTarget,
       double ambiguity,
       double distance) {}

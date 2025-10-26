@@ -55,18 +55,34 @@ public final class Vision extends SubsystemBase {
     this.inputs = ios.stream().map(io -> new VisionIOInputs()).toList();
   }
 
+  public List<VisionIOInputs> getInputs() {
+    return inputs;
+  }
+
+  public List<Transform3d> getRobotToCameras() {
+    return ROBOT_TO_CAMERAS;
+  }
+
+  public List<VisionIO.TargetTransform> getTargetTransforms() {
+    List<VisionIO.TargetTransform> transforms = new ArrayList<>();
+    for (VisionIOInputs input : inputs) {
+      transforms.addAll(List.of(input.targetTransforms));
+    }
+    return transforms;
+  }
+
   private List<VisionIO> createIOs() {
     return switch (RobotType.MODE) {
       case REAL ->
           List.of(
-              new VisionIOPhotonVision("right_mod_cam", ROBOT_TO_CAMERAS.get(0)),
-              new VisionIOPhotonVision("left_mod_cam", ROBOT_TO_CAMERAS.get(1)));
+              new VisionIOPhotonVision("right_mod_cam", ROBOT_TO_CAMERAS.get(0), 0),
+              new VisionIOPhotonVision("left_mod_cam", ROBOT_TO_CAMERAS.get(1), 1));
       case SIMULATION ->
           List.of(
               new VisionIOPhotonVisionSim(
-                  "right_mod_cam", ROBOT_TO_CAMERAS.get(0), robotPoseSupplier),
+                  "right_mod_cam", ROBOT_TO_CAMERAS.get(0), 0, robotPoseSupplier),
               new VisionIOPhotonVisionSim(
-                  "left_mod_cam", ROBOT_TO_CAMERAS.get(1), robotPoseSupplier));
+                  "left_mod_cam", ROBOT_TO_CAMERAS.get(1), 1, robotPoseSupplier));
       case REPLAY -> List.of(new NullVisionIO(), new NullVisionIO());
     };
   }

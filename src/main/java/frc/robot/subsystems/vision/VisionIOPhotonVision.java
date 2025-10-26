@@ -16,10 +16,12 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 public class VisionIOPhotonVision implements VisionIO {
   protected final PhotonCamera camera;
   protected final Transform3d robotToCamera;
+  private final int cameraIndex;
 
-  public VisionIOPhotonVision(String name, Transform3d robotToCamera) {
+  public VisionIOPhotonVision(String name, Transform3d robotToCamera, int cameraIndex) {
     this.camera = new PhotonCamera(name);
     this.robotToCamera = robotToCamera;
+    this.cameraIndex = cameraIndex;
   }
 
   @Override
@@ -48,6 +50,7 @@ public class VisionIOPhotonVision implements VisionIO {
             new TargetTransform(
                 result.getTimestampSeconds(),
                 target.getFiducialId(),
+                cameraIndex,
                 cameraToTarget,
                 target.getPoseAmbiguity(),
                 distance));

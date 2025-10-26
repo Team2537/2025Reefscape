@@ -18,8 +18,8 @@ public final class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
   private final PhotonCameraSim cameraSim;
 
   public VisionIOPhotonVisionSim(
-      String name, Transform3d robotToCamera, Supplier<Pose2d> poseSupplier) {
-    super(name, robotToCamera);
+      String name, Transform3d robotToCamera, int cameraIndex, Supplier<Pose2d> poseSupplier) {
+    super(name, robotToCamera, cameraIndex);
     this.poseSupplier = poseSupplier;
 
     SimCameraProperties cameraProperties = new SimCameraProperties();
