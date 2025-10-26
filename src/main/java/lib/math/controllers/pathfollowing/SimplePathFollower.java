@@ -53,9 +53,9 @@ public final class SimplePathFollower implements PathFollower {
             thetaOutput + sample.omega,
             pose.getRotation());
 
-    Logger.recordOutput("drivebase/auto/xError", xPID.getPositionError());
-    Logger.recordOutput("drivebase/auto/yError", yPID.getPositionError());
-    Logger.recordOutput("drivebase/auto/thetaError", thetaPID.getPositionError());
+    Logger.recordOutput("drivebase/auto/xError", sample.x - pose.getX());
+    Logger.recordOutput("drivebase/auto/yError", sample.y - pose.getY());
+    Logger.recordOutput("drivebase/auto/thetaError", sample.heading - pose.getRotation().getRadians());
 
     Logger.recordOutput("drivebase/auto/samplePose", Pose2d.struct, sample.getPose());
     Logger.recordOutput("drivebase/auto/pose", Pose2d.struct, pose);

@@ -1,14 +1,11 @@
 package frc.robot.subsystems.vision;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -19,7 +16,6 @@ import java.util.function.Supplier;
 import lib.math.geometry.FieldConstants;
 import org.littletonrobotics.junction.Logger;
 import frc.robot.subsystems.vision.VisionIO.PoseObservation;
-import frc.robot.subsystems.vision.VisionIOInputsAutoLogged;
 
 /** Vision subsystem responsible for processing pose estimates from PhotonVision. */
 public final class Vision extends SubsystemBase {

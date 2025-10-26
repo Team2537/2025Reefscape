@@ -4,12 +4,9 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.subsystems.superstructure.SuperstructureGoals;
-import lib.math.controllers.gains.FeedforwardGains;
-import lib.math.controllers.gains.PIDGains;
 
 /** Simulation arm IO using WPILib SingleJointedArmSim. */
 public final class ArmIOSim implements ArmIO {

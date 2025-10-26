@@ -9,8 +9,6 @@ import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
 import frc.robot.RobotType;
-import frc.robot.subsystems.swerve.module.ModuleIOInputsAutoLogged;
-import java.util.function.Supplier;
 import lib.math.VectorFunctions;
 import lib.math.controllers.gains.ControllerGains;
 import lib.math.controllers.gains.FeedforwardGains;

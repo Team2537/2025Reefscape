@@ -7,25 +7,16 @@ import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.Autos;
 import frc.robot.commands.swerve.AlignmentCommand;
-import frc.robot.commands.swerve.WheelRadiusCharacterization;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureGoals;
 import frc.robot.subsystems.swerve.Drivebase;
@@ -34,7 +25,6 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import lib.controllers.CommandButtonBoard;
-import lib.math.geometry.FieldConstants;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -129,14 +119,14 @@ public final class Robot extends LoggedRobot {
         .onTrue(
             Commands.sequence(
                 superstructure.getForceStateCommand(() -> SuperstructureGoals.ALGAE_L2),
-                superstructure.getDealgaefyCommand(driverController.leftTrigger()::getAsBoolean)));
+                superstructure.getDealgaefyL2Command(driverController.leftTrigger()::getAsBoolean)));
 
     driverController
         .rightTrigger()
         .onTrue(
             Commands.sequence(
                 superstructure.getForceStateCommand(() -> SuperstructureGoals.ALGAE_L3),
-                superstructure.getDealgaefyCommand(driverController.rightTrigger()::getAsBoolean)));
+                superstructure.getDealgaefyL3Command(driverController.rightTrigger()::getAsBoolean)));
 
     driverController
         .povRight()

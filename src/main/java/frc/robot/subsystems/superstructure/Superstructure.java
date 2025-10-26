@@ -1,6 +1,5 @@
 package frc.robot.subsystems.superstructure;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -11,7 +10,6 @@ import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.subsystems.superstructure.arm.Arm;
 import frc.robot.subsystems.superstructure.manipulator.Manipulator;
 import frc.robot.subsystems.swerve.Drivebase;
-import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -113,49 +111,25 @@ public final class Superstructure extends SubsystemBase {
         Commands.waitUntil(() -> getStateAchievedTrigger(SuperstructureGoals.STOW).getAsBoolean()));
   }
 
-  public Command getDealgaefyCommand(BooleanSupplier readyToDealgaefy) {
+  public Command getDealgaefyL2Command(BooleanSupplier readyToDealgaefy) {
     return Commands.sequence(
         Commands.waitUntil(() -> !readyToDealgaefy.getAsBoolean()),
-        Commands.defer(
-            () ->
-                lastRequest == SuperstructureGoals.ALGAE_L2
-                    ? getSendToStateCommand(() -> SuperstructureGoals.PRE_ALGAE_L2)
-                    : Commands.none(),
-            Set.of(this)),
-        Commands.defer(
-            () ->
-                lastRequest == SuperstructureGoals.ALGAE_L2
-                    ? Commands.waitUntil(
-                        () -> getStateAchievedTrigger(SuperstructureGoals.PRE_ALGAE_L2).getAsBoolean())
-                    : Commands.none(),
-            Set.of(this)),
-        Commands.defer(
-            () ->
-                lastRequest == SuperstructureGoals.ALGAE_L3
-                    ? getSendToStateCommand(() -> SuperstructureGoals.PRE_ALGAE_L3)
-                    : Commands.none(),
-            Set.of(this)),
-        Commands.defer(
-            () ->
-                lastRequest == SuperstructureGoals.ALGAE_L3
-                    ? Commands.waitUntil(
-                        () -> getStateAchievedTrigger(SuperstructureGoals.PRE_ALGAE_L3).getAsBoolean())
-                    : Commands.none(),
-            Set.of(this)),
+        getSendToStateCommand(() -> SuperstructureGoals.PRE_ALGAE_L2),
+        Commands.waitUntil(() -> getStateAchievedTrigger(SuperstructureGoals.PRE_ALGAE_L2).getAsBoolean()),
         Commands.deadline(
             Commands.waitUntil(readyToDealgaefy::getAsBoolean),
-            Commands.defer(
-                () ->
-                    lastRequest == SuperstructureGoals.ALGAE_L2
-                        ? manipulator.getSpinRollersOutCommand()
-                        : Commands.none(),
-                Set.of()),
-            Commands.defer(
-                () ->
-                    lastRequest == SuperstructureGoals.ALGAE_L3
-                        ? manipulator.getSpinRollersInCommand()
-                        : Commands.none(),
-                Set.of())),
+            manipulator.getSpinRollersOutCommand()),
+        manipulator.getStopRollersCommand());
+  }
+
+  public Command getDealgaefyL3Command(BooleanSupplier readyToDealgaefy) {
+    return Commands.sequence(
+        Commands.waitUntil(() -> !readyToDealgaefy.getAsBoolean()),
+        getSendToStateCommand(() -> SuperstructureGoals.PRE_ALGAE_L3),
+        Commands.waitUntil(() -> getStateAchievedTrigger(SuperstructureGoals.PRE_ALGAE_L3).getAsBoolean()),
+        Commands.deadline(
+            Commands.waitUntil(readyToDealgaefy::getAsBoolean),
+            manipulator.getSpinRollersInCommand()),
         manipulator.getStopRollersCommand());
   }
 

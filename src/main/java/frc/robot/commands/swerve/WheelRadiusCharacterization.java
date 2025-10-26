@@ -3,13 +3,10 @@ package frc.robot.commands.swerve;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.Drivebase;
-import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 /** Characterizes wheel radius by spinning in place and comparing yaw to wheel rotation. */

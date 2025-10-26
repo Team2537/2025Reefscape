@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.RobotType;
-import frc.robot.subsystems.superstructure.manipulator.ManipulatorIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
 /** Manipulator subsystem managing intake rollers. */
