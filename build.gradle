@@ -1,17 +1,13 @@
 
 
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     id "java"
-    id "org.jetbrains.kotlin.jvm" version "2.1.0"
     id "edu.wpi.first.GradleRIO" version "2025.3.1"
     id "idea"
     id "com.peterabeles.gversion" version "1.10"
 }
 
 def javaVersion = JavaVersion.VERSION_17
-def kotlinJvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.@Companion.fromTarget(javaVersion.toString())
 
 java {
     sourceCompatibility = javaVersion
@@ -118,14 +114,6 @@ tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
-kotlin {
-    compilerOptions {
-        jvmTarget.set(kotlinJvmTarget)
-        // https://kotlinlang.org/docs/gradle-configure-project.html#gradle-java-toolchains-support
-        jvmToolchain(Integer.valueOf(javaVersion.toString()))
-    }
-}
-
 idea {
     project {
         // The project.sourceCompatibility setting is not always picked up, so we set explicitly
@@ -154,7 +142,7 @@ gversion {
     dateFormat   = "yyyy-MM-dd HH:mm:ss z"
     timeZone     = "America/New_York" // Use preferred time zone
     indent       = "  "
-    language     = "kotlin"
+    language     = "java"
 }
 
 // Create commit with working changes on event branches
@@ -189,4 +177,3 @@ task(eventDeploy) {
     }
 }
 createVersionFile.dependsOn(eventDeploy)
-

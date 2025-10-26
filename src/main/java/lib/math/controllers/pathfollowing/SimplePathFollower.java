@@ -1,0 +1,74 @@
+package lib.math.controllers.pathfollowing;
+
+import choreo.trajectory.SwerveSample;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
+import frc.robot.subsystems.swerve.Drivebase;
+import lib.math.controllers.gains.PIDGains;
+import org.littletonrobotics.junction.Logger;
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+/** Basic holonomic path follower that converts pose error into chassis speeds. */
+public final class SimplePathFollower implements PathFollower {
+  private final Drivebase drivebase;
+  private final PIDController xPID;
+  private final PIDController yPID;
+  private final PIDController thetaPID;
+  private final Consumer<ChassisSpeeds> speedConsumer;
+  private final Supplier<Pose2d> poseSupplier;
+
+  public SimplePathFollower(
+      Drivebase drivebase,
+      PIDGains xPidGains,
+      PIDGains yPidGains,
+      PIDGains thetaPidGains,
+      Consumer<ChassisSpeeds> speedConsumer,
+      Supplier<Pose2d> poseSupplier) {
+    this.drivebase = drivebase;
+    this.xPID = new PIDController(xPidGains.getKP(), xPidGains.getKI(), xPidGains.getKD());
+    this.yPID = new PIDController(yPidGains.getKP(), yPidGains.getKI(), yPidGains.getKD());
+    this.thetaPID =
+        new PIDController(thetaPidGains.getKP(), thetaPidGains.getKI(), thetaPidGains.getKD());
+    this.thetaPID.enableContinuousInput(-Math.PI, Math.PI);
+    this.speedConsumer = speedConsumer;
+    this.poseSupplier = poseSupplier;
+  }
+
+  @Override
+  public void accept(SwerveSample sample) {
+    Pose2d pose = poseSupplier.get();
+
+    double xOutput = xPID.calculate(pose.getX(), sample.getX());
+    double yOutput = yPID.calculate(pose.getY(), sample.getY());
+    double thetaOutput = thetaPID.calculate(pose.getRotation().getRadians(), sample.getHeading());
+
+    ChassisSpeeds speeds =
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            xOutput + sample.getVx(),
+            yOutput + sample.getVy(),
+            thetaOutput + sample.getOmega(),
+            pose.getRotation());
+
+    Logger.recordOutput("drivebase/auto/xError", xPID.getPositionError());
+    Logger.recordOutput("drivebase/auto/yError", yPID.getPositionError());
+    Logger.recordOutput("drivebase/auto/thetaError", thetaPID.getPositionError());
+
+    Logger.recordOutput("drivebase/auto/samplePose", Pose2d.struct, sample.getPose());
+    Logger.recordOutput("drivebase/auto/pose", Pose2d.struct, pose);
+
+    if (Math.abs(speeds.vxMetersPerSecond) < Units.inchesToMeters(1.0)
+        && Math.abs(speeds.vyMetersPerSecond) < Units.inchesToMeters(1.0)
+        && Math.abs(speeds.omegaRadiansPerSecond) < Units.degreesToRadians(1.0)) {
+      ChassisSpeeds zeroSpeeds = new ChassisSpeeds();
+      speedConsumer.accept(zeroSpeeds);
+      Logger.recordOutput("drivebase/auto/speeds", ChassisSpeeds.struct, zeroSpeeds);
+    } else {
+      speedConsumer.accept(speeds);
+      Logger.recordOutput("drivebase/auto/speeds", ChassisSpeeds.struct, speeds);
+    }
+  }
+}
