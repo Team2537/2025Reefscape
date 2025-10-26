@@ -6,7 +6,7 @@ import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
-import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -16,14 +16,19 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Autos;
+import frc.robot.commands.DriveCommands;
 import frc.robot.commands.swerve.AlignmentCommand;
-import frc.robot.subsystems.drive.Drivebase;
+import frc.robot.subsystems.drive.AlignmentState;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureGoals;
 import frc.robot.subsystems.vision.Vision;
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
+import frc.robot.generated.TunerConstants;
 import lib.controllers.CommandButtonBoard;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -35,7 +40,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public final class Robot extends LoggedRobot {
   public static final double UPDATE_RATE_SECONDS = 0.02;
 
-  private static Drivebase drivebase;
+  private static Drive drive;
+  private static AlignmentState alignmentState;
   private static Vision vision;
   private static Superstructure superstructure;
 
@@ -85,34 +91,50 @@ public final class Robot extends LoggedRobot {
 
     CameraServer.startAutomaticCapture();
 
-    drivebase = new Drivebase();
-    vision = new Vision(drivebase::addVisionMeasurement);
-    superstructure = new Superstructure(drivebase);
+    // Initialize drive subsystem
+    switch (RobotType.MODE) {
+      case REAL ->
+        drive = new Drive(
+            new GyroIOPigeon2(),
+            new ModuleIOTalonFX(TunerConstants.FrontLeft),
+            new ModuleIOTalonFX(TunerConstants.FrontRight),
+            new ModuleIOTalonFX(TunerConstants.BackLeft),
+            new ModuleIOTalonFX(TunerConstants.BackRight));
+      case SIMULATION ->
+        drive = new Drive(
+            new GyroIO() {
+            },
+            new ModuleIOSim(TunerConstants.FrontLeft),
+            new ModuleIOSim(TunerConstants.FrontRight),
+            new ModuleIOSim(TunerConstants.BackLeft),
+            new ModuleIOSim(TunerConstants.BackRight));
+      default ->
+        drive = new Drive(
+            new GyroIO() {
+            },
+            new ModuleIO() {
+            },
+            new ModuleIO() {
+            },
+            new ModuleIO() {
+            },
+            new ModuleIO() {
+            });
+    }
 
-    autos = new Autos(drivebase, superstructure);
+    alignmentState = new AlignmentState();
+    vision = new Vision(drive::addVisionMeasurement);
+    superstructure = new Superstructure(drive, alignmentState);
+
+    autos = new Autos(drive, superstructure, alignmentState);
 
     configureBindings();
   }
 
   private void configureBindings() {
-    DoubleSupplier forwardAxis = () -> MathUtil.applyDeadband(driverController.getLeftY(), 0.05);
-    DoubleSupplier strafeAxis = () -> MathUtil.applyDeadband(driverController.getLeftX(), 0.05);
-    DoubleSupplier rotationAxis = () -> -MathUtil.applyDeadband(driverController.getRightX(), 0.05);
-    BooleanSupplier fieldOriented = () -> !driverController.leftStick().getAsBoolean();
-    BooleanSupplier boost = () -> driverController.leftBumper().getAsBoolean();
-    BooleanSupplier slow = () -> driverController.rightBumper().getAsBoolean();
-    Supplier<Rotation2d> headingSupplier = () -> null;
-
-    drivebase.setDefaultCommand(
-        drivebase.getDriveCommand(
-            forwardAxis,
-            strafeAxis,
-            rotationAxis,
-            fieldOriented,
-            boost,
-            slow,
-            headingSupplier,
-            3));
+    drive.setDefaultCommand(
+        DriveCommands.joystickDrive(
+            drive, driverController::getLeftY, driverController::getLeftX, () -> -driverController.getRightX()));
 
     driverController
         .leftTrigger()
@@ -149,13 +171,18 @@ public final class Robot extends LoggedRobot {
 
     driverController
         .y()
-        .onTrue(AlignmentCommand.tagRelativeAlign(drivebase, vision, 0.45, 0.0));
+        .onTrue(AlignmentCommand.tagRelativeAlign(drive, alignmentState, vision, 0.45, 0.0));
 
     driverController
         .b()
         .onTrue(superstructure.getIntakeCommand(driverController.b()::getAsBoolean));
 
-    driverController.povDown().onTrue(drivebase.resetHeading());
+    driverController
+        .povDown()
+        .onTrue(
+            Commands.runOnce(
+                () -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                drive));
   }
 
   @Override
@@ -192,8 +219,12 @@ public final class Robot extends LoggedRobot {
     return UPDATE_RATE_SECONDS;
   }
 
-  public static Drivebase getDrivebase() {
-    return drivebase;
+  public static Drive getDrive() {
+    return drive;
+  }
+
+  public static AlignmentState getAlignmentState() {
+    return alignmentState;
   }
 
   public static Vision getVision() {

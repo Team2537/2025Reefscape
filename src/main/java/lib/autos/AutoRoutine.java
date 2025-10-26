@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.subsystems.drive.Drivebase;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureGoals;
 
@@ -17,15 +17,16 @@ public final class AutoRoutine {
   public record AutoAction(
       lib.math.geometry.FieldConstants.Reef.Branch branch,
       lib.math.geometry.FieldConstants.Reef.Level level,
-      boolean top) {}
+      boolean top) {
+  }
 
   private final List<AutoAction> actions;
-  private final Drivebase drivebase;
+  private final Drive drive;
   private final Superstructure superstructure;
 
-  public AutoRoutine(List<AutoAction> actions, Drivebase drivebase, Superstructure superstructure) {
+  public AutoRoutine(List<AutoAction> actions, Drive drive, Superstructure superstructure) {
     this.actions = actions;
-    this.drivebase = drivebase;
+    this.drive = drive;
     this.superstructure = superstructure;
   }
 
@@ -38,7 +39,7 @@ public final class AutoRoutine {
         Commands.sequence(
             AutoBuilder.resetOdom(startPath.getStartingHolonomicPose().orElseGet(Pose2d::new)),
             superstructure.getSendToStateCommand(() -> SuperstructureGoals.STOW),
-            drivebase.followPath(startPath)));
+            AutoBuilder.followPath(startPath).andThen(Commands.runOnce(drive::stopWithX, drive))));
 
     for (int index = 0; index < actions.size(); index++) {
       AutoAction action = actions.get(index);
@@ -46,7 +47,9 @@ public final class AutoRoutine {
 
       sequence.addCommands(
           Commands.parallel(
-              drivebase.followPath(getPathToBranch(action.branch(), action.top())).onlyIf(() -> currentIndex != 0),
+              AutoBuilder.followPath(getPathToBranch(action.branch(), action.top()))
+                  .andThen(Commands.runOnce(drive::stopWithX, drive))
+                  .onlyIf(() -> currentIndex != 0),
               switch (action.level()) {
                 case L1 -> superstructure.getForceStateCommand(() -> SuperstructureGoals.L1);
                 case L2 -> superstructure.getForceStateCommand(() -> SuperstructureGoals.STOW);
@@ -54,16 +57,17 @@ public final class AutoRoutine {
                 case L4 -> superstructure.getForceStateCommand(() -> SuperstructureGoals.STOW);
                 default -> Commands.none();
               }),
-          drivebase.getStopCmd(),
+          Commands.runOnce(drive::stopWithX, drive),
           Commands.waitSeconds(0.75),
           superstructure.getScoreCommand(() -> true));
 
       if (index != actions.size() - 1) {
         sequence.addCommands(
             Commands.parallel(
-                drivebase.followPath(getPathToSource(action.branch())),
+                AutoBuilder.followPath(getPathToSource(action.branch()))
+                    .andThen(Commands.runOnce(drive::stopWithX, drive)),
                 superstructure.getSendToStateCommand(() -> SuperstructureGoals.STOW)),
-            drivebase.getStopCmd(),
+            Commands.runOnce(drive::stopWithX, drive),
             Commands.waitSeconds(2.0));
       }
     }
@@ -85,15 +89,14 @@ public final class AutoRoutine {
 
   private PathPlannerPath getPathToSource(lib.math.geometry.FieldConstants.Reef.Branch startBranch) {
     try {
-      boolean topSource =
-          List.of(
-                  lib.math.geometry.FieldConstants.Reef.Branch.A,
-                  lib.math.geometry.FieldConstants.Reef.Branch.L,
-                  lib.math.geometry.FieldConstants.Reef.Branch.K,
-                  lib.math.geometry.FieldConstants.Reef.Branch.J,
-                  lib.math.geometry.FieldConstants.Reef.Branch.I,
-                  lib.math.geometry.FieldConstants.Reef.Branch.H)
-              .contains(startBranch);
+      boolean topSource = List.of(
+          lib.math.geometry.FieldConstants.Reef.Branch.A,
+          lib.math.geometry.FieldConstants.Reef.Branch.L,
+          lib.math.geometry.FieldConstants.Reef.Branch.K,
+          lib.math.geometry.FieldConstants.Reef.Branch.J,
+          lib.math.geometry.FieldConstants.Reef.Branch.I,
+          lib.math.geometry.FieldConstants.Reef.Branch.H)
+          .contains(startBranch);
 
       return PathPlannerPath.fromPathFile(
           startBranch.name() + "_to_" + (topSource ? "ts" : "bs"));
@@ -104,10 +107,9 @@ public final class AutoRoutine {
 
   private PathPlannerPath getPathFromStart(lib.math.geometry.FieldConstants.Reef.Branch branch) {
     try {
-      List<lib.math.geometry.FieldConstants.Reef.Branch> topBranches =
-          List.of(
-              lib.math.geometry.FieldConstants.Reef.Branch.J,
-              lib.math.geometry.FieldConstants.Reef.Branch.I);
+      List<lib.math.geometry.FieldConstants.Reef.Branch> topBranches = List.of(
+          lib.math.geometry.FieldConstants.Reef.Branch.J,
+          lib.math.geometry.FieldConstants.Reef.Branch.I);
 
       if (topBranches.contains(branch)) {
         return PathPlannerPath.fromPathFile("tstart_to_" + branch.name());

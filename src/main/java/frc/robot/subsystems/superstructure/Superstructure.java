@@ -7,7 +7,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.ManipulatorConstants;
-import frc.robot.subsystems.drive.Drivebase;
+import frc.robot.subsystems.drive.AlignmentState;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.superstructure.arm.Arm;
 import frc.robot.subsystems.superstructure.manipulator.Manipulator;
 
@@ -17,7 +18,8 @@ import org.littletonrobotics.junction.Logger;
 
 /** Coordinates arm and manipulator mechanisms. */
 public final class Superstructure extends SubsystemBase {
-  private final Drivebase drivebase;
+  private final Drive drive;
+  private final AlignmentState alignmentState;
   private final Arm arm;
   private final Manipulator manipulator;
 
@@ -27,8 +29,9 @@ public final class Superstructure extends SubsystemBase {
   // private final Trigger readyToScore = new Trigger(() ->
   // SmartDashboard.getBoolean("shouldScore", false));
 
-  public Superstructure(Drivebase drivebase) {
-    this.drivebase = drivebase;
+  public Superstructure(Drive drive, AlignmentState alignmentState) {
+    this.drive = drive;
+    this.alignmentState = alignmentState;
     this.arm = new Arm();
     this.manipulator = new Manipulator();
   }
@@ -60,7 +63,7 @@ public final class Superstructure extends SubsystemBase {
     return Commands.runOnce(
         () -> {
           lastRequest = stateSupplier.get();
-          drivebase.setLimits(lastRequest.getDriveLimits());
+          alignmentState.setLimits(lastRequest.getDriveLimits());
         });
   }
 
@@ -139,8 +142,8 @@ public final class Superstructure extends SubsystemBase {
     Logger.recordOutput("superstructure/setpoint/name", lastRequest.getName());
   }
 
-  public Drivebase getDrivebase() {
-    return drivebase;
+  public Drive getDrive() {
+    return drive;
   }
 
   public Arm getArm() {

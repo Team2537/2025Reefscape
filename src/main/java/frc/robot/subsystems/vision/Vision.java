@@ -17,7 +17,9 @@ import lib.math.geometry.FieldConstants;
 import org.littletonrobotics.junction.Logger;
 import frc.robot.subsystems.vision.VisionIO.PoseObservation;
 
-/** Vision subsystem responsible for processing pose estimates from PhotonVision. */
+/**
+ * Vision subsystem responsible for processing pose estimates from PhotonVision.
+ */
 public final class Vision extends SubsystemBase {
   private static final List<Transform3d> ROBOT_TO_CAMERAS = List.of(
       new Transform3d(
@@ -46,7 +48,7 @@ public final class Vision extends SubsystemBase {
   public Vision(VisionConsumer consumer) {
     super("vision");
     this.consumer = consumer;
-    this.robotPoseSupplier = () -> Robot.getDrivebase().getPose();
+    this.robotPoseSupplier = () -> Robot.getDrive().getPose();
     this.ios = createIOs();
     this.inputs = ios.stream().map(io -> new VisionIOInputsAutoLogged()).toList();
   }
@@ -70,15 +72,15 @@ public final class Vision extends SubsystemBase {
   private List<VisionIO> createIOs() {
     return switch (RobotType.MODE) {
       case REAL ->
-          List.of(
-              new VisionIOPhotonVision("right_mod_cam", ROBOT_TO_CAMERAS.get(0), 0),
-              new VisionIOPhotonVision("left_mod_cam", ROBOT_TO_CAMERAS.get(1), 1));
+        List.of(
+            new VisionIOPhotonVision("right_mod_cam", ROBOT_TO_CAMERAS.get(0), 0),
+            new VisionIOPhotonVision("left_mod_cam", ROBOT_TO_CAMERAS.get(1), 1));
       case SIMULATION ->
-          List.of(
-              new VisionIOPhotonVisionSim(
-                  "right_mod_cam", ROBOT_TO_CAMERAS.get(0), 0, robotPoseSupplier),
-              new VisionIOPhotonVisionSim(
-                  "left_mod_cam", ROBOT_TO_CAMERAS.get(1), 1, robotPoseSupplier));
+        List.of(
+            new VisionIOPhotonVisionSim(
+                "right_mod_cam", ROBOT_TO_CAMERAS.get(0), 0, robotPoseSupplier),
+            new VisionIOPhotonVisionSim(
+                "left_mod_cam", ROBOT_TO_CAMERAS.get(1), 1, robotPoseSupplier));
       case REPLAY -> List.of(new NullVisionIO(), new NullVisionIO());
     };
   }
@@ -115,17 +117,16 @@ public final class Vision extends SubsystemBase {
       }
 
       for (PoseObservation observation : input.poseObservations) {
-        boolean rejectPose =
-            observation.tagCount() == 0
-                || (observation.tagCount() == 1
-                    && (observation.ambiguity() > MAX_AMBIGUITY
-                        || input.tagIds.length > 0
-                            && !FieldConstants.Reef.REEF_TAGS.contains(input.tagIds[0])))
-                || Math.abs(observation.pose().getZ()) > MAX_Z_ERROR
-                || observation.pose().getX() < 0.0
-                || observation.pose().getX() > FieldConstants.TAG_LAYOUT.getFieldLength()
-                || observation.pose().getY() < 0.0
-                || observation.pose().getY() > FieldConstants.TAG_LAYOUT.getFieldWidth();
+        boolean rejectPose = observation.tagCount() == 0
+            || (observation.tagCount() == 1
+                && (observation.ambiguity() > MAX_AMBIGUITY
+                    || input.tagIds.length > 0
+                        && !FieldConstants.Reef.REEF_TAGS.contains(input.tagIds[0])))
+            || Math.abs(observation.pose().getZ()) > MAX_Z_ERROR
+            || observation.pose().getX() < 0.0
+            || observation.pose().getX() > FieldConstants.TAG_LAYOUT.getFieldLength()
+            || observation.pose().getY() < 0.0
+            || observation.pose().getY() > FieldConstants.TAG_LAYOUT.getFieldWidth();
 
         robotPoses.add(observation.pose());
         if (rejectPose) {
@@ -134,8 +135,7 @@ public final class Vision extends SubsystemBase {
         }
         acceptedRobotPoses.add(observation.pose());
 
-        double stdDevFactor =
-            Math.pow(observation.averageTagDistance(), 2) / observation.tagCount();
+        double stdDevFactor = Math.pow(observation.averageTagDistance(), 2) / observation.tagCount();
         double linearStdDev = LINEAR_STD_DEV_BASELINE * stdDevFactor;
         double angularStdDev = ANGULAR_STD_DEV_BASELINE * stdDevFactor;
 
@@ -171,5 +171,6 @@ public final class Vision extends SubsystemBase {
         allRejectedRobotPoses.toArray(Pose3d[]::new));
   }
 
-  private static final class NullVisionIO implements VisionIO {}
+  private static final class NullVisionIO implements VisionIO {
+  }
 }

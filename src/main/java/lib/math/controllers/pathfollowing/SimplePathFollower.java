@@ -5,16 +5,18 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import frc.robot.subsystems.drive.Drivebase;
+import frc.robot.subsystems.drive.Drive;
 import lib.math.controllers.gains.PIDGains;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-/** Basic holonomic path follower that converts pose error into chassis speeds. */
+/**
+ * Basic holonomic path follower that converts pose error into chassis speeds.
+ */
 public final class SimplePathFollower implements PathFollower {
-  private final Drivebase drivebase;
+  private final Drive drive;
   private final PIDController xPID;
   private final PIDController yPID;
   private final PIDController thetaPID;
@@ -22,17 +24,16 @@ public final class SimplePathFollower implements PathFollower {
   private final Supplier<Pose2d> poseSupplier;
 
   public SimplePathFollower(
-      Drivebase drivebase,
+      Drive drive,
       PIDGains xPidGains,
       PIDGains yPidGains,
       PIDGains thetaPidGains,
       Consumer<ChassisSpeeds> speedConsumer,
       Supplier<Pose2d> poseSupplier) {
-    this.drivebase = drivebase;
+    this.drive = drive;
     this.xPID = new PIDController(xPidGains.getKP(), xPidGains.getKI(), xPidGains.getKD());
     this.yPID = new PIDController(yPidGains.getKP(), yPidGains.getKI(), yPidGains.getKD());
-    this.thetaPID =
-        new PIDController(thetaPidGains.getKP(), thetaPidGains.getKI(), thetaPidGains.getKD());
+    this.thetaPID = new PIDController(thetaPidGains.getKP(), thetaPidGains.getKI(), thetaPidGains.getKD());
     this.thetaPID.enableContinuousInput(-Math.PI, Math.PI);
     this.speedConsumer = speedConsumer;
     this.poseSupplier = poseSupplier;
@@ -46,12 +47,11 @@ public final class SimplePathFollower implements PathFollower {
     double yOutput = yPID.calculate(pose.getY(), sample.y);
     double thetaOutput = thetaPID.calculate(pose.getRotation().getRadians(), sample.heading);
 
-    ChassisSpeeds speeds =
-        ChassisSpeeds.fromFieldRelativeSpeeds(
-            xOutput + sample.vx,
-            yOutput + sample.vy,
-            thetaOutput + sample.omega,
-            pose.getRotation());
+    ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+        xOutput + sample.vx,
+        yOutput + sample.vy,
+        thetaOutput + sample.omega,
+        pose.getRotation());
 
     Logger.recordOutput("drivebase/auto/xError", sample.x - pose.getX());
     Logger.recordOutput("drivebase/auto/yError", sample.y - pose.getY());

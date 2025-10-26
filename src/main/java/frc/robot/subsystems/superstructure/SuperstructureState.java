@@ -4,7 +4,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
-import frc.robot.subsystems.drive.Drivebase;
+import frc.robot.subsystems.drive.DriveConstants;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
@@ -19,7 +19,7 @@ public final class SuperstructureState implements StructSerializable {
   private final String name;
 
   public SuperstructureState(Rotation2d armAngle) {
-    this(armAngle, Drivebase.getDefaultLimits(), Optional.empty(), "");
+    this(armAngle, DriveConstants.DEFAULT_LIMITS, Optional.empty(), "");
   }
 
   public SuperstructureState(

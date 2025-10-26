@@ -7,7 +7,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N2;
-import frc.robot.subsystems.drive.Drivebase;
+import frc.robot.subsystems.drive.Drive;
 import lib.math.controllers.gains.PIDGains;
 import org.littletonrobotics.junction.Logger;
 
@@ -16,9 +16,12 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-/** Path follower that additionally returns desired module forces for force-based control. */
+/**
+ * Path follower that additionally returns desired module forces for force-based
+ * control.
+ */
 public final class ModuleForcesPathFollower implements PathFollower {
-  private final Drivebase drivebase;
+  private final Drive drive;
   private final PIDController xPID;
   private final PIDController yPID;
   private final PIDController thetaPID;
@@ -26,17 +29,16 @@ public final class ModuleForcesPathFollower implements PathFollower {
   private final Supplier<Pose2d> poseSupplier;
 
   public ModuleForcesPathFollower(
-      Drivebase drivebase,
+      Drive drive,
       PIDGains xPidGains,
       PIDGains yPidGains,
       PIDGains thetaPidGains,
       BiConsumer<ChassisSpeeds, List<Vector<N2>>> speedConsumer,
       Supplier<Pose2d> poseSupplier) {
-    this.drivebase = drivebase;
+    this.drive = drive;
     this.xPID = new PIDController(xPidGains.getKP(), xPidGains.getKI(), xPidGains.getKD());
     this.yPID = new PIDController(yPidGains.getKP(), yPidGains.getKI(), yPidGains.getKD());
-    this.thetaPID =
-        new PIDController(thetaPidGains.getKP(), thetaPidGains.getKI(), thetaPidGains.getKD());
+    this.thetaPID = new PIDController(thetaPidGains.getKP(), thetaPidGains.getKI(), thetaPidGains.getKD());
     this.thetaPID.enableContinuousInput(-Math.PI, Math.PI);
     this.speedConsumer = speedConsumer;
     this.poseSupplier = poseSupplier;
