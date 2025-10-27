@@ -1,3 +1,4 @@
 {
-  "chatgpt.commentCodeLensEnabled": false
+  "chatgpt.commentCodeLensEnabled": false,
+  "java.debug.settings.onBuildFailureProceed": true
 }

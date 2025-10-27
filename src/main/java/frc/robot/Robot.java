@@ -26,6 +26,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.drive.ModuleIOHybridFXS;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureGoals;
 import frc.robot.subsystems.vision.Vision;
@@ -97,10 +98,10 @@ public final class Robot extends LoggedRobot {
       case REAL ->
         drive = new Drive(
             new GyroIOPigeon2(),
-            new ModuleIOTalonFX(TunerConstants.FrontLeft),
-            new ModuleIOTalonFX(TunerConstants.FrontRight),
-            new ModuleIOTalonFX(TunerConstants.BackLeft),
-            new ModuleIOTalonFX(TunerConstants.BackRight));
+            new ModuleIOHybridFXS(TunerConstants.FrontLeft),
+            new ModuleIOHybridFXS(TunerConstants.FrontRight),
+            new ModuleIOHybridFXS(TunerConstants.BackLeft),
+            new ModuleIOHybridFXS(TunerConstants.BackRight));
       case SIMULATION ->
         drive = new Drive(
             new GyroIO() {
