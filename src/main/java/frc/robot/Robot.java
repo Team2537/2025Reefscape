@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.util.WPILibVersion;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.swerve.AlignmentCommand;
@@ -125,6 +126,9 @@ public final class Robot extends LoggedRobot {
     alignmentState = new AlignmentState();
     vision = new Vision(drive::addVisionMeasurement);
     superstructure = new Superstructure(drive, alignmentState);
+
+    // immediately set the arm to the stow position
+    superstructure.getArm().setTargetAngle(SuperstructureGoals.STOW.getArmAngle());
 
     autos = new Autos(drive, superstructure, alignmentState);
 

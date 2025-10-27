@@ -49,7 +49,8 @@ public final class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
             -0.0016856447818708886,
             0.0027323859252879066,
             -0.00029965498573175946));
-    cameraProperties.setCalibError(0.34, 0.05);
+    // Remove simulated calibration error to eliminate excessive pose jitter in sim
+    cameraProperties.setCalibError(0.0, 0.0);
 
     this.cameraSim = new PhotonCameraSim(camera, cameraProperties);
     VISION_SIM.addCamera(cameraSim, robotToCamera);
