@@ -50,7 +50,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
     // TunerConstants doesn't include these constants, so they are declared locally
-    static final double ODOMETRY_FREQUENCY = new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD()
+    static final double ODOMETRY_FREQUENCY = new CANBus("rio").isNetworkFD()
             ? 250.0
             : 100.0;
     public static final double DRIVE_BASE_RADIUS = Math.max(
@@ -327,9 +327,10 @@ public class Drive extends SubsystemBase {
         return poseEstimator.getEstimatedPosition();
     }
 
-    /** Returns the current odometry rotation. */
+    /** Returns the current robot rotation for field orientation. */
     public Rotation2d getRotation() {
-        return getPose().getRotation();
+        // On real hardware prefer live gyro yaw; in sim/disconnected, use pose rotation
+        return gyroInputs.connected ? gyroInputs.yawPosition : getPose().getRotation();
     }
 
     /** Resets the current odometry pose. */
