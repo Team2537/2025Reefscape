@@ -6,9 +6,7 @@ import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
@@ -142,6 +140,10 @@ public final class Robot extends LoggedRobot {
             drive, driverController::getLeftY, driverController::getLeftX, () -> -driverController.getRightX()));
 
     driverController
+        .leftStick()
+        .onTrue(DriveCommands.toggleFieldOriented(drive));
+
+    driverController
         .leftTrigger()
         .onTrue(
             Commands.sequence(
@@ -184,10 +186,7 @@ public final class Robot extends LoggedRobot {
 
     driverController
         .povDown()
-        .onTrue(
-            Commands.runOnce(
-                () -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                drive));
+        .onTrue(DriveCommands.resetOdometryAndHeading(drive));
   }
 
   @Override

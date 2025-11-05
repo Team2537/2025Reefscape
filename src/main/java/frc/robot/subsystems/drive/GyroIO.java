@@ -22,4 +22,8 @@ public interface GyroIO {
 
     public default void updateInputs(GyroIOInputs inputs) {
     }
+
+    /** Optionally set the gyro yaw to the given angle (degrees-based inside impl). */
+    public default void setYaw(Rotation2d yaw) {
+    }
 }

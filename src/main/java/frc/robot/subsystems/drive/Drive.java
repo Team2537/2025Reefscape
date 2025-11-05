@@ -97,6 +97,7 @@ public class Drive extends SubsystemBase {
             };
     private SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(kinematics, rawGyroRotation,
             lastModulePositions, Pose2d.kZero);
+    private boolean fieldOriented = true;
 
     public Drive(
             GyroIO gyroIO,
@@ -355,6 +356,40 @@ public class Drive extends SubsystemBase {
     /** Returns the maximum angular speed in radians per sec. */
     public double getMaxAngularSpeedRadPerSec() {
         return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
+    }
+
+    /** Returns whether drive is field oriented. */
+    public boolean isFieldOriented() {
+        return fieldOriented;
+    }
+
+    /** Sets field oriented mode. */
+    public void setFieldOriented(boolean fieldOriented) {
+        this.fieldOriented = fieldOriented;
+        Logger.recordOutput("Drive/FieldOriented", fieldOriented);
+    }
+
+    /** Toggles field oriented mode. */
+    public void toggleFieldOriented() {
+        setFieldOriented(!fieldOriented);
+    }
+
+    /** Resets odometry and sets current heading/yaw to zero. */
+    public void resetOdometryAndHeadingToZero() {
+        odometryLock.lock();
+        try {
+            // Zero the gyro yaw (if supported) and synchronize estimator state
+            gyroIO.setYaw(Rotation2d.kZero);
+            rawGyroRotation = Rotation2d.kZero;
+
+            Pose2d current = getPose();
+            Pose2d zeroed = new Pose2d(current.getTranslation(), Rotation2d.kZero);
+            poseEstimator.resetPosition(Rotation2d.kZero, getModulePositions(), zeroed);
+
+            Logger.recordOutput("Drive/HeadingReset", true);
+        } finally {
+            odometryLock.unlock();
+        }
     }
 
     /** Returns an array of module translations. */
