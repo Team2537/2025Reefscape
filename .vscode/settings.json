@@ -1,4 +1,10 @@
 {
   "chatgpt.commentCodeLensEnabled": false,
-  "java.debug.settings.onBuildFailureProceed": true
+  "java.debug.settings.onBuildFailureProceed": true,
+  "java.autobuild.enabled": false,
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.project.excludedPaths": ["bin/**"],
+  "files.exclude": {
+    "bin": true
+  }
 }
