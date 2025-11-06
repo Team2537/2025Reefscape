@@ -176,4 +176,4 @@ task(eventDeploy) {
         }
     }
 }
-createVersionFile.dependsOn(eventDeploy)
+// createVersionFile.dependsOn(eventDeploy)
