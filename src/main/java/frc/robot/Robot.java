@@ -187,6 +187,8 @@ public final class Robot extends LoggedRobot {
     driverController
         .povDown()
         .onTrue(DriveCommands.resetOdometryAndHeading(drive));
+
+    driverController.start().onTrue(DriveCommands.feedforwardCharacterization(drive));
   }
 
   @Override
