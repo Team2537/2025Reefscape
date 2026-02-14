@@ -139,6 +139,9 @@ public final class Robot extends LoggedRobot {
         DriveCommands.joystickDrive(
             drive, driverController::getLeftY, driverController::getLeftX, () -> -driverController.getRightX()));
 
+    // left bumper will be used to toggle slow mode
+    driverController.leftBumper().onTrue(drive.toggleSlowMode());
+            
     driverController
         .leftStick()
         .onTrue(DriveCommands.toggleFieldOriented(drive));
